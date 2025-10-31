@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const UsuarioRoutes = require('./routes/usuarioRoutes');
+const UsuarioRoutes = require('./routes/apisRoutes');
 
 class App {
   constructor() {
