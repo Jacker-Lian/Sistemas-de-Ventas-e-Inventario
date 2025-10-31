@@ -1,0 +1,124 @@
+/* src/css/Dashboard.css */
+
+/* 1. Reset Básico y Altura Total */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body, #root {
+    height: 100%;
+}
+
+/* 2. Contenedor Principal (Simula 'flex min-h-screen bg-gray-100') */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f3f4f6; /* bg-gray-100 */
+    color: #1f2937; /* text-gray-800 */
+    font-family: sans-serif;
+}
+
+/* 3. Sidebar (Barra Lateral) */
+.sidebar {
+    width: 224px; /* w-56 (56 * 4px = 224px) */
+    background-color: #1f2937; /* bg-gray-800 */
+    color: white;
+    padding: 1rem; /* p-4 */
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.sidebar a {
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+    border-radius: 0.25rem; /* rounded */
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.15s;
+    margin-bottom: 0.25rem; /* Para separar enlaces */
+}
+
+.sidebar a:hover {
+    background-color: #374151; /* hover:bg-gray-700 */
+}
+
+/* 4. Contenido Principal y Header */
+.main-content {
+    flex-grow: 1; /* flex-1 */
+    padding: 1.5rem; /* p-6 */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.header h1 {
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: bold;
+}
+
+.header button {
+    background-color: #2563eb; /* bg-blue-600 */
+    color: white;
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    border-radius: 0.25rem; /* rounded */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.header button:hover {
+    background-color: #1d4ed8; /* hover:bg-blue-700 */
+}
+
+/* 5. Contenedor de Tarjetas */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* lg:grid-cols-4 */
+    gap: 1rem; /* gap-4 */
+}
+
+/* Estilos para pantallas más pequeñas (opcional, replicando Tailwind) */
+@media (max-width: 1024px) {
+    .cards-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* sm:grid-cols-2 */
+    }
+}
+
+@media (max-width: 640px) {
+    .cards-container {
+        grid-template-columns: repeat(1, minmax(0, 1fr)); /* grid-cols-1 */
+    }
+}
+
+/* 6. Estilo de las Tarjetas (Card) */
+.card {
+    background-color: white;
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow */
+    text-align: center;
+}
+
+.card h3 {
+    color: #2563eb; /* text-blue-600 */
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+}
+
+.card p {
+    color: #374151; /* text-gray-700 */
+    font-size: 1.5rem; /* text-2xl */
+    margin-top: 0.5rem; /* mt-2 */
+}
