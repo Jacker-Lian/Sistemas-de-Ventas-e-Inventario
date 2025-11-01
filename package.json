@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/mapped-types": "^2.1.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "axios": "^1.13.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "mysql2": "^3.15.3",
+    "typeorm": "^0.3.27"
+  }
+}
