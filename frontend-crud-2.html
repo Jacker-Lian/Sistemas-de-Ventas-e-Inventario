@@ -1,140 +1,227 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Inventario</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CRUD Inventario — Blanco y Negro</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      color: #000;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #000;
-    }
-    form {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    input, button {
-      padding: 8px;
-      border: 1px solid #000;
-      background: #fff;
-      color: #000;
-      border-radius: 5px;
-    }
-    button {
-      background: #000;
-      color: #fff;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #333;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #000;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #000;
-      color: #fff;
-    }
-    tr:hover {
-      background: #f2f2f2;
+    :root { --bg: #ffffff; --fg: #000000; --muted: #555; }
+    * { box-sizing: border-box; }
+    html,body { height:100%; margin:0; font-family: Arial, sans-serif; background:var(--bg); color:var(--fg); }
+    .container { max-width:980px; margin:32px auto; padding:24px; border:2px solid var(--fg); border-radius:8px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin:0; font-size:20px; letter-spacing:0.4px; }
+    p.lead { margin:4px 0 0; color:var(--muted); font-size:13px; }
+    table { width:100%; border-collapse:collapse; margin-top:18px; }
+    th,td { padding:10px 8px; border:1px solid var(--fg); text-align:left; font-size:14px; }
+    th { background:var(--fg); color:var(--bg); font-weight:600; }
+    .controls { display:flex; gap:12px; margin-top:18px; align-items:flex-end; flex-wrap:wrap; }
+    label { display:block; font-size:13px; margin-bottom:6px; }
+    input[type="text"], input[type="number"] { width:220px; padding:8px; border:1px solid var(--fg); background:var(--bg); color:var(--fg); }
+    .btn { display:inline-block; padding:8px 12px; border:2px solid var(--fg); background:var(--bg); color:var(--fg); cursor:pointer; text-decoration:none; font-weight:600; }
+    .btn:active { transform:translateY(1px); }
+    .btn.primary { background:var(--fg); color:var(--bg); }
+    .btn.danger { background:var(--bg); color:var(--fg); border-style:solid; }
+    .msg { margin-top:12px; padding:10px; border:1px solid var(--fg); background:var(--bg); }
+    .muted { color:var(--muted); font-size:13px; }
+    @media (max-width:600px){
+      input[type="text"], input[type="number"]{ width:100%; }
+      .controls { flex-direction:column; align-items:stretch; }
+      th,td { font-size:13px; }
     }
   </style>
 </head>
 <body>
-  <h1>Inventario de Productos</h1>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Inventario — Blanco y Negro</h1>
+        <p class="lead">CRUD sencillo: crear, listar, editar y eliminar productos.</p>
+      </div>
+      <div>
+        <button id="btnRefresh" class="btn">Actualizar</button>
+      </div>
+    </header>
 
-  <form id="formProducto">
-    <input type="hidden" id="id">
-    <input type="text" id="nombre" placeholder="Nombre del producto" required>
-    <input type="number" id="precio" placeholder="Precio" step="0.01" required>
-    <input type="number" id="stock" placeholder="Stock" required>
-    <button type="submit">Guardar</button>
-  </form>
+    <section aria-labelledby="form-title">
+      <h2 id="form-title" class="muted" style="margin-top:18px;">Formulario</h2>
+      <div class="controls">
+        <div>
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" placeholder="Ej: Mouse">
+        </div>
+        <div>
+          <label for="precio">Precio</label>
+          <input id="precio" type="number" step="0.01" placeholder="0.00">
+        </div>
+        <div>
+          <label for="stock">Stock</label>
+          <input id="stock" type="number" placeholder="0">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="btnSave" class="btn primary">Guardar</button>
+          <button id="btnCancel" class="btn">Cancelar</button>
+        </div>
+      </div>
+    </section>
 
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Precio</th>
-        <th>Stock</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tabla"></tbody>
-  </table>
+    <div id="status" class="msg muted" role="status" aria-live="polite">Cargando...</div>
+
+    <table id="productsTable" aria-describedby="table-desc">
+      <caption id="table-desc" style="caption-side:bottom;text-align:left;padding-top:8px;">Lista de productos</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <p class="muted" style="margin-top:14px;">Nota: ajusta la variable <code>baseApi</code> en el script si tu API usa otra ruta.</p>
+  </div>
 
   <script>
-    const apiUrl = "http://localhost/inventario/api.php";
+    const baseApi = '/api/productos';
 
-    async function cargarProductos() {
-      const res = await fetch(apiUrl);
-      const productos = await res.json();
-      const tabla = document.getElementById("tabla");
-      tabla.innerHTML = productos.map(p => `
-        <tr>
-          <td>${p.id}</td>
-          <td>${p.nombre}</td>
-          <td>${p.precio}</td>
-          <td>${p.stock}</td>
-          <td>
-            <button onclick="editar(${p.id}, '${p.nombre}', ${p.precio}, ${p.stock})">Editar</button>
-            <button onclick="eliminar(${p.id})">Eliminar</button>
-          </td>
-        </tr>
-      `).join("");
+    const elements = {
+      tableBody: document.querySelector('#productsTable tbody'),
+      status: document.getElementById('status'),
+      btnSave: document.getElementById('btnSave'),
+      btnCancel: document.getElementById('btnCancel'),
+      btnRefresh: document.getElementById('btnRefresh'),
+      nombre: document.getElementById('nombre'),
+      precio: document.getElementById('precio'),
+      stock: document.getElementById('stock')
+    };
+
+    let editingId = null;
+
+    async function fetchProducts(){
+      setStatus('Cargando productos...');
+      try{
+        const res = await fetch(baseApi);
+        if (!res.ok) throw new Error('Error al obtener productos');
+        const data = await res.json();
+        renderTable(data);
+        setStatus(`Productos cargados: ${Array.isArray(data) ? data.length : (data?.data?.length ?? 0)}`);
+      }catch(err){
+        console.error(err);
+        setStatus('No se pudo cargar productos — revisa la conexión con el backend');
+      }
     }
 
-    document.getElementById("formProducto").addEventListener("submit", async e => {
-      e.preventDefault();
-      const id = document.getElementById("id").value;
-      const nombre = document.getElementById("nombre").value;
-      const precio = document.getElementById("precio").value;
-      const stock = document.getElementById("stock").value;
+    function renderTable(items){
+      if (items && items.data) items = items.data;
+      elements.tableBody.innerHTML = '';
+      if (!Array.isArray(items) || items.length === 0){
+        elements.tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);">No hay productos</td></tr>';
+        return;
+      }
+      for (const p of items){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.id ?? ''}</td>
+          <td>${escapeHtml(p.nombre ?? p.name ?? '')}</td>
+          <td>${(p.precio ?? p.price ?? 0).toFixed ? (Number(p.precio ?? p.price ?? 0)).toFixed(2) : p.precio}</td>
+          <td>${p.stock ?? 0}</td>
+          <td>
+            <button class="btn" data-id="${p.id}" data-action="edit">Editar</button>
+            <button class="btn" data-id="${p.id}" data-action="delete">Eliminar</button>
+          </td>
+        `;
+        elements.tableBody.appendChild(tr);
+      }
+    }
 
-      const producto = { nombre, precio, stock };
-      if (id) producto.id = id;
+    function escapeHtml(text){
+      return String(text).replace(/[&<>"'\/]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;","/":"\/"}[s]));
+    }
 
-      await fetch(apiUrl + (id ? '' : ''), {
-        method: id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(producto)
-      });
+    function setStatus(text){ elements.status.textContent = text; }
 
-      e.target.reset();
-      cargarProductos();
+    async function saveProduct(){
+      const nombre = elements.nombre.value.trim();
+      const precio = parseFloat(elements.precio.value) || 0;
+      const stock = parseInt(elements.stock.value) || 0;
+
+      if (!nombre){ setStatus('El nombre es obligatorio'); return; }
+
+      const payload = { nombre, precio, stock };
+
+      try{
+        let res;
+        if (editingId){
+          res = await fetch(`${baseApi}/${editingId}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          if (!res.ok) throw new Error('Error al actualizar');
+          setStatus('Producto actualizado');
+        } else {
+          res = await fetch(baseApi, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          if (!res.ok) throw new Error('Error al crear');
+          setStatus('Producto creado');
+        }
+        clearForm();
+        await fetchProducts();
+      }catch(err){
+        console.error(err);
+        setStatus('Error al guardar el producto');
+      }
+    }
+
+    function clearForm(){
+      editingId = null;
+      elements.nombre.value='';
+      elements.precio.value='';
+      elements.stock.value='';
+      elements.btnSave.textContent='Guardar';
+    }
+
+    async function deleteProduct(id){
+      if (!confirm('¿Eliminar producto?')) return;
+      try{
+        const res = await fetch(`${baseApi}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Error al eliminar');
+        setStatus('Producto eliminado');
+        await fetchProducts();
+      }catch(err){
+        console.error(err);
+        setStatus('Error al eliminar producto');
+      }
+    }
+
+    async function editProduct(id){
+      try{
+        const res = await fetch(`${baseApi}/${id}`);
+        if (!res.ok) throw new Error('No encontrado');
+        const p = await res.json();
+        elements.nombre.value = p.nombre ?? p.name ?? '';
+        elements.precio.value = p.precio ?? p.price ?? 0;
+        elements.stock.value = p.stock ?? 0;
+        editingId = p.id;
+        elements.btnSave.textContent = 'Actualizar';
+        setStatus(`Editando producto ${p.id}`);
+      }catch(err){
+        console.error(err);
+        setStatus('No se pudo cargar producto para editar');
+      }
+    }
+
+    elements.btnSave.addEventListener('click', saveProduct);
+    elements.btnCancel.addEventListener('click', e=>{ e.preventDefault(); clearForm(); setStatus('Edición cancelada'); });
+    elements.btnRefresh.addEventListener('click', fetchProducts);
+    elements.tableBody.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      if (action === 'edit') editProduct(id);
+      if (action === 'delete') deleteProduct(id);
     });
 
-    async function eliminar(id) {
-      if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
-      await fetch(apiUrl + "?id=" + id, { method: "DELETE" });
-      cargarProductos();
-    }
-
-    function editar(id, nombre, precio, stock) {
-      document.getElementById("id").value = id;
-      document.getElementById("nombre").value = nombre;
-      document.getElementById("precio").value = precio;
-      document.getElementById("stock").value = stock;
-    }
-
-    cargarProductos();
+    fetchProducts();
   </script>
 </body>
 </html>
