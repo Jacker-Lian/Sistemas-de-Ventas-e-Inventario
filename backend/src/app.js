@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const UsuarioRoutes = require('./routes/usuarioRoutes');
+const AjusteInventarioRoutes = require('./routes/ajusteInventarioRoutes');
 
 
 class App {
@@ -34,6 +35,10 @@ class App {
     // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use('/api/usuario', usuarioRoutes.getRouter());
+
+    // Montar rutas de ajuste de inventario
+    const ajusteInventarioRoutes = new AjusteInventarioRoutes();
+    this.app.use('/api/inventario', ajusteInventarioRoutes.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {
