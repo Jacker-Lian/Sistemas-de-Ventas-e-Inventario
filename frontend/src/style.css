@@ -1,0 +1,39 @@
+/* Estilos del registro - tema cafetería / tienda */
+:root{
+  --bg: #f7f3ef; /* crema claro */
+  --card: #ffffff;
+  --primary: #6b4f3b; /* café oscuro */
+  --accent: #c68642; /* caramelo */
+  --muted: #6b6b6b;
+  --success: #16a34a;
+  --danger: #ef4444;
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;background:var(--bg);color:#2b2b2b}
+
+.app-root{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px}
+
+.register-container{width:100%;max-width:480px;padding:12px}
+.register-card{background:linear-gradient(180deg, rgba(255,255,255,0.98), var(--card));border-radius:14px;padding:30px;box-shadow:0 12px 30px rgba(16,24,40,0.08);display:flex;flex-direction:column;gap:14px}
+.register-card h2{margin:0 0 2px 0;font-size:1.5rem;color:var(--primary)}
+.register-card p.lead{margin:0;color:var(--muted);font-size:0.95rem}
+
+.form-group{display:flex;flex-direction:column;gap:6px}
+.register-card label{font-size:0.9rem;color:var(--muted)}
+.register-card input,.register-card select{margin-top:6px;padding:12px 14px;border:1px solid #e6ded6;border-radius:10px;font-size:0.95rem;background:#fff;color:#222}
+.register-card input::placeholder{color:#bfaea0}
+.register-card input:focus,.register-card select:focus{outline:none;border-color:var(--accent);box-shadow:0 6px 18px rgba(107,79,59,0.06)}
+
+.row{display:flex;gap:12px}
+.col{flex:1}
+
+.btn-primary{margin-top:6px;padding:12px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--primary),#4b2f22);color:white;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(107,79,59,0.12)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid rgba(43,43,43,0.06);color:var(--primary)}
+
+.form-message{background:#fff8f2;border:1px solid #fde3ce;padding:10px;border-radius:8px;color:#7a451f}
+
+.small{font-size:0.85rem;color:var(--muted)}
+
+@media (max-width:520px){.register-card{padding:18px}.row{flex-direction:column}}
