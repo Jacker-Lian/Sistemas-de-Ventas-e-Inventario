@@ -17,24 +17,24 @@ class Categoria {
   static async create({ nombre, descripcion }) {
     const pool = database.getPool();
     const [result] = await pool.query(
-      'INSERT INTO categoria (nombre, descripcion, activo) VALUES (?, ?, TRUE)',
+      'INSERT INTO categoria (nombre, descripcion, estado) VALUES (?, ?, TRUE)',
       [nombre, descripcion]
     );
     return { id_categoria: result.insertId, nombre, descripcion };
   }
 
-  static async update(id, { nombre, descripcion, activo }) {
+  static async update(id, { nombre, descripcion, estado }) {
     const pool = database.getPool();
     const [result] = await pool.query(
-      'UPDATE categoria SET nombre = ?, descripcion = ?, activo = ? WHERE id_categoria = ?',
-      [nombre, descripcion, activo, id]
+      'UPDATE categoria SET nombre = ?, descripcion = ?, estado = ? WHERE id_categoria = ?',
+      [nombre, descripcion, estado, id]
     );
     return result.affectedRows > 0;
   }
 
   static async delete(id) {
     const pool = database.getPool();
-    const [result] = await pool.query('UPDATE categoria SET activo = FALSE WHERE id_categoria = ?', [id]);
+    const [result] = await pool.query('UPDATE categoria SET estado = FALSE WHERE id_categoria = ?', [id]);
     return result.affectedRows > 0;
   }
 }

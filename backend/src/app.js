@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const UsuarioRoutes = require('./routes/apisRoutes');
-const CategoriaRoutes = require('./routes/categoriaRoutes');
+const UsuarioRoutes = require('./routes/usuarioRoutes');
+
 
 class App {
   constructor() {
@@ -24,21 +24,16 @@ class App {
   configurarRutas() {
     this.app.get('/', (req, res) => {
       res.json({
-        mensaje: 'API funcionando',
+        mensaje: 'API de Login funcionando',
         endpoints: {
-          usuario_login: '/api/usuario/login',
-          categorias: '/api/categoria'
+          login: '/api/usuario'
         }
       });
     });
 
-    // Montar rutas de usuario
+    // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use('/api/usuario', usuarioRoutes.getRouter());
-
-    // Montar rutas de categoria
-    const categoriaRoutes = new CategoriaRoutes();
-    this.app.use('/api/categoria', categoriaRoutes.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {
