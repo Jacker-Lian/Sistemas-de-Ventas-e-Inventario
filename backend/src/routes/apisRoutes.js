@@ -12,6 +12,16 @@ class UsuarioRoutes {
      * POST /api/usuario/login
      */
     this.router.post('/login', authController.login);
+    /**
+     * GET /api/usuario/ajustes
+     * Lista todos los ajustes de inventario
+     */
+    this.router.get('/ajustes', authController.obtenerAjustes);
+    /**
+     * POST /api/usuario/ajustes
+     * Crea un nuevo ajuste de inventario
+     */
+    this.router.post('/ajustes', authController.crearAjuste);
   }
 
   getRouter() {
