@@ -25,7 +25,9 @@ class App {
       res.json({
         mensaje: 'API de Login funcionando',
         endpoints: {
-          login: '/api/usuario'
+          login: '/api/usuario/login',
+          ajustes_listar: '/api/usuario/ajustes',
+          ajustes_crear: '/api/usuario/ajustes'
         }
       });
     });
