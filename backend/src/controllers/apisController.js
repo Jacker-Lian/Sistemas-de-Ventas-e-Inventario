@@ -71,4 +71,74 @@ authController.login = async (req, res) => {
   }
 };
 
+// =======================
+// AJUSTES DE INVENTARIO
+// =======================
+
+authController.obtenerAjustes = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        a.id_ajuste,
+        p.nombre AS producto,
+        a.tipo_ajuste,
+        a.cantidad_ajustada,
+        a.motivo,
+        a.stock_anterior,
+        a.stock_nuevo,
+        u.nombre_usuario,
+        a.fecha_creacion
+      FROM ajustes_inventario a
+      JOIN producto p ON a.id_producto = p.id_producto
+      JOIN usuarios u ON a.id_usuario = u.id_usuario
+      ORDER BY a.fecha_creacion DESC
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al obtener ajustes:", error);
+    res.status(500).json({ error: "Error al obtener ajustes de inventario" });
+  }
+};
+
+authController.crearAjuste = async (req, res) => {
+  const { id_producto, cantidad_ajustada, tipo_ajuste, motivo, id_usuario, observaciones } = req.body;
+
+  try {
+    // Verificar producto
+    const [producto] = await db.query("SELECT stock FROM producto WHERE id_producto = ?", [id_producto]);
+    if (producto.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    const stock_anterior = producto[0].stock;
+    let stock_nuevo = stock_anterior;
+
+    // Calcular nuevo stock
+    if (tipo_ajuste === "AUMENTO") {
+      stock_nuevo += cantidad_ajustada;
+    } else if (tipo_ajuste === "DISMINUCION") {
+      if (cantidad_ajustada > stock_anterior) {
+        return res.status(400).json({ error: "No hay suficiente stock para disminuir" });
+      }
+      stock_nuevo -= cantidad_ajustada;
+    }
+
+    // Registrar ajuste
+    await db.query(
+      `INSERT INTO ajustes_inventario 
+      (id_producto, cantidad_ajustada, tipo_ajuste, motivo, id_usuario, stock_anterior, stock_nuevo, observaciones)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id_producto, cantidad_ajustada, tipo_ajuste, motivo, id_usuario, stock_anterior, stock_nuevo, observaciones]
+    );
+
+    // Actualizar stock
+    await db.query("UPDATE producto SET stock = ? WHERE id_producto = ?", [stock_nuevo, id_producto]);
+
+    res.json({ mensaje: "Ajuste registrado correctamente", stock_nuevo });
+  } catch (error) {
+    console.error("Error al registrar ajuste:", error);
+    res.status(500).json({ error: "Error al registrar ajuste de inventario" });
+  }
+};
+
 module.exports = authController;
