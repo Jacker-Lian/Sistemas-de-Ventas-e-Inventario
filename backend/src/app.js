@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const UsuarioRoutes = require('./routes/usuarioRoutes');
 
+
 class App {
   constructor() {
     this.app = express();
