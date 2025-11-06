@@ -1,17 +1,29 @@
 const express = require('express');
-const router = express.Router();
 const AjusteInventarioController = require('../controllers/ajusteInventarioController');
 
-// Crear un nuevo ajuste de inventario
-router.post('/', AjusteInventarioController.crearAjuste);
+class AjusteInventarioRoutes {
+    constructor() {
+        this.router = express.Router();
+        this.configurarRutas();
+    }
 
-// Obtener todos los ajustes de inventario
-router.get('/', AjusteInventarioController.obtenerTodosLosAjustes);
+    configurarRutas() {
+        // Crear un nuevo ajuste de inventario
+        this.router.post('/', AjusteInventarioController.crearAjuste);
 
-// Obtener un ajuste de inventario específico por ID
-router.get('/:id', AjusteInventarioController.obtenerAjustePorId);
+        // Obtener todos los ajustes de inventario
+        this.router.get('/', AjusteInventarioController.obtenerTodosLosAjustes);
 
-// Obtener ajustes de un producto específico
-router.get('/producto/:idProducto', AjusteInventarioController.obtenerAjustesPorProducto);
+        // Obtener un ajuste de inventario específico por ID
+        this.router.get('/:id', AjusteInventarioController.obtenerAjustePorId);
 
-module.exports = router;
+        // Obtener ajustes de un producto específico
+        this.router.get('/producto/:idProducto', AjusteInventarioController.obtenerAjustesPorProducto);
+    }
+
+    getRouter() {
+        return this.router;
+    }
+}
+
+module.exports = AjusteInventarioRoutes;
