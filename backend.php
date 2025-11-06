@@ -20,10 +20,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $path = $_SERVER['REQUEST_URI'];
 
 // Extraer ID del endpoint, por ejemplo: /api/productos/5
-$id = null;
-if (preg_match('/\/api\/producto\/(\d+)/', $path, $matches)) {
-  $id = intval($matches[1]);
-}
+fetch(`${baseApi}?action=get&id=${id}`)
 
 switch ($method) {
   case 'GET':
@@ -47,10 +44,9 @@ switch ($method) {
 
     $nombre = $data['nombre'] ?? '';
     $precio = $data['precio_venta'] ?? 0;
-    $stock  = $data['stock'] ?? 0;
 
-    $stmt = $conn->prepare("INSERT INTO producto (nombre, precio_venta, stock) VALUES (?, ?, ?)");
-    $stmt->bind_param("sdi", $nombre, $precio, $stock);
+    $stmt = $conn->prepare("INSERT INTO producto (nombre, precio_venta) VALUES (?, ?)");
+    $stmt->bind_param("sdi", $nombre, $precio);
     $ok = $stmt->execute();
 
     echo json_encode(["success" => $ok, "id" => $conn->insert_id]);
@@ -64,10 +60,9 @@ switch ($method) {
 
     $nombre = $data['nombre'] ?? '';
     $precio = $data['precio_venta'] ?? 0;
-    $stock  = $data['stock'] ?? 0;
 
-    $stmt = $conn->prepare("UPDATE producto SET nombre=?, precio_venta=?, stock=? WHERE id=?");
-    $stmt->bind_param("sdii", $nombre, $precio, $stock, $id);
+    $stmt = $conn->prepare("UPDATE producto SET nombre=?, precio_venta=? WHERE id=?");
+    $stmt->bind_param("sdii", $nombre, $precio, $id);
     $ok = $stmt->execute();
 
     echo json_encode(["success" => $ok]);
