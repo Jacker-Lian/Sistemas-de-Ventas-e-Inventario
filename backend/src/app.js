@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const UsuarioRoutes = require('./routes/usuarioRoutes');
-
+const express = require("express");
+const cors = require("cors");
+const UsuarioRoutes = require("./routes/usuarioRoutes");
+const ventasRoutes = require("./routes/ventasRoutes");
 
 class App {
   constructor() {
@@ -22,22 +22,27 @@ class App {
   }
 
   configurarRutas() {
-    this.app.get('/', (req, res) => {
+    this.app.get("/", (req, res) => {
       res.json({
-        mensaje: 'API de Login funcionando',
+        mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
-          login: '/api/usuario'
-        }
+          Login: "/api/usuario",
+          Ventas: "/api/ventas"
+        },
       });
     });
 
     // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
-    this.app.use('/api/usuario', usuarioRoutes.getRouter());
+    this.app.use("/api/usuario", usuarioRoutes.getRouter());
+
+    // Montar rutas de ventas
+    const ventasRoutesInstance = new ventasRoutes();
+    this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {
-      res.status(404).json({ success: false, mensaje: 'Ruta no encontrada' });
+      res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
     });
   }
 
