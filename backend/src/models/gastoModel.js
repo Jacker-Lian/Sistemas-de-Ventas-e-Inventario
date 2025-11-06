@@ -1,4 +1,5 @@
-import pool from "../config/database.mjs";
+const { getPool } = require('../config/database.js');
+const pool = getPool();
 
 class gastosModel {
 
@@ -28,12 +29,14 @@ class gastosModel {
   }
 
   async obtenerGasto(id_gasto) {
+    
     try {
       const [gasto] = await pool.query(
        `SELECT id_gasto, descripcion, monto, tipo_gasto, metodo_pago, fecha_creacion, fecha_actualizacion
        FROM gastos 
-       WHERE id_gasto = ? AND estado = 1 LIMIT 1`,
-        [id_gasto]
+       WHERE id_gasto = ? AND estado = 1 
+       LIMIT 1`,
+       [id_gasto]
       );
       return gasto[0] || null;
     } catch (error) {
@@ -79,4 +82,4 @@ class gastosModel {
   }
 }
 
-export default new gastosModel();
+module.exports = new gastosModel();
