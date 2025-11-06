@@ -1,6 +1,6 @@
-import { ProductoModel } from "../models/productoModel.js";
+import { ProductoModel } from "../models/crudModel.js"; //correccion del nombre
 
-export const ProductosController = {
+export const crudController = {
   listar: (req, res) => {
     ProductoModel.obtenerTodos((err, results) => {
       if (err) return res.status(500).json({ error: err.message });
@@ -41,4 +41,4 @@ export const ProductosController = {
   },
 };
 
-module.exports = ProductosController;
+module.exports = crudController;

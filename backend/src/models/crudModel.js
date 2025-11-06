@@ -1,6 +1,6 @@
-import conexion from "../db.js";
+import conexion from '../config/database';//correccion
 
-export const ProductoModel = {
+export const crudModelModel = {
   obtenerTodos: (callback) => {
     conexion.query("SELECT * FROM producto ORDER BY id DESC", callback);
   },
@@ -32,4 +32,4 @@ export const ProductoModel = {
   },
 };
 
-module.exports = ProductoModel;
+module.exports = crudModelModel;
