@@ -13,11 +13,14 @@ const getCategorias = async (req, res) => {
 // Obtener una
 const getCategoriaByNombre = async (req, res) => {
   try {
-    const categoria = await Categoria.findByName(req.params.id);
-    if (!categoria) return res.status(404).json({ message: 'Categoría no encontrada' });
-    res.json(categoria);
+    const searchTerm = req.params.id; 
+    const categorias = await Categoria.findByName(searchTerm);
+    if (categorias.length === 0) { 
+      return res.status(404).json({ message: 'No se encontraron categorías con ese nombre' });
+    }
+    res.json(categorias);
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener categoría', error: error.message });
+    res.status(500).json({ message: 'Error al buscar categoría por nombre', error: error.message });
   }
 };
 

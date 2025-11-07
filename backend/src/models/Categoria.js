@@ -10,8 +10,9 @@ class Categoria {
 
   static async findByName(nombre) {
     const pool = database.getPool();
-    const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre = ?', [nombre]);
-    return rows[0];
+    const searchTerm = `%${nombre}%`;
+    const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre LIKE ?', [searchTerm]);
+    return rows;
   }
 
   static async create({ nombre, descripcion }) {
