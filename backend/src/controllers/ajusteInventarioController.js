@@ -44,9 +44,11 @@ ajusteInventarioController.crearAjuste = async (req, res) => {
 
   } catch (error) {
     console.error('Error al crear ajuste de inventario:', error);
-    return res.status(500).json({ 
+    const status = error && error.status ? error.status : 500;
+    const message = error && error.message ? error.message : 'Error al crear el ajuste de inventario';
+    return res.status(status).json({ 
       success: false, 
-      message: 'Error al crear el ajuste de inventario' 
+      message
     });
   }
 };
