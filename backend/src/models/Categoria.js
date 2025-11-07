@@ -4,13 +4,13 @@ const database = require('../config/database');
 class Categoria {
   static async findAll() {
     const pool = database.getPool();
-    const [rows] = await pool.query('SELECT * FROM categoria');
+    const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria');
     return rows;
   }
 
-  static async findById(id) {
+  static async findByName(nombre) {
     const pool = database.getPool();
-    const [rows] = await pool.query('SELECT * FROM categoria WHERE id_categoria = ?', [id]);
+    const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre = ?', [nombre]);
     return rows[0];
   }
 

@@ -13,7 +13,7 @@ const getCategorias = async (req, res) => {
 // Obtener una
 const getCategoriaById = async (req, res) => {
   try {
-    const categoria = await Categoria.findById(req.params.id);
+    const categoria = await Categoria.findByName(req.params.id);
     if (!categoria) return res.status(404).json({ message: 'Categoría no encontrada' });
     res.json(categoria);
   } catch (error) {
