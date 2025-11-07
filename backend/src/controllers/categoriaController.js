@@ -11,7 +11,7 @@ const getCategorias = async (req, res) => {
 };
 
 // Obtener una
-const getCategoriaById = async (req, res) => {
+const getCategoriaByNombre = async (req, res) => {
   try {
     const categoria = await Categoria.findByName(req.params.id);
     if (!categoria) return res.status(404).json({ message: 'Categoría no encontrada' });
@@ -61,7 +61,7 @@ const deleteCategoria = async (req, res) => {
 
 module.exports = {
   getCategorias,
-  getCategoriaById,
+  getCategoriaByNombre,
   createCategoria,
   updateCategoria,
   deleteCategoria,
