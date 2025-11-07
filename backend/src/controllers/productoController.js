@@ -14,6 +14,42 @@ productoController.obtenerProductos = async (req, res) => {
   }
 };
 
+// Buscar productos por similitud
+productoController.buscarProductos = async (req, res) => {
+  const { query } = req.query;
+  if (!query || !query.trim()) {
+    return res.status(400).json({ message: 'Parámetro de búsqueda requerido' });
+  }
+  try {
+    const productos = await productoModel.buscarProductos(query.trim());
+    res.status(200).json(productos);
+  } catch (err) {
+    console.error('Error al buscar productos:', err);
+    res.status(500).json({ message: 'Error interno al buscar productos' });
+  }
+};
+
+// Desactivar producto (marcar como inactivo)
+productoController.desactivarProducto = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const productoExistente = await productoModel.obtenerProductoPorId(id);
+    if (!productoExistente) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    const desactivado = await productoModel.desactivarProducto(id);
+    if (desactivado) {
+      res.status(200).json({ message: 'Producto marcado como inactivo' });
+    } else {
+      res.status(400).json({ message: 'No se pudo desactivar el producto' });
+    }
+  } catch (err) {
+    console.error('Error al desactivar producto:', err);
+    res.status(500).json({ message: 'Error interno al desactivar producto' });
+  }
+};
+
 // Obtener un producto por su ID
 productoController.obtenerProductoPorId = async (req, res) => {
   const { id } = req.params;

@@ -6,15 +6,27 @@ class ProductoModel {
   }
 
   async obtenerProductoPorId(id) {
-    const query = 'SELECT id_producto, nombre, precio_venta, stock, descripcion FROM producto WHERE id_producto = ?';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_producto = ?';
     const [rows] = await this.pool.query(query, [id]);
     return rows[0]; // Devuelve el primer producto encontrado
   }
 
   async obtenerProductos() {
-    const query = 'SELECT id_producto, nombre, precio_venta, stock, descripcion FROM producto';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto';
     const [rows] = await this.pool.query(query);
     return rows;
+  }
+
+  async buscarProductos(query) {
+    const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE nombre LIKE ?`;
+    const [rows] = await this.pool.query(searchQuery, [`%${query}%`]);
+    return rows;
+  }
+
+  async desactivarProducto(id) {
+    const query = 'UPDATE producto SET estado = ? WHERE id_producto = ?';
+    const [result] = await this.pool.query(query, ['inactivo', id]);
+    return result.affectedRows > 0;
   }
 
   async crearProducto(producto) {
