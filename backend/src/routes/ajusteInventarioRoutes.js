@@ -14,9 +14,6 @@ class AjusteInventarioRoutes {
         // Obtener todos los ajustes de inventario
         this.router.get('/', AjusteInventarioController.obtenerTodosLosAjustes);
 
-        // Obtener un ajuste de inventario específico por ID
-        this.router.get('/:id', AjusteInventarioController.obtenerAjustePorId);
-
         // Obtener ajustes de un producto específico
         this.router.get('/producto/:idProducto', AjusteInventarioController.obtenerAjustesPorProducto);
     }
