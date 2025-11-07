@@ -4,19 +4,17 @@ const AjusteInventarioModel = {
     // Crear un nuevo ajuste de inventario
     crear: async (datos) => {
         try {
-            const { id_producto, cantidad_ajustada, tipo_ajuste, motivo, id_usuario, stock_anterior, stock_nuevo, observaciones } = datos;
+            const { id_producto, cantidad_ajustada, tipo_ajuste, id_usuario, stock_nuevo, observaciones } = datos;
             const query = `
                 INSERT INTO ajustes_inventario 
-                (id_producto, cantidad_ajustada, tipo_ajuste, motivo, id_usuario, stock_anterior, stock_nuevo, observaciones)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (id_producto, cantidad_ajustada, tipo_ajuste, id_usuario, stock_nuevo, observaciones)
+                VALUES (?, ?, ?, ?, ?, ?)
             `;
             const [resultado] = await db.query(query, [
                 id_producto, 
                 cantidad_ajustada, 
                 tipo_ajuste, 
-                motivo, 
                 id_usuario, 
-                stock_anterior, 
                 stock_nuevo, 
                 observaciones
             ]);
