@@ -3,6 +3,7 @@ const cors = require("cors");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const CategoriaRoutes = require('./routes/categoriaRoutes');
+const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 
 class App {
   constructor() {
@@ -28,7 +29,8 @@ class App {
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
           Login: "/api/usuario",
-          Ventas: "/api/ventas"
+          Ventas: "/api/ventas",
+          AjustesInventario: "/api/ajustes-inventario"
         },
       });
     });
@@ -44,6 +46,11 @@ class App {
     // Montar rutas de categorías
     const categoriaRoutes = new CategoriaRoutes();
     this.app.use('/api/categorias', categoriaRoutes.getRouter());
+
+    // Montar rutas de ajustes de inventario
+    const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
+    this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
+
     // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
