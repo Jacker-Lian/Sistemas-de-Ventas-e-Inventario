@@ -28,7 +28,17 @@ const AjusteInventarioModel = {
     obtenerTodos: async () => {
         try {
             const query = `
-                SELECT ai.*, p.nombre as nombre_producto, u.nombre as nombre_usuario
+                SELECT 
+                    ai.id_ajuste,
+                    ai.id_producto,
+                    ai.cantidad_ajustada,
+                    ai.tipo_ajuste,
+                    ai.id_usuario,
+                    ai.stock_nuevo,
+                    ai.observaciones,
+                    ai.fecha_creacion,
+                    p.nombre as nombre_producto, 
+                    u.nombre as nombre_usuario
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
@@ -45,7 +55,17 @@ const AjusteInventarioModel = {
     obtenerPorId: async (id) => {
         try {
             const query = `
-                SELECT ai.*, p.nombre as nombre_producto, u.nombre as nombre_usuario
+                SELECT 
+                    ai.id_ajuste,
+                    ai.id_producto,
+                    ai.cantidad_ajustada,
+                    ai.tipo_ajuste,
+                    ai.id_usuario,
+                    ai.stock_nuevo,
+                    ai.observaciones,
+                    ai.fecha_creacion,
+                    p.nombre as nombre_producto, 
+                    u.nombre as nombre_usuario
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
@@ -62,7 +82,17 @@ const AjusteInventarioModel = {
     obtenerPorProducto: async (idProducto) => {
         try {
             const query = `
-                SELECT ai.*, p.nombre as nombre_producto, u.nombre as nombre_usuario
+                SELECT 
+                    ai.id_ajuste,
+                    ai.id_producto,
+                    ai.cantidad_ajustada,
+                    ai.tipo_ajuste,
+                    ai.id_usuario,
+                    ai.stock_nuevo,
+                    ai.observaciones,
+                    ai.fecha_creacion,
+                    p.nombre as nombre_producto, 
+                    u.nombre as nombre_usuario
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
@@ -78,3 +108,4 @@ const AjusteInventarioModel = {
 };
 
 module.exports = AjusteInventarioModel;
+
