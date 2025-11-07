@@ -38,8 +38,8 @@ const createCategoria = async (req, res) => {
 const updateCategoria = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, descripcion, activo } = req.body;
-    const ok = await Categoria.update(id, { nombre, descripcion, activo });
+    const { nombre, descripcion, estado } = req.body;
+    const ok = await Categoria.update(id, { nombre, descripcion, estado });
     if (!ok) return res.status(404).json({ message: 'Categoría no encontrada' });
     res.json({ message: 'Categoría actualizada correctamente' });
   } catch (error) {
