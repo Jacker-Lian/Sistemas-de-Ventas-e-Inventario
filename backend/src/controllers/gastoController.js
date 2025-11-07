@@ -12,7 +12,16 @@ const getGastos = async (req, res) => {
     // habilitar parametros de paginacion por url = ?page=2&limit=10
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const { gastos, totalGastos, totalPaginas, paginaActual } = await gastoModel.obtenerGastos({ page, limit });
+
+    const { gastos, totalGastos, totalPaginas, paginaActual, error } = await gastoModel.obtenerGastos({ page, limit });
+
+    if (error) {
+      console.error("Error en getGastos:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Error no se pudieron obtener los gastos."
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -23,10 +32,10 @@ const getGastos = async (req, res) => {
       paginaActual
     });
   } catch (error) {
-    console.error("Error en getGastos:", error);
+    console.error("Error inesperado en getGastos:", error);
     res.status(500).json({
       success: false,
-      message: "Error no se pudieron obtener los gastos."
+      message: "Error inesperado al obtener los gastos."
     });
   }
 };
@@ -37,12 +46,19 @@ const getGastoById = async (req, res, next) => {
 
   try {
     const gasto = await gastoModel.obtenerGasto(id);
+
+    if (gasto?.error) {
+      console.error("Error en getGastoById:", gasto.error);
+      return res.status(500).json({ message: "Error al obtener gasto" });
+    }
+
     if (!gasto) return res.status(404).json({ message: "Gasto no encontrado" });
+
     req.gasto = gasto;
     next();
   } catch (error) {
-    console.error("Error en getGastoById:", error);
-    res.status(500).json({ message: "Error al obtener gasto"});
+    console.error("Error inesperado en getGastoById:", error);
+    res.status(500).json({ message: "Error inesperado al obtener gasto" });
   }
 };
 
@@ -62,31 +78,50 @@ const putGasto = async (req, res) => {
       tipo_gasto,
       metodo_pago,
     });
+
+    if (updated?.error) {
+      console.error("Error en putGasto:", updated.error);
+      return res.status(500).json({ 
+        success: false,
+        message: "Error al actualizar gasto"
+      });
+    }
+
     res.status(200).json({ 
       success: true, 
       message: "Gasto actualizado", 
       data: updated 
     });
   } catch (error) {
-    console.error("Error en putGasto:", error);
+    console.error("Error inesperado en putGasto:", error);
     res.status(500).json({ 
       success: false,
-      message: "Error al actualizar gasto"
+      message: "Error inesperado al actualizar gasto"
     });
   }
 };
 
 const patchGasto = async (req, res) => {
   try {
-    await gastoModel.eliminarGasto(req.gasto.id_gasto);
+    const result = await gastoModel.eliminarGasto(req.gasto.id_gasto);
+
+    if (result?.error) {
+      console.error("Error en patchGasto:", result.error);
+      return res.status(500).json({ 
+        success: false,
+        message: "Error al eliminar gasto"
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: "Gasto eliminado" });
+      message: "Gasto eliminado"
+    });
   } catch (error) {
-    console.error("Error en patchGasto:", error);
+    console.error("Error inesperado en patchGasto:", error);
     res.status(500).json({
       success: false,
-      message: "Error al eliminar gasto"
+      message: "Error inesperado al eliminar gasto"
     });
   }
 };
@@ -110,16 +145,24 @@ const postGasto = async (req, res) => {
     const { descripcion, monto, tipo_gasto, metodo_pago, id_usuario } = req.body;
     const id = await gastoModel.crearGasto({ descripcion, monto, tipo_gasto, metodo_pago, id_usuario });
 
+    if (id?.error) {
+      console.error("Error en postGasto:", id.error);
+      return res.status(500).json({
+        success: false,
+        message: "Error al crear gasto"
+      });
+    }
+
     res.status(201).json({
       success: true,
       message: "Gasto creado correctamente",
       id,
     });
   } catch (error) {
-    console.error("Error al crear gasto:", error);
+    console.error("Error inesperado en postGasto:", error);
     res.status(500).json({
       success: false,
-      message: "Error al crear gasto",
+      message: "Error inesperado al crear gasto"
     });
   }
 };

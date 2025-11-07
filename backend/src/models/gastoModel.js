@@ -23,12 +23,11 @@ class gastosModel {
       const pages = Math.ceil(total / limit);
       return { gastos, totalGastos: total, totalPaginas: pages, paginaActual: page };
     } catch (error) {
-      throw new Error("Error no se pudieron obtener los gastos.");
+      return { error };
     }
   }
 
   async obtenerGasto(id_gasto) {
-    
     try {
       const [gasto] = await pool.query(
        `SELECT id_gasto, descripcion, monto, tipo_gasto, metodo_pago, fecha_creacion, fecha_actualizacion
@@ -39,7 +38,7 @@ class gastosModel {
       );
       return gasto[0] || null;
     } catch (error) {
-      throw new Error("Error al obtener gasto: " + error.message);
+      return { error };
     }
   }
 
@@ -54,28 +53,36 @@ class gastosModel {
       if (actualizar.affectedRows === 0) return null;
       return this.obtenerGasto(id_gasto);
     } catch (error) {
-      throw new Error("Error al actualizar gasto.");
+      return { error };
     }
   }
+
   // soft delete: marcar el gasto como eliminado
   async eliminarGasto(id_gasto) {
-    const [eliminar] = await pool.query(
-      `UPDATE gastos
-       SET estado = 0
-       WHERE id_gasto = ?`,
-      [id_gasto]
-    );
-    return eliminar.affectedRows > 0;
+    try {
+      const [eliminar] = await pool.query(
+        `UPDATE gastos
+         SET estado = 0
+         WHERE id_gasto = ?`,
+        [id_gasto]
+      );
+      return eliminar.affectedRows > 0;
+    } catch (error) {
+      return { error };
+    }
   }
 
   async crearGasto({ descripcion, monto, tipo_gasto, metodo_pago, id_usuario }) {
-    const [crear] = await pool.query(
-      `INSERT INTO gastos (descripcion, monto, tipo_gasto, metodo_pago, id_usuario)
-       VALUES (?, ?, ?, ?, ?)`,
-      [descripcion, monto, tipo_gasto, metodo_pago, id_usuario]
-    );
-
-    return crear.insertId; // solo devolvemos el id insertado
+    try {
+      const [crear] = await pool.query(
+        `INSERT INTO gastos (descripcion, monto, tipo_gasto, metodo_pago, id_usuario)
+         VALUES (?, ?, ?, ?, ?)`,
+        [descripcion, monto, tipo_gasto, metodo_pago, id_usuario]
+      );
+      return crear.insertId; // solo devolvemos el id insertado
+    } catch (error) {
+      return { error };
+    }
   }
 }
 
