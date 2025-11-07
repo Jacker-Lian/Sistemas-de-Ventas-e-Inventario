@@ -51,33 +51,6 @@ const AjusteInventarioModel = {
         }
     },
 
-    // Obtener un ajuste de inventario por ID
-    obtenerPorId: async (id) => {
-        try {
-            const query = `
-                SELECT 
-                    ai.id_ajuste,
-                    ai.id_producto,
-                    ai.cantidad_ajustada,
-                    ai.tipo_ajuste,
-                    ai.id_usuario,
-                    ai.stock_nuevo,
-                    ai.observaciones,
-                    ai.fecha_creacion,
-                    p.nombre as nombre_producto, 
-                    u.nombre as nombre_usuario
-                FROM ajustes_inventario ai
-                INNER JOIN producto p ON ai.id_producto = p.id_producto
-                INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
-                WHERE ai.id_ajuste = ?
-            `;
-            const [ajuste] = await db.query(query, [id]);
-            return ajuste[0];
-        } catch (error) {
-            throw error;
-        }
-    },
-
     // Obtener ajustes por producto
     obtenerPorProducto: async (idProducto) => {
         try {
@@ -108,4 +81,5 @@ const AjusteInventarioModel = {
 };
 
 module.exports = AjusteInventarioModel;
+
 
