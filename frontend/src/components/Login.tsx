@@ -19,10 +19,18 @@ function Login() {
     setMensaje("");
 
     try {
-      const res = await api.post("/login", { email, password });
+      const res = await api.post(
+        "/login",
+        { email, password },
+        { withCredentials: true }
+      );
+
       const data = res.data;
-      login(data.token, data.user);
+
+      login(data.user);
+
       setMensaje("Inicio de sesión exitoso");
+
       setTimeout(() => navigate(data.redirect), 1000);
     } catch (error: any) {
       setMensaje(error.response?.data?.message || "Error al iniciar sesión");
@@ -36,7 +44,7 @@ function Login() {
       <div className="login-card">
         <img src={logo} alt="Logo" className="login-logo" />
         <h2>Sistema de Ventas</h2>
-        <p className="subtitle">Bienvenido Inicia sesión para continuar</p>
+        <p className="subtitle">Bienvenido, inicia sesión para continuar</p>
 
         <form onSubmit={handleSubmit}>
           <div className="input-group">
@@ -69,4 +77,6 @@ function Login() {
     </div>
   );
 }
+
 export default Login;
+
