@@ -6,13 +6,13 @@ class ProductoModel {
   }
 
   async obtenerProductoPorId(id) {
-    const query = 'SELECT * FROM producto WHERE id_producto = ?';
+    const query = 'SELECT id_producto, nombre, precio_venta, stock, descripcion FROM producto WHERE id_producto = ?';
     const [rows] = await this.pool.query(query, [id]);
     return rows[0]; // Devuelve el primer producto encontrado
   }
 
   async obtenerProductos() {
-    const query = 'SELECT * FROM producto';
+    const query = 'SELECT id_producto, nombre, precio_venta, stock, descripcion FROM producto';
     const [rows] = await this.pool.query(query);
     return rows;
   }
