@@ -1,6 +1,5 @@
 // src/components/Dashboard.tsx
-import React, { useEffect, useState } from "react";
-
+import React, { useState } from "react";
 import { Link } from 'react-router-dom'; 
 
 const Dashboard: React.FC = () => {
@@ -11,10 +10,21 @@ const Dashboard: React.FC = () => {
     notificaciones: 8,
   });
 
-  
-  // Lista de enlaces del menú
-  const menuItems = ["Inicio", "Usuarios", "Reportes", "Configuración", "Alerta de Stock" , "Registro de ventas", "Registro y gestión de usuarios", "Gestión de categorías", "Detalle de venta" ,   "Historial de ventas" ,    "Reportes de ventas" ,   "Panel de administrador",  "Gestión de proveedores"];
-
+  // Lista de enlaces del menú (sin "Alerta de Stock")
+  const menuItems = [
+    "Inicio",
+    "Usuarios",
+    "Reportes",
+    "Configuración",
+    "Registro de ventas",
+    "Registro y gestión de usuarios",
+    "Gestión de categorías",
+    "Detalle de venta",
+    "Historial de ventas",
+    "Reportes de ventas",
+    "Panel de administrador",
+    "Gestión de proveedores"
+  ];
 
   const getPath = (item: string): string => {
     if (item === "Inicio") return "/";
@@ -23,12 +33,10 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container"> 
-      
       {/* Sidebar */}
       <aside className="sidebar"> 
         <h2>Mi Panel</h2>
         {menuItems.map((item) => (
-        
           <Link
             key={item}
             to={getPath(item)} 
@@ -37,9 +45,6 @@ const Dashboard: React.FC = () => {
           </Link>
         ))}
       </aside>
-
-     
-    
     </div>
   );
 };
