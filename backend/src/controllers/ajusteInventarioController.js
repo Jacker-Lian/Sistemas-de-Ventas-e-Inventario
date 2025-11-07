@@ -36,29 +36,6 @@ const AjusteInventarioController = {
         }
     },
 
-    // Obtener un ajuste de inventario por ID
-    obtenerAjustePorId: async (req, res) => {
-        try {
-            const ajuste = await AjusteInventarioModel.obtenerPorId(req.params.id);
-            if (!ajuste) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Ajuste de inventario no encontrado'
-                });
-            }
-            res.json({
-                success: true,
-                data: ajuste
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Error al obtener el ajuste de inventario',
-                error: error.message
-            });
-        }
-    },
-
     // Obtener ajustes por producto
     obtenerAjustesPorProducto: async (req, res) => {
         try {
