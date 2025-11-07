@@ -18,12 +18,11 @@ class gastosModel {
         LIMIT ? OFFSET ?
       `, [limit, offset]);
       // total de gastos en la tabla
-      const [[{ total }]] = await pool.query("SELECT COUNT(*) as total FROM gastos WHERE estado = 1");
+      const [[{ total }]] = await pool.query("SELECT COUNT(1) as total FROM gastos WHERE estado = 1");
       // calcula el total de páginas
       const pages = Math.ceil(total / limit);
       return { gastos, totalGastos: total, totalPaginas: pages, paginaActual: page };
     } catch (error) {
-      console.error("Error en obtenerGastos:", error);
       throw new Error("Error no se pudieron obtener los gastos.");
     }
   }
@@ -40,7 +39,6 @@ class gastosModel {
       );
       return gasto[0] || null;
     } catch (error) {
-      console.error("Error en obtenerGasto:", error);
       throw new Error("Error al obtener gasto: " + error.message);
     }
   }
@@ -56,7 +54,6 @@ class gastosModel {
       if (actualizar.affectedRows === 0) return null;
       return this.obtenerGasto(id_gasto);
     } catch (error) {
-      console.error("Error en actualizarGasto:", error);
       throw new Error("Error al actualizar gasto.");
     }
   }
