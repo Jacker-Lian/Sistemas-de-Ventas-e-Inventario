@@ -3,35 +3,34 @@ const productoModel = new ProductoModel();
 
 const productoController = {};
 
-// Obtener todos los productos
+// Obtener todos los productos o buscar según action
 productoController.obtenerProductos = async (req, res) => {
-  try {
-    const productos = await productoModel.obtenerProductos();
-    res.status(200).json(productos);
-  } catch (err) {
-    console.error('Error al obtener productos:', err);
-    res.status(500).json({ message: 'Error interno al obtener productos' });
-  }
-};
-
-// Buscar productos por similitud
-productoController.buscarProductos = async (req, res) => {
-  const { query } = req.query;
-  if (!query || !query.trim()) {
-    return res.status(400).json({ message: 'Parámetro de búsqueda requerido' });
-  }
-  try {
-    const productos = await productoModel.buscarProductos(query.trim());
-    res.status(200).json(productos);
-  } catch (err) {
-    console.error('Error al buscar productos:', err);
-    res.status(500).json({ message: 'Error interno al buscar productos' });
+  const { action, query } = req.query;
+  if (action === 'search') {
+    if (!query || !query.trim()) {
+      return res.status(400).json({ message: 'Parámetro de búsqueda requerido' });
+    }
+    try {
+      const productos = await productoModel.buscarProductos(query.trim());
+      res.status(200).json(productos);
+    } catch (err) {
+      console.error('Error al buscar productos:', err);
+      res.status(500).json({ message: 'Error interno al buscar productos' });
+    }
+  } else {
+    try {
+      const productos = await productoModel.obtenerProductos();
+      res.status(200).json(productos);
+    } catch (err) {
+      console.error('Error al obtener productos:', err);
+      res.status(500).json({ message: 'Error interno al obtener productos' });
+    }
   }
 };
 
 // Desactivar producto (marcar como inactivo)
 productoController.desactivarProducto = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.body;
   try {
     const productoExistente = await productoModel.obtenerProductoPorId(id);
     if (!productoExistente) {
@@ -81,18 +80,18 @@ productoController.crearProducto = async (req, res) => {
 
 // Actualizar un producto
 productoController.actualizarProducto = async (req, res) => {
-  const { id } = req.params;
-  const { nombre, precio_venta, stock, descripcion } = req.body;
+  const { id } = req.body;
+  const { nombre, precio_venta, stock } = req.body;
   try {
     const productoExistente = await productoModel.obtenerProductoPorId(id);
     if (!productoExistente) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
-    const productoActualizado = { nombre, precio_venta, stock, descripcion };
+    const productoActualizado = { nombre, precio_venta, stock };
     const actualizado = await productoModel.actualizarProducto(id, productoActualizado);
     if (actualizado) {
-      res.status(200).json({ message: 'Producto actualizado' });
+      res.status(200).json({ message: 'Producto actualizado correctamente' });
     } else {
       res.status(400).json({ message: 'No se pudo actualizar el producto' });
     }

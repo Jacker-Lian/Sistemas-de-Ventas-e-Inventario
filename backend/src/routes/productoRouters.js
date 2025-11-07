@@ -5,9 +5,6 @@ const router = express.Router();
 // Ruta para obtener todos los productos
 router.get('/productos', productoController.obtenerProductos);
 
-// Ruta para buscar productos por similitud
-router.get('/productos/search', productoController.buscarProductos);
-
 // Ruta para obtener un producto por su ID
 router.get('/productos/:id', productoController.obtenerProductoPorId);
 
@@ -15,10 +12,10 @@ router.get('/productos/:id', productoController.obtenerProductoPorId);
 router.post('/productos', productoController.crearProducto);
 
 // Ruta para actualizar un producto
-router.put('/productos/:id', productoController.actualizarProducto);
+router.post('/productos', productoController.actualizarProducto);
 
 // Ruta para desactivar un producto (marcar como inactivo)
-router.put('/productos/:id/deactivate', productoController.desactivarProducto);
+router.post('/productos', productoController.desactivarProducto);
 
 // Ruta para eliminar un producto
 router.delete('/productos/:id', productoController.eliminarProducto);
