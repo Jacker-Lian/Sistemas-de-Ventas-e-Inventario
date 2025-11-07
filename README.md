@@ -1,5 +1,5 @@
 # Sistemas-de-Ventas-e-Inventario
 
-ssh root@161.132.47.234
-
+ssh root@38.250.161.15
+sector7
   
