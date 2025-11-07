@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-
+const API_URL = import.meta.env.VITE_API_URL;
 interface AuthContextType {
   user: any | null;
   login: (user: any) => void;
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem("user");
 
-    await fetch("http://localhost:3000/api/usuario/logout", {
+    await fetch(`${API_URL}/api/usuario/logout`, {
       method: "POST",
       credentials: "include",
     });
