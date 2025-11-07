@@ -3,6 +3,7 @@ const cors = require("cors");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
+const productoRouters = require("./routes/productoRouters");
 
 class App {
   constructor() {
@@ -29,7 +30,8 @@ class App {
         endpoints: {
           Login: "/api/usuario",
           Ventas: "/api/ventas",
-          AjustesInventario: "/api/ajustes-inventario"
+          AjustesInventario: "/api/ajustes-inventario",
+          Productos: "/api/productos"
         },
       });
     });
@@ -45,6 +47,9 @@ class App {
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
+
+    // Montar rutas de productos
+    this.app.use("/api/productos", productoRouters);
 
     // Ruta 404
     this.app.use((req, res) => {
