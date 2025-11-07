@@ -16,7 +16,7 @@ export default function CrudProductos() {
   const [mensaje, setMensaje] = useState("");
   const [editando, setEditando] = useState<Producto | null>(null);
 
-  // 🔍 Buscar productos por similitud
+  //Buscar productos por similitud
   const buscarProductos = async () => {
     if (!busqueda.trim()) {
       setMensaje("Escriba un nombre para buscar productos");
@@ -33,7 +33,7 @@ export default function CrudProductos() {
     }
   };
 
-  // 💾 Guardar cambios de edición
+  //Guardar cambios de edición
   const guardarCambios = async () => {
     if (!editando) return;
     if (!editando.nombre.trim()) {
@@ -62,7 +62,7 @@ export default function CrudProductos() {
     }
   };
 
-  // 🚫 Cambiar estado del producto a inactivo
+  //Cambiar estado del producto a inactivo
   const desactivarProducto = async (id: number) => {
     if (!confirm("¿Deseas marcar este producto como inactivo?")) return;
 
@@ -88,7 +88,7 @@ export default function CrudProductos() {
       <h1>Gestión de Productos</h1>
       <p>Busca, edita o marca productos como inactivos — estilo blanco y negro.</p>
 
-      {/* 🔍 Barra de búsqueda */}
+      {/*Barra de búsqueda */}
       <div className="search-bar" style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
         <input
           type="text"
@@ -109,7 +109,7 @@ export default function CrudProductos() {
         {mensaje}
       </p>
 
-      {/* 📋 Tabla de resultados */}
+      {/*Tabla de resultados */}
       <table
         className="tabla-productos"
         style={{
