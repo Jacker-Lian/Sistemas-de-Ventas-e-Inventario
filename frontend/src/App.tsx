@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
 import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -11,9 +12,31 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/caja" element={<Caja />} />
-          <Route path="/inventario/ajuste" element={<AjusteInventario />} />
+
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/caja"
+            element={
+              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+                <Caja />
+              </PrivateRoute>
+            }
+          />
+          <Route 
+            path="/inventario/ajuste" 
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <AjusteInventario />
+              </PrivateRoute>
+            } 
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
