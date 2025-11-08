@@ -1,6 +1,5 @@
 import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
-import { Navigate, Link } from "react-router-dom";
 import "../styles/admin.css"; 
 
 function Admin() {
