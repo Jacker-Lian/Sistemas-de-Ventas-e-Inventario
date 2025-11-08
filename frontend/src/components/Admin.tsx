@@ -1,6 +1,7 @@
 import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
-import "../styles/admin.css"; 
+import { Navigate, Link } from "react-router-dom";
+import "../styles/admin.css";
 
 function Admin() {
   const { user } = useAuth();
@@ -57,3 +58,4 @@ function Admin() {
   );
 }
 export default Admin;
+// ...existing code...
