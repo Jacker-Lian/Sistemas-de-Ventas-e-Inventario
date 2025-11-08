@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
+const CajaRoutes = require("./routes/cajaRoutes");
 
 class App {
   constructor() {
@@ -53,6 +54,10 @@ class App {
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
+
+    // Montar rutas para la gestion de caja
+    const cajaRoutesInstance = new CajaRoutes();
+    this.app.use("/api/caja", cajaRoutesInstance.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {
