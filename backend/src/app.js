@@ -3,7 +3,7 @@ const cors = require("cors");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
-const productoRouters = require("./routes/productoRouters");
+const ProductoRouters = require("./routes/productoRouters");
 
 class App {
   constructor() {
@@ -49,7 +49,8 @@ class App {
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
 
     // Montar rutas de productos
-    this.app.use("/api/productos", productoRouters);
+    const productoRoutersInstance = new ProductoRouters();
+    this.app.use("/api/productos", productoRoutersInstance.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {

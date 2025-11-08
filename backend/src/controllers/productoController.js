@@ -101,20 +101,6 @@ productoController.actualizarProducto = async (req, res) => {
   }
 };
 
-// Eliminar un producto
-productoController.eliminarProducto = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const productoEliminado = await productoModel.eliminarProducto(id);
-    if (productoEliminado) {
-      res.status(200).json({ message: 'Producto eliminado' });
-    } else {
-      res.status(404).json({ message: 'Producto no encontrado' });
-    }
-  } catch (err) {
-    console.error('Error al eliminar producto:', err);
-    res.status(500).json({ message: 'Error interno al eliminar producto' });
-  }
-};
+
 
 module.exports = productoController;

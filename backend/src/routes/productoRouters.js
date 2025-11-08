@@ -1,23 +1,33 @@
 const express = require('express');
 const productoController = require('../controllers/productoController');
-const router = express.Router();
 
-// Ruta para obtener todos los productos
-router.get('/productos', productoController.obtenerProductos);
+class ProductoRouters {
+  constructor() {
+    this.router = express.Router();
+    this.configurarRutas();
+  }
 
-// Ruta para obtener un producto por su ID
-router.get('/productos/:id', productoController.obtenerProductoPorId);
+  configurarRutas() {
+    // Ruta para obtener todos los productos
+    this.router.get('/productos', productoController.obtenerProductos);
 
-// Ruta para crear un producto
-router.post('/productos', productoController.crearProducto);
+    // Ruta para obtener un producto por su ID
+    this.router.get('/productos/:id', productoController.obtenerProductoPorId);
 
-// Ruta para actualizar un producto
-router.post('/productos', productoController.actualizarProducto);
+    // Ruta para crear un producto
+    this.router.post('/productos', productoController.crearProducto);
 
-// Ruta para desactivar un producto (marcar como inactivo)
-router.post('/productos', productoController.desactivarProducto);
+    // Ruta para actualizar un producto
+    this.router.post('/productos', productoController.actualizarProducto);
 
-// Ruta para eliminar un producto
-router.delete('/productos/:id', productoController.eliminarProducto);
+    // Ruta para desactivar un producto (marcar como inactivo)
+    this.router.post('/productos', productoController.desactivarProducto);
+  }
 
-module.exports = router;
+  getRouter() {
+    return this.router;
+  }
+}
+
+const router = new ProductoRouters();
+module.exports = router.getRouter();

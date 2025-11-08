@@ -52,11 +52,7 @@ class ProductoModel {
     return result.affectedRows > 0; // Si la actualización afectó alguna fila
   }
 
-  async eliminarProducto(id) {
-    const query = 'DELETE FROM producto WHERE id_producto = ?';
-    const [result] = await this.pool.query(query, [id]);
-    return result.affectedRows > 0; // Si el producto fue eliminado
-  }
+
 }
 
 module.exports = ProductoModel;
