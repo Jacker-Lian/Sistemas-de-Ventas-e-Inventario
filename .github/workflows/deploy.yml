@@ -1,0 +1,63 @@
+name: Deploy Fullstack App
+
+on:
+  push:
+    branches:
+      - main  # o la rama que uses para producción
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Construir el frontend
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      # Empaquetar backend + build del frontend
+      - name: Package artifacts
+        run: |
+          tar -czf deploy.tar.gz backend frontend/dist
+
+      # Subir los artefactos al servidor
+      - name: Upload to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "deploy.tar.gz"
+          target: "~/app"
+
+      # Desplegar y reiniciar servicios en el servidor
+      - name: Deploy on Server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/app
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
+
+            # --- Backend ---
+            cd backend/api
+            npm install --production
+            pm2 restart backend || pm2 start index.js --name "backend"
+
+            # --- Frontend ---
+            cd ~/app/frontend/build
+            sudo rm -rf /var/www/html/*
+            sudo cp -r * /var/www/html/

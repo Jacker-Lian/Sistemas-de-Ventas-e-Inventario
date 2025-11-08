@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
@@ -12,7 +13,14 @@ class App {
   }
 
   configurarMiddlewares() {
-    this.app.use(cors());
+    const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+
+    this.app.use(cors({
+      origin: FRONTEND_ORIGIN,
+      credentials: true 
+    }));
+
+    this.app.use(cookieParser());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     // Middleware para logear todas las peticiones
