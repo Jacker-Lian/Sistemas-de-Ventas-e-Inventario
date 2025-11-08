@@ -15,8 +15,9 @@ class VentasModel {
         "SELECT id_usuario FROM usuarios WHERE id_usuario = ?",
         [ventaData.id_usuario]
       );
-      if (usuarioRows.length === 0)
-        throw new Error("El id_usuario no existe en la tabla usuarios.");
+      if (usuarioRows.length === 0) {
+        throw new Error("El usuario no existe o está inactivo.");
+      }
 
       // Verificar que id_caja exista en la tabla cajas
       const [cajaRows] = await db.query(
@@ -39,6 +40,7 @@ class VentasModel {
         [
           ventaData.id_usuario,
           ventaData.id_caja,
+          id_sucursal,
           ventaData.tipo_cliente,
           ventaData.metodo_pago,
           ventaData.total,
@@ -46,9 +48,56 @@ class VentasModel {
         ]
       );
 
-      return result.insertId;
+      const id_venta = resultVenta.insertId;
+
+      // 7. Insertar detalles de venta y actualizar stock
+      for (const producto of productosValidados) {
+        // Insertar detalle de venta
+        await connection.query(
+          `INSERT INTO detalle_venta (
+            id_venta,
+            id_producto,
+            cantidad,
+            precio_unitario,
+            subtotal
+          ) VALUES (?, ?, ?, ?, ?)`,
+          [
+            id_venta,
+            producto.id_producto,
+            producto.cantidad,
+            producto.precio_unitario,
+            producto.subtotal,
+          ]
+        );
+
+        // Actualizar stock del producto
+        await connection.query(
+          "UPDATE producto SET stock = stock - ? WHERE id_producto = ?",
+          [producto.cantidad, producto.id_producto]
+        );
+      }
+
+      // 8. Actualizar ingresos de la caja
+      await connection.query(
+        "UPDATE caja SET total_ingresos = total_ingresos + ? WHERE id_caja = ?",
+        [totalVenta, ventaData.id_caja]
+      );
+
+      // Confirmar transacción
+      await connection.commit();
+
+      return {
+        id_venta: id_venta,
+        total: totalVenta,
+        productos_registrados: productosValidados.length,
+      };
     } catch (error) {
+      // Revertir transacción en caso de error
+      await connection.rollback();
       throw new Error("Error al registrar venta: " + error.message);
+    } finally {
+      // Liberar conexión
+      connection.release();
     }
   }
 
@@ -56,20 +105,22 @@ class VentasModel {
   async cancelarVenta(id_venta, id_motivo_cancelacion) {
     try {
       const pool = database.getPool();
-      
+
       // Verificar que la venta exista
       const [ventaRows] = await pool.query(
         `SELECT id_venta FROM ${this.table} WHERE id_venta = ?`,
         [id_venta]
       );
-      if (ventaRows.length === 0) throw new Error("La venta con el id proporcionado no existe.");
+      if (ventaRows.length === 0)
+        throw new Error("La venta con el id proporcionado no existe.");
 
       // Verificar que el motivo de cancelación exista
       const [motivoRows] = await pool.query(
         "SELECT id_motivo_cancelacion FROM motivos_cancelacion WHERE id_motivo_cancelacion = ?",
         [id_motivo_cancelacion]
       );
-      if (motivoRows.length === 0) throw new Error("El motivo de cancelación no existe.");
+      if (motivoRows.length === 0)
+        throw new Error("El motivo de cancelación no existe.");
 
       // Actualizar la venta con el estado "CANCELADA" y el id_motivo_cancelacion
       await pool.query(
@@ -84,11 +135,12 @@ class VentasModel {
   }
 
   // Registrar un nuevo motivo de cancelación
-  async registrarMotivoCancelacion(descripcion){
+  async registrarMotivoCancelacion(descripcion) {
     try {
       const pool = database.getPool();
 
-      if( !descripcion || descripcion.length === 0 ) throw new Error("La descripción de cancelación no puede estar vacía.");
+      if (!descripcion || descripcion.length === 0)
+        throw new Error("La descripción de cancelación no puede estar vacía.");
 
       const [result] = await pool.query(
         `INSERT INTO motivos_cancelacion (descripcion) VALUES (?)`,
@@ -97,7 +149,9 @@ class VentasModel {
 
       return result.insertId;
     } catch (error) {
-      throw new Error("Error al registrar motivo de cancelación: " + error.message);
+      throw new Error(
+        "Error al registrar motivo de cancelación: " + error.message
+      );
     }
   }
 
@@ -106,33 +160,37 @@ class VentasModel {
     try {
       const pool = database.getPool();
       const [rows] = await pool.query(
-        `SELECT id_motivo_cancelacion, descripcion FROM motivos_cancelacion WHERE estado = 1`
+        `SELECT id_motivo, descripcion FROM motivos_cancelacion WHERE estado = 1`
       );
       return rows;
     } catch (error) {
-      throw new Error("Error al obtener motivos de cancelación: " + error.message);
+      throw new Error(
+        "Error al obtener motivos de cancelación: " + error.message
+      );
     }
   }
 
   // Desactivar un motivo de cancelación
-  async desactivarMotivoCancelacion(id_motivo_cancelacion) {
+  async desactivarMotivoCancelacion(id_motivo) {
     try {
       const pool = database.getPool();
 
-      if (!id_motivo_cancelacion) throw new Error("El id_motivo_cancelacion es requerido.");
+      if (!id_motivo || !Number.isInteger(id_motivo) || id_motivo <= 0)
+        throw new Error(
+          "El id_motivo es requerido y debe ser un número entero positivo."
+        );
 
       const [result] = await pool.query(
-        `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo_cancelacion = ?`,
-        [id_motivo_cancelacion]
+        `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo = ?`,
+        [id_motivo]
       );
       return result.affectedRows > 0;
     } catch (error) {
-      throw new Error("Error al desactivar motivo de cancelación: " + error.message);
+      throw new Error(
+        "Error al desactivar motivo de cancelación: " + error.message
+      );
     }
   }
-
-
-
 }
 
 module.exports = VentasModel;

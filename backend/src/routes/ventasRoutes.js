@@ -8,8 +8,6 @@ class VentasRoutes {
   }
 
   configurarRutas() {
-    /*
-    Ruta para registrar una nueva venta
 
     Body: ventaData (objeto JSON)
 
@@ -29,24 +27,11 @@ this.router.get('ventas/detalles/:id_venta', ventasController.obtenerDetallesVen
 
     Body: motivoCancelacionData (objeto JSON)
 
-    Ejemplo: {BASE_URL}/api/ventas/Insertar-motivo-cancelacion
-    */
     this.router.post('/Insertar-motivo-cancelacion', ventasController.registrarMotivoCancelacion);
 
-    /*
-    Ruta para obtener todos los motivos de cancelación
-    
-    Ejemplo: {BASE_URL}/api/ventas/Obtener-motivos-cancelacion 
-    */
     this.router.get('/Obtener-motivos-cancelacion', ventasController.obtenerMotivosCancelacion);
 
-    /*
-    Ruta para desactivar un motivo de cancelación
-    
-    Parámetro: id_motivo_cancelacion
-    Ejemplo: {BASE_URL}/api/ventas/Desactivar-motivo-cancelacion/3
-    */
-    this.router.put('/Desactivar-motivo-cancelacion/:id_motivo_cancelacion', ventasController.desactivarMotivoCancelacion);
+    this.router.put('/Desactivar-motivo-cancelacion', ventasController.desactivarMotivoCancelacion);
   }
 
   getRouter() {

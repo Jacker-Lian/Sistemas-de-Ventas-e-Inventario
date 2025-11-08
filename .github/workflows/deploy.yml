@@ -1,63 +1,69 @@
-name: Deploy Fullstack App
+name: Deploy Frontend and Backend to Server
 
 on:
   push:
     branches:
-      - main  # o la rama que uses para producción
+      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 1️⃣ Clonar el repositorio
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # Construir el frontend
-      - name: Build Frontend
-        working-directory: ./frontend
+      # 2️⃣ Construir el frontend (React)
+      - name: Build frontend
         run: |
+          cd frontend
           npm ci
           npm run build
+          cd ..
 
-      # Empaquetar backend + build del frontend
-      - name: Package artifacts
+      # 3️⃣ Instalar dependencias del backend (sin ejecutar)
+      - name: Prepare backend
+        run: |
+          cd backend
+          npm ci
+          cd ..
+
+      # 4️⃣ Empaquetar todo en un solo archivo
+      - name: Package frontend and backend
         run: |
           tar -czf deploy.tar.gz backend frontend/dist
 
-      # Subir los artefactos al servidor
-      - name: Upload to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "deploy.tar.gz"
-          target: "~/app"
+      # 5️⃣ Subir al servidor y desplegar
+      - name: Upload and deploy to server
+        env:
+          SSH_HOST: 38.250.161.15        
+          SSH_USER: root                 
+          SSH_PASS: sector7          
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y sshpass
 
-      # Desplegar y reiniciar servicios en el servidor
-      - name: Deploy on Server
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
+          # Subir el archivo comprimido
+          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no -P 22 deploy.tar.gz $SSH_USER@$SSH_HOST:~/
+
+          # Conectarse al servidor y desplegar
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -p 22 $SSH_USER@$SSH_HOST << 'EOF'
+            mkdir -p ~/app
             cd ~/app
+            mv ~/deploy.tar.gz .
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
 
-            # --- Backend ---
-            cd backend/api
-            npm install --production
-            pm2 restart backend || pm2 start index.js --name "backend"
-
-            # --- Frontend ---
-            cd ~/app/frontend/build
-            sudo rm -rf /var/www/html/*
-            sudo cp -r * /var/www/html/
+            # Reiniciar backend con PM2 (si existe)
+            if command -v pm2 &> /dev/null
+            then
+              cd backend
+              pm2 startOrReload ecosystem.config.js || pm2 restart all
+            else
+              echo "⚠️ pm2 no está instalado, iniciando el backend manualmente..."
+              cd backend
+              nohup npm start &
+            fi
+          EOF
