@@ -9,20 +9,20 @@
     - Body(JSON) 
     ```json
     {
-        // DATOS DE LA VENTA (Encabezado)
-        "id_usuario": 2,                    // ID del cajero (REQUERIDO)
-        "id_caja": 1,                       // ID de la caja abierta (REQUERIDO)
-        "id_sucursal": 1,                   // ID de la sucursal (OPCIONAL)
-        "tipo_cliente": "ALUMNO",           // DOCENTE | ALUMNO | OTRO (REQUERIDO)
-        "metodo_pago": "EFECTIVO",          // EFECTIVO | YAPE | PLIN | OTROS (REQUERIDO)
-        "estado_venta": "COMPLETADA",       // COMPLETADA | PENDIENTE | CANCELADA (REQUERIDO)
+
+        "id_usuario": 2,
+        "id_caja": 1,
+        "id_sucursal": 1,
+        "tipo_cliente": "ALUMNO",
+        "metodo_pago": "EFECTIVO",
+        "estado_venta": "COMPLETADA",
         
-        // PRODUCTOS VENDIDOS (Detalles)
-        "productos": [                      // Array de productos (REQUERIDO, mínimo 1)
+        
+        "productos": [                      
           {
-            "id_producto": 101,             // ID del producto (REQUERIDO)
-            "cantidad": 2,                  // Cantidad vendida (REQUERIDO, > 0)
-            "precio_unitario": 5.00         // Precio por unidad (REQUERIDO)
+            "id_producto": 101,             
+            "cantidad": 2,
+            "precio_unitario": 5.00
           },
           {
             "id_producto": 102,
