@@ -1,4 +1,3 @@
-import { Link, Navigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { useAuth } from "../context/AuthContext";
 import "../styles/admin.css"; 
