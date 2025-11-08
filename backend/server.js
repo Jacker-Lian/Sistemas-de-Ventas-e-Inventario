@@ -13,7 +13,7 @@ class Server {
       console.log('Conectando a MySQL...');
       await database.connect();
 
-      this.app.listen(this.port, () => {
+      this.app.listen(this.port, '0.0.0.0', () => {
         console.log(`El Servidor esta corriendo en http://localhost:${this.port}`);
         console.log('Presiona Ctrl+C para detener el servidor');
       });

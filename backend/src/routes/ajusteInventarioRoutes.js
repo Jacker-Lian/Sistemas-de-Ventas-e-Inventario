@@ -23,4 +23,4 @@ class AjusteInventarioRoutes {
     }
 }
 
-module.exports = AjusteInventarioRoutes.
+module.exports = AjusteInventarioRoutes;
