@@ -1,5 +1,5 @@
 
-const pool = require('../config/db'); // ajusta la ruta a donde tengas tu pool
+const pool = require('../config/db'); 
 
 // Reporte de ventas totales por período
 const getVentasTotalesModel = async ({ fecha_inicio, fecha_fin, id_sucursal }) => {
