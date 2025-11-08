@@ -6,7 +6,9 @@ const {
   getOneGasto,
   postGasto,
   putGasto,
-  patchGasto
+  patchGasto,
+  getTiposGasto,
+  postTipoGasto,
 } = require("../controllers/gastoController.js");
 
 class GastoRoutes {
@@ -16,6 +18,12 @@ class GastoRoutes {
   }
 
   config() {
+    
+    // GET /api/gastos/tipo obtiene todos los tipos de gasto
+    this.router.get("/tipos", getTiposGasto);
+    // POST /api/gastos/tipo crea un nuevo tipo de gasto
+    this.router.post("/tipo", postTipoGasto);
+
     /* GET /api/gastos obtiene todos los gastos.
     agregado parametros query: page=1&limit=10 */
     this.router.get("/", getGastos);
@@ -27,6 +35,7 @@ class GastoRoutes {
     this.router.put("/:id", getGastoById, putGasto);
     // PATCH /api/gastos/:id "elimina" un gasto por id
     this.router.patch("/:id", getGastoById, patchGasto);
+
   }
 
   getRouter() {

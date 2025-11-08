@@ -11,10 +11,12 @@ class gastosModel {
       
       const offset = (page - 1) * limit;
       const [gastos] = await pool.query(`
-        SELECT id_gasto, descripcion, monto, tipo_gasto, metodo_pago 
-        FROM gastos
-        WHERE estado = 1
-        ORDER BY fecha_creacion DESC 
+        SELECT g.id_gasto, g.descripcion, g.monto, g.metodo_pago, tg.nombre
+        AS tipo_gasto FROM gastos g
+        LEFT JOIN tipo_gasto tg 
+        ON g.id_tipo_gasto = tg.id_tipo_gasto
+        WHERE g.estado = 1
+        ORDER BY g.fecha_creacion DESC 
         LIMIT ? OFFSET ?
       `, [limit, offset]);
       // total de gastos en la tabla
@@ -80,6 +82,32 @@ class gastosModel {
         [descripcion, monto, tipo_gasto, metodo_pago, id_usuario]
       );
       return crear.insertId; // solo devolvemos el id insertado
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async obtenerTiposGasto() {
+    try {
+      const [tipos] = await pool.query(
+        `SELECT id_tipo_gasto, nombre, descripcion
+         FROM tipo_gasto
+         ORDER BY id_tipo_gasto DESC`
+      );
+      return tipos; // devolvemos la lista
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async crearTipoGasto({ nombre, descripcion }) {
+    try {
+      const [crear] = await pool.query(
+        `INSERT INTO tipo_gasto (nombre, descripcion)
+         VALUES (?, ?)`,
+        [nombre, descripcion]
+      );
+      return crear.insertId; // devolver id generaod
     } catch (error) {
       return { error };
     }

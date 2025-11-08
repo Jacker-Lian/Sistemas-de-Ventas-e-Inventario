@@ -13,7 +13,8 @@ const getGastos = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
-    const { gastos, totalGastos, totalPaginas, paginaActual, error } = await gastoModel.obtenerGastos({ page, limit });
+    const { gastos, totalGastos, totalPaginas, paginaActual, error } =
+      await gastoModel.obtenerGastos({ page, limit });
 
     if (error) {
       console.error("Error en getGastos:", error);
@@ -52,20 +53,21 @@ const getGastoById = async (req, res, next) => {
       return res.status(500).json({ message: "Error al obtener gasto" });
     }
 
-    if (!gasto) return res.status(404).json({ message: "Gasto no encontrado" });
+    if (!gasto)
+      return res.status(404).json({ message: "Gasto no encontrado" });
 
     req.gasto = gasto;
     next();
   } catch (error) {
     console.error("Error inesperado en getGastoById:", error);
-    res.status(500).json({ message: "Error inesperado al obtener gasto" });
+    res.status(500).json({ message: "Error inesperado al obtener gasto"});
   }
 };
 
 const getOneGasto = (req, res) => {
-  res.status(200).json({ 
-    success: true, 
-    data: req.gasto 
+  res.status(200).json({
+    success: true,
+    data: req.gasto
   });
 };
 
@@ -81,20 +83,20 @@ const putGasto = async (req, res) => {
 
     if (updated?.error) {
       console.error("Error en putGasto:", updated.error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
         message: "Error al actualizar gasto"
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Gasto actualizado", 
-      data: updated 
+    res.status(200).json({
+      success: true,
+      message: "Gasto actualizado",
+      data: updated
     });
   } catch (error) {
     console.error("Error inesperado en putGasto:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: "Error inesperado al actualizar gasto"
     });
@@ -107,7 +109,7 @@ const patchGasto = async (req, res) => {
 
     if (result?.error) {
       console.error("Error en patchGasto:", result.error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
         message: "Error al eliminar gasto"
       });
@@ -143,7 +145,13 @@ Ruta: POST /api/gastos
 const postGasto = async (req, res) => {
   try {
     const { descripcion, monto, tipo_gasto, metodo_pago, id_usuario } = req.body;
-    const id = await gastoModel.crearGasto({ descripcion, monto, tipo_gasto, metodo_pago, id_usuario });
+    const id = await gastoModel.crearGasto({
+      descripcion,
+      monto,
+      tipo_gasto,
+      metodo_pago,
+      id_usuario
+    });
 
     if (id?.error) {
       console.error("Error en postGasto:", id.error);
@@ -158,6 +166,7 @@ const postGasto = async (req, res) => {
       message: "Gasto creado correctamente",
       id,
     });
+
   } catch (error) {
     console.error("Error inesperado en postGasto:", error);
     res.status(500).json({
@@ -167,6 +176,65 @@ const postGasto = async (req, res) => {
   }
 };
 
+
+const getTiposGasto = async (req, res) => {
+  try {
+    const tipos = await gastoModel.obtenerTiposGasto();
+
+    if (tipos?.error) {
+      console.error("Error en getTiposGasto:", tipos.error);
+      return res.status(500).json({
+        success: false,
+        message: "Error al obtener tipos de gasto"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: tipos
+    });
+
+  } catch (error) {
+    console.error("Error inesperado en getTiposGasto:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error inesperado al obtener tipos de gasto"
+    });
+  }
+};
+
+/**
+Crear un nuevo tipo de gasto
+*/
+const postTipoGasto = async (req, res) => {
+  try {
+    const { nombre, descripcion } = req.body;
+    const id = await gastoModel.crearTipoGasto({ nombre, descripcion });
+
+    if (id?.error) {
+      console.error("Error en postTipoGasto:", id.error);
+      return res.status(500).json({
+        success: false,
+        message: "Error al crear tipo de gasto"
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Tipo de gasto creado correctamente",
+      id,
+    });
+
+  } catch (error) {
+    console.error("Error inesperado en postTipoGasto:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error inesperado al crear tipo de gasto"
+    });
+  }
+};
+
+
 module.exports = {
   getGastos,
   getGastoById,
@@ -174,4 +242,6 @@ module.exports = {
   putGasto,
   patchGasto,
   postGasto,
+  getTiposGasto,
+  postTipoGasto
 };
