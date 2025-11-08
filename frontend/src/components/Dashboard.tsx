@@ -1,4 +1,3 @@
-// src/components/Dashboard.tsx
 import React, { useState } from "react";
 import { Link } from 'react-router-dom'; 
 
@@ -10,7 +9,6 @@ const Dashboard: React.FC = () => {
     notificaciones: 8,
   });
 
-  // Lista de enlaces del menú (sin "Alerta de Stock")
   const menuItems = [
     "Inicio",
     "Usuarios",
@@ -33,7 +31,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container"> 
-      {/* Sidebar */}
+      
       <aside className="sidebar"> 
         <h2>Mi Panel</h2>
         {menuItems.map((item) => (
