@@ -22,10 +22,12 @@ const AjusteInventarioController = {
     // Obtener todos los ajustes de inventario
     obtenerTodosLosAjustes: async (req, res) => {
         try {
+
             //filtro para el historial inventario
             const filtros = req.query;
 
             const ajustes = await AjusteInventarioModel.obtenerTodos(filtros);
+
             res.json({
                 success: true,
                 data: ajustes

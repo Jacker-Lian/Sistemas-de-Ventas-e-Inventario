@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
+const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 
 class App {
   constructor() {
@@ -11,7 +13,14 @@ class App {
   }
 
   configurarMiddlewares() {
-    this.app.use(cors());
+    const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+
+    this.app.use(cors({
+      origin: FRONTEND_ORIGIN,
+      credentials: true 
+    }));
+
+    this.app.use(cookieParser());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     // Middleware para logear todas las peticiones
@@ -27,7 +36,8 @@ class App {
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
           Login: "/api/usuario",
-          Ventas: "/api/ventas"
+          Ventas: "/api/ventas",
+          AjustesInventario: "/api/ajustes-inventario"
         },
       });
     });
@@ -39,6 +49,10 @@ class App {
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+
+    // Montar rutas de ajustes de inventario
+    const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
+    this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {
