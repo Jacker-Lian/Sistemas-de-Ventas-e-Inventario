@@ -28,7 +28,7 @@ jobs:
       # Empaquetar backend + build del frontend
       - name: Package artifacts
         run: |
-          tar -czf deploy.tar.gz backend frontend/build
+          tar -czf deploy.tar.gz backend frontend/dist
 
       # Subir los artefactos al servidor
       - name: Upload to server
@@ -40,7 +40,7 @@ jobs:
           source: "deploy.tar.gz"
           target: "~/app"
 
-      # ⚙️ Desplegar y reiniciar servicios en el servidor
+      # Desplegar y reiniciar servicios en el servidor
       - name: Deploy on Server
         uses: appleboy/ssh-action@v1.1.0
         with:
