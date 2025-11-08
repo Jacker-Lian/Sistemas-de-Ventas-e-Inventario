@@ -19,7 +19,7 @@ function Login() {
     setMensaje("");
 
     try {
-      const res = await api.post("/login", { email, password });
+      const res = await api.post("/usuario/login", { email, password });
       const data = res.data;
       login(data.token, data.user);
       setMensaje("Inicio de sesión exitoso");

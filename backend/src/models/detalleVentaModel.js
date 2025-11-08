@@ -41,6 +41,34 @@ class DetalleVentaModel {
         }
 
     }
+
+    /**
+   * Obtiene todos los productos de una venta específica.
+   * @param {number} id_venta - El ID de la venta que queremos consultar.
+   */
+  async obtenerPorIdVenta(id_venta) {
+    try {
+      const pool = database.getPool(); 
+      
+      const query = `
+        SELECT 
+          dv.id_producto,
+          dv.cantidad,
+          dv.precio_unitario,
+          dv.subtotal,
+          p.nombre AS nombre_producto 
+        FROM ${this.table} dv
+        JOIN producto p ON dv.id_producto = p.id_producto
+        WHERE dv.id_venta = ?
+      `;
+
+      const [rows] = await pool.query(query, [id_venta]);
+      return rows; // Devuelve un array con los productos de esa venta
+
+    } catch (error) {
+      throw new Error("Error al obtener detalles de la venta: " + error.message);
+    }
+  }
 }
 
 module.exports =DetalleVentaModel;

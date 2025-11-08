@@ -1,14 +1,22 @@
 const ventasModel = require("../models/ventasModel");
 const express = require("express");
+const DetalleVentaModel = require("../models/detalleVentaModel");
+const database = require("../config/database");
 
 const ventasModelInstance = new ventasModel();
+const detalleVentaModelInstance = new DetalleVentaModel();
+
+
 
 const ventasController = {
   // Controlador para registrar una nueva venta
   registrarVenta: async (req, res) => {
-    try {
-      const ventaData = req.body;
 
+    const ventaData = req.body; 
+    const detalles = ventaData.detalles;
+
+    try {
+      
       // Validar datos requeridos
       if (
         !ventaData.id_usuario ||
@@ -21,7 +29,13 @@ const ventasController = {
           message: "Faltan datos requeridos para registrar la venta.",
         });
       }
-
+      //validar si la venta viene con detalles (productos)
+      //no se realiza venta sin productos
+      if (!detalles || !Array.isArray(detalles) || detalles.length === 0) {
+      return res.status(400).json({
+        message: "No se puede registrar una venta sin productos.",
+      });
+    }
       // Validar que id_usuario sea un número positivo
       if (
         !Number.isInteger(ventaData.id_usuario) ||
@@ -89,17 +103,90 @@ const ventasController = {
           });
         }
       }
+      
+      let connection;
 
-      const nuevaVentaId = await ventasModelInstance.registrarVenta(ventaData);
+      try{
+        connection= await database.getPool(). getConnection();
+
+        await connection.beginTransaction();
+
+        const ventaData={
+          id_usuario,
+          id_caja,
+          tipo_cliente,
+          metodo_pago,
+          total,
+          estado_venta: "COMPLETADA",
+        };
+        const nuevaVentaId = await ventasModelInstance.registrarVenta(
+        ventaData,
+        connection
+      );
+      for (const detalle of detalles){
+        const detalleData ={
+          id_venta : nuevaVentaId,
+          id_producto: detalle.id_producto,
+          cantidad: detalle.cantidad,
+          precio_unitario: detalle.precio_unitario,
+          subtotal: detalle.subtotal,
+        };
+
+        await detalleVentaModelInstance.registrar(detalleData, connection);
+      }
+      await connection.commit();
 
       return res.status(201).json({
         message: "Venta registrada exitosamente.",
         id_venta: nuevaVentaId,
       });
+      } catch (error){ //para la transaccion
+        if(connection){
+          await connection.rollback();
+        }
+
+        return res
+          .status(500)
+          .json({message: "Error al registrar venta: "+ error.message});
+      }finally{
+        if(connection){
+          connection.release();
+        }
+      }
+  
     } catch (error) {
       return res
         .status(500)
         .json({ message: "Error al registrar la venta: " + error.message });
+    }
+  },
+
+  //funcion para obtener detalles de una venta
+  obtenerDetallesVenta: async (req, res) => {
+    try {
+      //Obtenemos el ID que viene en la URL
+      const { id_venta } = req.params;
+
+      //Llamamos al modelo de detalle venta
+      const detalles = await detalleVentaModelInstance.obtenerPorIdVenta(id_venta);
+
+      if (!detalles || detalles.length === 0) {
+        return res.status(404).json({
+          message: "No se encontraron detalles para esta venta.",
+        });
+      }
+
+      //Enviamos los detalles al frontend
+      return res.status(200).json({
+        success: true,
+        data: detalles,
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Error al obtener detalles: " + error.message,
+      });
     }
   },
   

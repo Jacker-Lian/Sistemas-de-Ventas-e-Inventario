@@ -6,12 +6,12 @@ class VentasModel {
   }
 
   // Registrar una nueva venta
-  async registrarVenta(ventaData) {
+  async registrarVenta(ventaData, connection) {
     try {
-      const pool = database.getPool();
+      const db= connection || database.getPool();
 
       // Verificar que id_usuario exista en la tabla usuarios
-      const [usuarioRows] = await pool.query(
+      const [usuarioRows] = await db.query(
         "SELECT id_usuario FROM usuarios WHERE id_usuario = ?",
         [ventaData.id_usuario]
       );
@@ -19,44 +19,30 @@ class VentasModel {
         throw new Error("El id_usuario no existe en la tabla usuarios.");
 
       // Verificar que id_caja exista en la tabla cajas
-      const [cajaRows] = await pool.query(
+      const [cajaRows] = await db.query(
         "SELECT id_caja FROM caja WHERE id_caja = ?",
         [ventaData.id_caja]
       );
       if (cajaRows.length === 0)
         throw new Error("El id_caja no existe en la tabla cajas.");
 
-      // Verificar que id_motivo_cancelacion exista en la tabla motivos_cancelacion si se proporciona
-      if (ventaData.id_motivo_cancelacion) {
-        const [motivoRows] = await pool.query(
-          "SELECT id_motivo_cancelacion FROM motivos_cancelacion WHERE id_motivo_cancelacion = ?",
-          [ventaData.id_motivo_cancelacion]
-        );
-        if (motivoRows.length === 0)
-          throw new Error(
-            "El id_motivo_cancelacion no existe en la tabla motivos_cancelacion."
-          );
-      }
-
       // Insertar la nueva venta
-      const [result] = await pool.query(
+      const [result] = await db.query(
         `INSERT INTO ${this.table} (
                     id_usuario,
                     id_caja,
                     tipo_cliente,
                     metodo_pago,
                     total,
-                    estado_venta,
-                    id_motivo_cancelacion
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    estado_venta
+        ) VALUES (?, ?, ?, ?, ?, ?)`,
         [
           ventaData.id_usuario,
           ventaData.id_caja,
           ventaData.tipo_cliente,
           ventaData.metodo_pago,
           ventaData.total,
-          ventaData.estado_venta || "PENDIENTE",
-          ventaData.id_motivo_cancelacion || null,
+          ventaData.estado_venta || "PENDIENTE"
         ]
       );
 

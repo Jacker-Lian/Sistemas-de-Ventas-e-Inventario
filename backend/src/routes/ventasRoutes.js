@@ -15,11 +15,14 @@ class VentasRoutes {
 
     Ejemplo: {BASE_URL}/api/ventas/registrar
     */
-    this.router.post('/registrar', ventasController.registrarVenta);
+    this.router.post('ventas/registrar', ventasController.registrarVenta);
 
     this.router.put('/cancelar/:id_venta', ventasController.cancelarVenta);
+    
+    
+    //PARA CONSEGUIR DETALLES DE UNA VENTA CON EL ID
 
-
+this.router.get('ventas/detalles/:id_venta', ventasController.obtenerDetallesVenta);
 
     /*
     Ruta para agregar un motivo de cancelación
