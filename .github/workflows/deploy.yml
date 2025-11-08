@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clonar el repositorio
+      # Clonar el repositorio
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Construir el frontend (React)
+      # Construir el frontend (React)
       - name: Build frontend
         run: |
           cd frontend
@@ -23,19 +23,19 @@ jobs:
           npm run build
           cd ..
 
-      # 3️⃣ Instalar dependencias del backend (sin ejecutar)
+      # Instalar dependencias del backend (sin ejecutar)
       - name: Prepare backend
         run: |
           cd backend
           npm ci
           cd ..
 
-      # 4️⃣ Empaquetar todo en un solo archivo
+      # Empaquetar todo en un solo archivo
       - name: Package frontend and backend
         run: |
           tar -czf deploy.tar.gz backend frontend/dist
 
-      # 5️⃣ Subir al servidor y desplegar
+      # Subir al servidor y desplegar
       - name: Upload and deploy to server
         env:
           SSH_HOST: 38.250.161.15        
@@ -50,20 +50,32 @@ jobs:
 
           # Conectarse al servidor y desplegar
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -p 22 $SSH_USER@$SSH_HOST << 'EOF'
+            set -e
             mkdir -p ~/app
             cd ~/app
             mv ~/deploy.tar.gz .
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
 
-            # Reiniciar backend con PM2 (si existe)
-            if command -v pm2 &> /dev/null
+            # Instalar PM2 si no está
+            if ! command -v pm2 &> /dev/null
             then
-              cd backend
-              pm2 startOrReload ecosystem.config.js || pm2 restart all
-            else
-              echo "⚠️ pm2 no está instalado, iniciando el backend manualmente..."
-              cd backend
-              nohup npm start &
+              npm install -g pm2
+              pm2 startup
             fi
+
+            # Reiniciar backend con PM2
+            cd backend
+            if [ -f ecosystem.config.js ]; then
+              pm2 startOrReload ecosystem.config.js || pm2 restart backend-api || pm2 start src/server.js --name backend-api
+            else
+              pm2 restart backend-api || pm2 start src/server.js --name backend-api
+            fi
+
+            # Iniciar/actualizar frontend con PM2
+            cd ~/app/frontend
+            pm2 describe frontend-app >/dev/null 2>&1 && pm2 restart frontend-app || pm2 start "serve -s dist -l 80" --name frontend-app
+
+            # Guardar configuración PM2
+            pm2 save
           EOF
