@@ -1,4 +1,4 @@
-name: Build and Deploy to Server
+name: Deploy Frontend and Backend to Server
 
 on:
   push:
@@ -11,50 +11,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      # 1️⃣ Clonar el repositorio
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- Construcción del proyecto ---
-      - name: Instalar dependencias y construir Frontend
+      # 2️⃣ Construir el frontend (React)
+      - name: Build frontend
         run: |
           cd frontend
           npm ci
           npm run build
+          cd ..
 
-      - name: Instalar dependencias del Backend
+      # 3️⃣ Instalar dependencias del backend (sin ejecutar)
+      - name: Prepare backend
         run: |
           cd backend
           npm ci
+          cd ..
 
-      # --- Crear archivo comprimido ---
-      - name: Crear archivo comprimido
+      # 4️⃣ Empaquetar todo en un solo archivo
+      - name: Package frontend and backend
         run: |
           tar -czf deploy.tar.gz backend frontend/dist
 
-      # --- Subir al servidor remoto ---
-      - name: Subir y desplegar en el servidor
+      # 5️⃣ Subir al servidor y desplegar
+      - name: Upload and deploy to server
+        env:
+          SSH_HOST: 38.250.161.15        
+          SSH_USER: root                 
+          SSH_PASS: sector7          
         run: |
-          # CONFIGURA AQUÍ tus credenciales
-          SERVER_HOST="38.250.161.15"
-          SERVER_USER="root"
-          SERVER_PORT="22"
-          SERVER_PASSWORD="sector7" # opcional si usas clave
-          TARGET_DIR="~/app"
-
-          # Instalar sshpass (para usar contraseña sin secretos)
           sudo apt-get update -y
           sudo apt-get install -y sshpass
 
-          # Crear directorio remoto si no existe
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "mkdir -p $TARGET_DIR"
-
           # Subir el archivo comprimido
-          sshpass -p "$SERVER_PASSWORD" scp -P $SERVER_PORT -o StrictHostKeyChecking=no deploy.tar.gz $SERVER_USER@$SERVER_HOST:$TARGET_DIR/
+          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no -P 22 deploy.tar.gz $SSH_USER@$SSH_HOST:~/
 
-          # Descomprimir en el servidor
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "
-            cd $TARGET_DIR &&
-            tar -xzf deploy.tar.gz &&
-            rm deploy.tar.gz &&
-            echo '✅ Despliegue completado en $TARGET_DIR'
-          "
+          # Conectarse al servidor y desplegar
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -p 22 $SSH_USER@$SSH_HOST << 'EOF'
+            mkdir -p ~/app
+            cd ~/app
+            mv ~/deploy.tar.gz .
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
+
+            # Reiniciar backend con PM2 (si existe)
+            if command -v pm2 &> /dev/null
+            then
+              cd backend
+              pm2 startOrReload ecosystem.config.js || pm2 restart all
+            else
+              echo "⚠️ pm2 no está instalado, iniciando el backend manualmente..."
+              cd backend
+              nohup npm start &
+            fi
+          EOF
