@@ -1,9 +1,11 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const ProductoRouters = require("./routes/productoRouters");
+const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 
 class App {
   constructor() {
@@ -13,7 +15,25 @@ class App {
   }
 
   configurarMiddlewares() {
-    this.app.use(cors());
+    const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",       // para desarrollo local
+  "http://38.250.161.15"         // para producción
+];
+
+this.app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS no permitido para este origen: " + origin));
+    }
+  },
+  credentials: true
+}));
+
+    this.app.use(cookieParser());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     // Middleware para logear todas las peticiones
@@ -32,6 +52,7 @@ class App {
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos"
+          HistorialVentas: "api/historial-ventas",
         },
       });
     });
@@ -51,6 +72,12 @@ class App {
     // Montar rutas de productos
     const productoRoutersInstance = new ProductoRouters();
     this.app.use("/api/productos", productoRoutersInstance.getRouter());
+    // Montar ruta para mostrar historial ventas
+    const historialVentasRoutesInstance = new HistorialVentasRoutes();
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
 
     // Ruta 404
     this.app.use((req, res) => {
