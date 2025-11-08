@@ -14,14 +14,8 @@ class ProductoRouters {
     // Ruta para obtener un producto por su ID
     this.router.get('/productos/:id', productoController.obtenerProductoPorId);
 
-    // Ruta para crear un producto
-    this.router.post('/productos', productoController.crearProducto);
-
-    // Ruta para actualizar un producto
-    this.router.post('/productos', productoController.actualizarProducto);
-
-    // Ruta para desactivar un producto (marcar como inactivo)
-    this.router.post('/productos', productoController.desactivarProducto);
+    // Ruta para manejar operaciones POST (crear, actualizar, desactivar)
+    this.router.post('/productos', productoController.manejarProducto);
   }
 
   getRouter() {

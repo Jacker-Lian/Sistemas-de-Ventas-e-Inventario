@@ -41,12 +41,11 @@ class ProductoModel {
   }
 
   async actualizarProducto(id, producto) {
-    const query = 'UPDATE producto SET nombre = ?, precio_venta = ?, stock = ?, descripcion = ? WHERE id_producto = ?';
+    const query = 'UPDATE producto SET nombre = ?, precio_venta = ?, stock = ? WHERE id_producto = ?';
     const [result] = await this.pool.query(query, [
       producto.nombre,
       producto.precio_venta,
       producto.stock,
-      producto.descripcion,
       id,
     ]);
     return result.affectedRows > 0; // Si la actualización afectó alguna fila
