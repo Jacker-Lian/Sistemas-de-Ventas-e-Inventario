@@ -1,63 +1,60 @@
-name: Deploy Fullstack App
+name: Build and Deploy to Server
 
 on:
   push:
     branches:
-      - main  # o la rama que uses para producción
+      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # Construir el frontend
-      - name: Build Frontend
-        working-directory: ./frontend
+      # --- Construcción del proyecto ---
+      - name: Instalar dependencias y construir Frontend
         run: |
+          cd frontend
           npm ci
           npm run build
 
-      # Empaquetar backend + build del frontend
-      - name: Package artifacts
+      - name: Instalar dependencias del Backend
+        run: |
+          cd backend
+          npm ci
+
+      # --- Crear archivo comprimido ---
+      - name: Crear archivo comprimido
         run: |
           tar -czf deploy.tar.gz backend frontend/dist
 
-      # Subir los artefactos al servidor
-      - name: Upload to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "deploy.tar.gz"
-          target: "~/app"
+      # --- Subir al servidor remoto ---
+      - name: Subir y desplegar en el servidor
+        run: |
+          # CONFIGURA AQUÍ tus credenciales
+          SERVER_HOST="38.250.161.15"
+          SERVER_USER="root"
+          SERVER_PORT="22"
+          SERVER_PASSWORD="sector7" # opcional si usas clave
+          TARGET_DIR="~/app"
 
-      # Desplegar y reiniciar servicios en el servidor
-      - name: Deploy on Server
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/app
-            tar -xzf deploy.tar.gz
-            rm deploy.tar.gz
+          # Instalar sshpass (para usar contraseña sin secretos)
+          sudo apt-get update -y
+          sudo apt-get install -y sshpass
 
-            # --- Backend ---
-            cd backend/api
-            npm install --production
-            pm2 restart backend || pm2 start index.js --name "backend"
+          # Crear directorio remoto si no existe
+          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "mkdir -p $TARGET_DIR"
 
-            # --- Frontend ---
-            cd ~/app/frontend/build
-            sudo rm -rf /var/www/html/*
-            sudo cp -r * /var/www/html/
+          # Subir el archivo comprimido
+          sshpass -p "$SERVER_PASSWORD" scp -P $SERVER_PORT -o StrictHostKeyChecking=no deploy.tar.gz $SERVER_USER@$SERVER_HOST:$TARGET_DIR/
+
+          # Descomprimir en el servidor
+          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p $SERVER_PORT $SERVER_USER@$SERVER_HOST "
+            cd $TARGET_DIR &&
+            tar -xzf deploy.tar.gz &&
+            rm deploy.tar.gz &&
+            echo '✅ Despliegue completado en $TARGET_DIR'
+          "
