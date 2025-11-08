@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
+const reporteroutes = require("./routes/reporte.routes");
 
 class App {
   constructor() {
@@ -27,7 +28,8 @@ class App {
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
           Login: "/api/usuario",
-          Ventas: "/api/ventas"
+          Ventas: "/api/ventas",
+          Reportes: "/api/reportes"
         },
       });
     });
