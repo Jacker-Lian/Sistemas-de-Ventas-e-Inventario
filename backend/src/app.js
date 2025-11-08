@@ -15,10 +15,21 @@ class App {
   configurarMiddlewares() {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
-    this.app.use(cors({
-      origin: FRONTEND_ORIGIN,
-      credentials: true 
-    }));
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",       // para desarrollo local
+  "http://38.250.161.15"         // para producción
+];
+
+this.app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS no permitido para este origen: " + origin));
+    }
+  },
+  credentials: true
+}));
 
     this.app.use(cookieParser());
     this.app.use(express.json());
