@@ -1,7 +1,6 @@
 // src/controllers/historial-ventas.controller.js
 const HistorialVentasModel = require("../models/historial-ventas.model");
 
-// Instanciamos el modelo una vez, como en tu ejemplo
 const historialVentasModelInstance = new HistorialVentasModel();
 
 const HistorialVentasController = {
