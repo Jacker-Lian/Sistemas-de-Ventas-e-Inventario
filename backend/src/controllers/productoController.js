@@ -86,8 +86,22 @@ productoController.obtenerProductosPorCategoria = async (req, res) => {
 // Crear un nuevo producto
 productoController.crearProducto = async (req, res) => {
   const { nombre, precio_venta, stock, descripcion } = req.body;
+  if (!nombre || !nombre.trim()) {
+    return res.status(400).json({ message: 'Nombre requerido' });
+  }
+  if (precio_venta === undefined || precio_venta < 0 || isNaN(parseFloat(precio_venta))) {
+    return res.status(400).json({ message: 'Precio de venta debe ser un número positivo' });
+  }
+  if (stock === undefined || stock < 0 || !Number.isInteger(Number(stock))) {
+    return res.status(400).json({ message: 'Stock debe ser un entero no negativo' });
+  }
   try {
-    const nuevoProducto = { nombre, precio_venta, stock, descripcion };
+    const nuevoProducto = {
+      nombre: nombre.trim(),
+      precio_venta: parseFloat(precio_venta),
+      stock: parseInt(stock),
+      descripcion: descripcion ? descripcion.trim() : null
+    };
     const productoId = await productoModel.crearProducto(nuevoProducto);
     res.status(201).json({ message: 'Producto creado', id: productoId });
   } catch (err) {
@@ -102,9 +116,18 @@ productoController.manejarProducto = async (req, res) => {
 
   if (action === 'update') {
     // Actualizar producto
-    const { id, nombre, precio_venta, stock } = req.body;
+    const { id, nombre, precio_venta, stock, descripcion } = req.body;
     if (!id) {
       return res.status(400).json({ message: 'ID requerido para actualizar' });
+    }
+    if (!nombre || !nombre.trim()) {
+      return res.status(400).json({ message: 'Nombre requerido' });
+    }
+    if (precio_venta === undefined || precio_venta < 0 || isNaN(parseFloat(precio_venta))) {
+      return res.status(400).json({ message: 'Precio de venta debe ser un número positivo' });
+    }
+    if (stock === undefined || stock < 0 || !Number.isInteger(Number(stock))) {
+      return res.status(400).json({ message: 'Stock debe ser un entero no negativo' });
     }
     try {
       const productoExistente = await productoModel.obtenerProductoPorId(id);
@@ -112,7 +135,12 @@ productoController.manejarProducto = async (req, res) => {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
-      const productoActualizado = { nombre, precio_venta, stock };
+      const productoActualizado = {
+        nombre: nombre.trim(),
+        precio_venta: parseFloat(precio_venta),
+        stock: parseInt(stock),
+        descripcion: descripcion ? descripcion.trim() : productoExistente.descripcion
+      };
       const actualizado = await productoModel.actualizarProducto(id, productoActualizado);
       if (actualizado) {
         res.status(200).json({ message: 'Producto actualizado correctamente' });
