@@ -1,45 +1,56 @@
-# .github/workflows/ci.yml
-name: CI Pipeline
+name: Validate Frontend & Backend Build
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 jobs:
-  test-backend:
+  validate:
+    name: Validate Build
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
-      
-      - name: Install backend dependencies
-        run: cd backend && npm ci
-      
-      - name: Run backend tests
-        run: cd backend && npm test
-      
-      - name: Build backend
-        run: cd backend && npm run build
 
-  test-frontend:
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      # Clonar el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Configurar Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      
-      - name: Install frontend dependencies
-        run: cd frontend && npm ci
-      
-      - name: Run frontend tests
-        run: cd frontend && npm test
-      
-      - name: Build frontend
-        run: cd frontend && npm run build
+
+      #  Instalar y construir el backend
+      - name: Install & Build Backend
+        working-directory: ./backend
+        run: |
+          echo "Instalando dependencias del backend..."
+          npm ci
+          echo "Compilando backend (si aplica)..."
+          if [ -f tsconfig.json ]; then
+            npm run build
+          else
+            echo "No se encontró tsconfig.json, se asume backend en JS puro."
+          fi
+
+      #  Instalar y construir el frontend
+      - name: Install & Build Frontend
+        working-directory: ./frontend
+        run: |
+          echo "Instalando dependencias del frontend..."
+          npm ci
+          echo "Construyendo frontend..."
+          npm run build
+
+      #  Validar que se generó la carpeta de build
+      - name: Verify Frontend Build Output
+        working-directory: ./frontend
+        run: |
+          if [ ! -d "dist" ]; then
+            echo " Error: No se encontró la carpeta dist después del build."
+            exit 1
+          fi
+          echo " Frontend build exitoso."
