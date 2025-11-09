@@ -8,13 +8,13 @@ class AjusteInventarioRoutes {
     }
 
     configurarRutas() {
-        // Crear un nuevo ajuste de inventario
+        // RUTA 1: POST / (Crear Ajuste)
         this.router.post('/', AjusteInventarioController.crearAjuste);
 
         // Obtener todos los ajustes de inventario --
         this.router.get('/', AjusteInventarioController.obtenerTodosLosAjustes);
 
-        // Obtener ajustes de un producto específico
+        // RUTA 3: GET /producto/:idProducto (Obtener Historial Específico)
         this.router.get('/producto/:idProducto', AjusteInventarioController.obtenerAjustesPorProducto);
     }
 
