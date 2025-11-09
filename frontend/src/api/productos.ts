@@ -7,12 +7,12 @@ export const obtenerProductos = async (query?: string) => {
 };
 
 export const obtenerProductoPorId = async (id: number) => {
-  const response = await api.get(/productos/obtenerProducto/${id});
+  const response = await api.get(`/productos/obtenerProducto/${id}`);
   return response.data;
 };
 
 export const obtenerProductosPorCategoria = async (idCategoria: number) => {
-  const response = await api.get(/productos/obtenerProductosPorCategoria/${idCategoria});
+  const response = await api.get(`/productos/obtenerProductosPorCategoria/${idCategoria}`);
   return response.data;
 };
 
