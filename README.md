@@ -42,11 +42,11 @@ Conexión a MySQL establecida
 
 ### LEER
 
-![GET](https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario/blob/feature/gestion-gastos/media/leer.png?raw=true)    
+![GET](https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario/blob/feature/gestion-gastos-pr/media/leer.png?raw=true)    
 
 Este método obtiene la lista completa de gastos registrados en la base de datos.
 
-![GET?](https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario/blob/feature/gestion-gastos/media/parametros.png?raw=true)    
+![GET?](https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario/blob/feature/gestion-gastos-pr/media/parametros.png?raw=true)    
 
 Se puede agregar parámetros en la URL como ``?page=2`` o ``?limit=3``.
 También se puede combinarlos: ``?page=2&limit=3``

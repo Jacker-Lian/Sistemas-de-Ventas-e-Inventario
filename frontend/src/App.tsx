@@ -3,6 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
+import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -27,6 +28,14 @@ function App() {
                 <Caja />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/inventario/ajuste" 
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <AjusteInventario />
+              </PrivateRoute>
+            } 
           />
         </Routes>
       </AuthProvider>

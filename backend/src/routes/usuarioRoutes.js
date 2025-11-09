@@ -27,3 +27,4 @@ class UsuarioRoutes {
 
 module.exports = UsuarioRoutes;
 
+
