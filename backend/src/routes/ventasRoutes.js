@@ -18,6 +18,8 @@ class VentasRoutes {
     this.router.get('/Obtener-motivos-cancelacion', ventasController.obtenerMotivosCancelacion);
 
     this.router.put('/Desactivar-motivo-cancelacion', ventasController.desactivarMotivoCancelacion);
+
+    this.router.put('/Desactivar-ventana', ventasController.desactivarVentana);
   }
 
   getRouter() {

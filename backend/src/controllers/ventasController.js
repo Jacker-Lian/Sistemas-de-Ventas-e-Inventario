@@ -274,6 +274,35 @@ const ventasController = {
       });
     }
   },
+
+  desactivarVentana: async (req, res) => {
+    try {
+      const { id_caja } = req.body;
+
+      // Validar que id_caja sea un número entero positivo
+      if (!Number.isInteger(id_caja) || id_caja <= 0) {
+        return res.status(400).json({
+          message: "El id_caja debe ser un número entero positivo.",
+        });
+      }
+
+      const desactivado = await ventasModelInstance.desactivarVentana(id_caja);
+
+      if (desactivado) {
+        return res.status(200).json({
+          message: "Ventana desactivada exitosamente.",
+        });
+      } else {
+        return res.status(404).json({
+          message: "Caja no encontrada o ventana ya desactivada.",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: "Error al desactivar la ventana: " + error.message,
+      });
+    }
+  }
 };
 
 module.exports = ventasController;

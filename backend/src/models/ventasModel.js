@@ -287,6 +287,28 @@ class VentasModel {
       );
     }
   }
+
+  // Desactivar la ventana de ventas de una sucursal
+  async desactivarVentana(id_sucursal) {
+    try {
+      const pool = database.getPool();
+
+      if (!id_sucursal || !Number.isInteger(id_sucursal) || id_sucursal <= 0)
+        throw new Error(
+          "El id_sucursal es requerido y debe ser un número entero positivo."
+        );
+
+      const [result] = await pool.query(
+        `UPDATE sucursales SET ventana_ventas_activa = 0 WHERE id_sucursal = ?`,
+        [id_sucursal]
+      );
+      return result.affectedRows > 0;
+    } catch (error) {
+      throw new Error(
+        "Error al desactivar ventana de ventas: " + error.message
+      );
+    }
+  }
 }
 
 module.exports = VentasModel;

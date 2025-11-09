@@ -84,3 +84,34 @@
     }
     
 ```
+# **PUT api/ventas/Desactivar_ventana**
+-   desactiva la venta 
+-   Body(JSON)
+``` json
+    {
+        "id_venta": 1
+    }
+```
+-   Respuestas
+    -   Éxito
+```json
+    {
+        "message": "Ventana desactivada exitosamente."
+    }
+```
+**Código:** 200 OK
+
+#### Errores
+- **400 Bad Request**
+```json
+    {
+        "message": "El id_ventana debe ser un número entero positivo."
+    }
+```
+
+- **404 Not Found**
+```json
+    {
+        "message": "Ventana no encontrada."
+    }
+```
