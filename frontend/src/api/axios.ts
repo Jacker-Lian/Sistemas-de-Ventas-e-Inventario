@@ -2,6 +2,9 @@ import axios from "axios";
 
 // Usar la URL del backend configurada en Vite (VITE_API_URL) si existe
 const BACKEND = (import.meta as any).env?.VITE_API_URL || "http://localhost:3000";
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
 
 const api = axios.create({
   baseURL: `${BACKEND}/api/usuario`,
