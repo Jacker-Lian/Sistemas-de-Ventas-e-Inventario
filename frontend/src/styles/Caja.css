@@ -1,14 +1,12 @@
-/* frontend/src/styles/Caja.css */
 
 .caja-container {
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 70px); /* Altura total menos el Navbar */
+  height: calc(100vh - 70px); 
   background: #f4f7f6;
   color: #333;
 }
 
-/* --- Columna Izquierda: Lista de Productos --- */
 .product-list-wrapper {
   flex: 0 0 40%;
   padding: 1rem;
@@ -74,7 +72,6 @@
   margin-top: 5px;
 }
 
-/* --- Columna Derecha: Carrito y Opciones --- */
 .sale-details {
   flex: 1;
   background: #fff;
@@ -113,7 +110,6 @@
   margin: 1rem 0;
 }
 
-/* Opciones de Venta */
 .sale-options {
   display: flex;
   gap: 1.5rem;
