@@ -12,7 +12,10 @@ productoController.obtenerProductos = async (req, res) => {
     }
     try {
       const productos = await productoModel.buscarProductos(query.trim());
-      res.status(200).json(productos);
+      res.status(200).json({
+        productos,
+        usuario: req.usuario // Incluir datos del usuario autenticado
+      });
     } catch (err) {
       console.error('Error al buscar productos:', err);
       res.status(500).json({ message: 'Error interno al buscar productos' });
@@ -20,7 +23,10 @@ productoController.obtenerProductos = async (req, res) => {
   } else {
     try {
       const productos = await productoModel.obtenerProductos();
-      res.status(200).json(productos);
+      res.status(200).json({
+        productos,
+        usuario: req.usuario // Incluir datos del usuario autenticado
+      });
     } catch (err) {
       console.error('Error al obtener productos:', err);
       res.status(500).json({ message: 'Error interno al obtener productos' });

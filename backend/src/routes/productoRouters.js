@@ -1,5 +1,6 @@
 const express = require('express');
 const productoController = require('../controllers/productoController');
+const verificarToken = require('../middleware/verificarToken');
 
 class ProductoRouters {
   constructor() {
@@ -8,6 +9,9 @@ class ProductoRouters {
   }
 
   configurarRutas() {
+    // Aplicar middleware de autenticación a todas las rutas
+    this.router.use(verificarToken);
+
     // Ruta para obtener/buscar productos
     this.router.get('/', productoController.obtenerProductos);
 
