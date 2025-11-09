@@ -30,7 +30,7 @@ class ProductoModel {
   }
 
   async crearProducto(producto) {
-    const query = 'INSERT INTO producto (nombre, precio_venta, precio_compra, stock, descripcion, id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO producto (nombre, precio_venta, precio_compra, stock, descripcion, id_categoria, id_proveedor, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     const [result] = await this.pool.query(query, [
       producto.nombre,
       producto.precio_venta,
@@ -39,6 +39,7 @@ class ProductoModel {
       producto.descripcion,
       producto.id_categoria,
       producto.id_proveedor,
+      1, // Estado activo por defecto
     ]);
     return result.insertId; // Devuelve el ID del nuevo producto
   }
