@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
+const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 
 class App {
@@ -50,7 +51,8 @@ this.app.use(cors({
           Login: "/api/usuario",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
-          HistorialVentas: "api/historial-ventas",
+          Productos: "/api/productos",
+          HistorialVentas: "/api/historial-ventas",
         },
       });
     });
@@ -67,6 +69,9 @@ this.app.use(cors({
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
 
+    // Montar rutas de productos
+    const productoRoutersInstance = new ProductoRouters();
+    this.app.use("/api/productos", productoRoutersInstance.getRouter());
     // Montar ruta para mostrar historial ventas
     const historialVentasRoutesInstance = new HistorialVentasRoutes();
     this.app.use(
