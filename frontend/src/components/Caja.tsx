@@ -115,8 +115,8 @@ function Caja() {
 
     const payload = {
       id_usuario: user!.id_usuario,
-      id_caja: 1, 
-      id_sucursal: 1, 
+      id_caja: cajaSeleccionada, 
+      id_sucursal: user!.id_sucursal, 
       tipo_cliente: tipoCliente,
       metodo_pago: metodoPago,
       estado_venta: "COMPLETADA",
