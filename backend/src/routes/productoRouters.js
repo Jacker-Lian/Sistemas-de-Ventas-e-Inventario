@@ -14,7 +14,13 @@ class ProductoRouters {
     // Ruta para obtener un producto por su ID
     this.router.get('/:id', productoController.obtenerProductoPorId);
 
-    // Ruta unificada para operaciones POST (crear, actualizar, desactivar)
+    // Ruta para obtener productos por categoría
+    this.router.get('/categoria/:id_categoria', productoController.obtenerProductosPorCategoria);
+
+    // Ruta para crear producto
+    this.router.post('/create', productoController.crearProducto);
+
+    // Ruta unificada para operaciones POST (actualizar, desactivar)
     this.router.post('/', productoController.manejarProducto);
   }
 

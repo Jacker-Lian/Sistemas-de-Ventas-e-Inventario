@@ -41,16 +41,22 @@ class ProductoModel {
   }
 
   async actualizarProducto(id, producto) {
-    const query = 'UPDATE producto SET nombre = ?, precio_venta = ?, stock = ? WHERE id_producto = ?';
+    const query = 'UPDATE producto SET nombre = ?, precio_venta = ?, stock = ?, descripcion = ? WHERE id_producto = ?';
     const [result] = await this.pool.query(query, [
       producto.nombre,
       producto.precio_venta,
       producto.stock,
+      producto.descripcion,
       id,
     ]);
     return result.affectedRows > 0; // Si la actualización afectó alguna fila
   }
 
+  async obtenerProductosPorCategoria(id_categoria) {
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ?';
+    const [rows] = await this.pool.query(query, [id_categoria]);
+    return rows;
+  }
 
 }
 

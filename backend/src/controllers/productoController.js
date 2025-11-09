@@ -65,6 +65,18 @@ productoController.obtenerProductoPorId = async (req, res) => {
   }
 };
 
+// Obtener productos por categoría
+productoController.obtenerProductosPorCategoria = async (req, res) => {
+  const { id_categoria } = req.params;
+  try {
+    const productos = await productoModel.obtenerProductosPorCategoria(id_categoria);
+    res.status(200).json(productos);
+  } catch (err) {
+    console.error('Error al obtener productos por categoría:', err);
+    res.status(500).json({ message: 'Error interno al obtener productos por categoría' });
+  }
+};
+
 // Crear un nuevo producto
 productoController.crearProducto = async (req, res) => {
   const { nombre, precio_venta, stock, descripcion } = req.body;
