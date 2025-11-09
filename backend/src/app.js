@@ -5,6 +5,7 @@ const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const gastoRoutes = require("./routes/gastoRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
+const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 
 class App {
   constructor() {
@@ -16,10 +17,21 @@ class App {
   configurarMiddlewares() {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
-    this.app.use(cors({
-      origin: FRONTEND_ORIGIN,
-      credentials: true 
-    }));
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",       // para desarrollo local
+  "http://38.250.161.15"         // para producción
+];
+
+this.app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS no permitido para este origen: " + origin));
+    }
+  },
+  credentials: true
+}));
 
     this.app.use(cookieParser());
     this.app.use(express.json());
@@ -40,6 +52,7 @@ class App {
           Ventas: "/api/ventas",
           Gastos: "/api/gastos",
           AjustesInventario: "/api/ajustes-inventario"
+          HistorialVentas: "api/historial-ventas",
         },
       });
     });
@@ -58,8 +71,15 @@ class App {
 
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
-    this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
-    
+    this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());    
+
+    // Montar ruta para mostrar historial ventas
+    const historialVentasRoutesInstance = new HistorialVentasRoutes();
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
+
     // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });

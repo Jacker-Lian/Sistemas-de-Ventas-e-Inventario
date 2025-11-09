@@ -1,0 +1,81 @@
+name: Deploy Frontend and Backend to Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Clonar el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Construir el frontend (React)
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          cd ..
+
+      # Instalar dependencias del backend (sin ejecutar)
+      - name: Prepare backend
+        run: |
+          cd backend
+          npm ci
+          cd ..
+
+      # Empaquetar todo en un solo archivo
+      - name: Package frontend and backend
+        run: |
+          tar -czf deploy.tar.gz backend frontend/dist
+
+      # Subir al servidor y desplegar
+      - name: Upload and deploy to server
+        env:
+          SSH_HOST: 38.250.161.15        
+          SSH_USER: root                 
+          SSH_PASS: sector7          
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y sshpass
+
+          # Subir el archivo comprimido
+          sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no -P 22 deploy.tar.gz $SSH_USER@$SSH_HOST:~/
+
+          # Conectarse al servidor y desplegar
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -p 22 $SSH_USER@$SSH_HOST << 'EOF'
+            set -e
+            mkdir -p ~/app
+            cd ~/app
+            mv ~/deploy.tar.gz .
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
+
+            # Instalar PM2 si no está
+            if ! command -v pm2 &> /dev/null
+            then
+              npm install -g pm2
+              pm2 startup
+            fi
+
+            # Reiniciar backend con PM2
+            cd backend
+            if [ -f ecosystem.config.js ]; then
+              pm2 startOrReload ecosystem.config.js || pm2 restart backend-api || pm2 start src/server.js --name backend-api
+            else
+              pm2 restart backend-api || pm2 start src/server.js --name backend-api
+            fi
+
+            # Iniciar/actualizar frontend con PM2
+            cd ~/app/frontend
+            pm2 describe frontend-app >/dev/null 2>&1 && pm2 restart frontend-app || pm2 start "serve -s dist -l 80" --name frontend-app
+
+            # Guardar configuración PM2
+            pm2 save
+          EOF
