@@ -44,7 +44,7 @@
         "id_venta": 1234,
         "id_motivo_cancelacion": 1234
     }
-
+    ```
 # **POST    api/ventas/Insertar-motivo-cancelacion**
 - Registro de un nuevo motivo de cancelacion
 -   Body(JSON)
