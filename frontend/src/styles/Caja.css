@@ -120,8 +120,8 @@
 .option-group button {
   padding: 8px 12px;
   margin: 0 5px 5px 0;
-  border: 1px solid #ccc;
-  background: #f9f9f9;
+  border: 1px solid #464646;
+  background: #afafaf;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
