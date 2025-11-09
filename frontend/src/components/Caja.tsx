@@ -32,7 +32,6 @@ interface BoletaCompleta {
   detalles: DetalleBoleta[];
 }
 
-// --- Constantes para los botones ---
 
 const TIPOS_CLIENTE = ['ALUMNO', 'DOCENTE', 'OTRO'];
 const METODOS_PAGO = ['EFECTIVO', 'YAPE', 'PLIN', 'OTROS'];
@@ -54,10 +53,10 @@ function Caja() {
       setLoading(true);
       try {
 
-        const res = await api.get('../productos'); 
+        const res = await api.get('../productos/obtenerProductos'); 
         setProductos(res.data.data || res.data); 
       } catch (err) {
-        setError('Error al cargar productos. ¿El endpoint /api/productos existe?');
+        setError('Error al cargar productos.');
       } finally {
         setLoading(false);
       }
@@ -161,7 +160,7 @@ function Caja() {
             <h3>Productos Disponibles</h3>
             {loading && <p>Cargando productos...</p>}
             <div className="product-list">
-              {productos.map(p => (
+              { productos.map(p => (
                 <div 
                   key={p.id_producto} 
                   className={`product-card ${p.stock <= 0 ? 'disabled' : ''}`}
