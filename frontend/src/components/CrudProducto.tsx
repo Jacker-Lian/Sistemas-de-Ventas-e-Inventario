@@ -1,4 +1,5 @@
 import { useState } from "react";
+import api from "../api/axios"; // importa tu configuración base
 
 interface Producto {
   id: number;
@@ -7,8 +8,6 @@ interface Producto {
   stock: number;
   estado?: string;
 }
-
-const baseApi: string = import.meta.env.VITE_API_URL || "http://38.250.161.15:3000/api/productos";
 
 export default function CrudProductos() {
   const [busqueda, setBusqueda] = useState("");
@@ -23,10 +22,11 @@ export default function CrudProductos() {
       return;
     }
     try {
-      const res = await fetch(`${baseApi}?action=search&query=${encodeURIComponent(busqueda)}`);
-      const data = await res.json();
-      setProductos(Array.isArray(data) ? data : []);
-      setMensaje(data.length ? "" : "No se encontraron coincidencias");
+      const res = await api.get("/productos", {
+        params: { action: "search", query: busqueda.trim() },
+      });
+      setProductos(Array.isArray(res.data) ? res.data : []);
+      setMensaje(res.data.length ? "" : "No se encontraron coincidencias");
     } catch (err) {
       console.error(err);
       setMensaje("Error al buscar productos");
@@ -41,20 +41,15 @@ export default function CrudProductos() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("id", editando.id.toString());
-    formData.append("nombre", editando.nombre);
-    formData.append("precio_venta", editando.precio.toString());
-    formData.append("stock", editando.stock.toString());
-    formData.append("action", "update"); // acción esperada por tu backend
-
     try {
-      const res = await fetch(baseApi, {
-        method: "POST",
-        body: formData,
-      });
-      const result = await res.json();
-      setMensaje(result.message || "Producto actualizado correctamente");
+      const res = await api.post("/productos", {
+        id: editando.id,
+        nombre: editando.nombre,
+        precio_venta: editando.precio,
+        stock: editando.stock,
+      }, { params: { action: "update" } });
+
+      setMensaje(res.data.message || "Producto actualizado correctamente");
       setEditando(null);
       buscarProductos();
     } catch (err) {
@@ -67,17 +62,9 @@ export default function CrudProductos() {
   const desactivarProducto = async (id: number) => {
     if (!confirm("¿Deseas marcar este producto como inactivo?")) return;
 
-    const formData = new FormData();
-    formData.append("id", id.toString());
-    formData.append("action", "deactivate"); // acción esperada por tu backend
-
     try {
-      const res = await fetch(baseApi, {
-        method: "POST",
-        body: formData,
-      });
-      const result = await res.json();
-      setMensaje(result.message || "Producto marcado como inactivo");
+      const res = await api.post("/productos", { id }, { params: { action: "deactivate" } });
+      setMensaje(res.data.message || "Producto marcado como inactivo");
       buscarProductos();
     } catch (err) {
       console.error(err);
