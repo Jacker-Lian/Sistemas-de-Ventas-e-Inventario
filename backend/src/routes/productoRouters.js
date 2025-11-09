@@ -42,5 +42,4 @@ class ProductoRouters {
   }
 }
 
-const router = new ProductoRouters();
-module.exports = router.getRouter();
+module.exports = ProductoRouters;
