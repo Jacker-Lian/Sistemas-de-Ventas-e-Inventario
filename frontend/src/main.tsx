@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ProveedorForm } from "./pages/Proveedores/ProveedorForm";
@@ -9,4 +10,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <hr />
     <ProveedoresList />
   </React.StrictMode>
+=======
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+>>>>>>> origin/main
 );
