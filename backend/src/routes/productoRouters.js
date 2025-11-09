@@ -13,19 +13,28 @@ class ProductoRouters {
     this.router.use(verificarToken);
 
     // Ruta para obtener/buscar productos
-    this.router.get('/', productoController.obtenerProductos);
-
-    // Ruta para obtener un producto por su ID
-    this.router.get('/:id', productoController.obtenerProductoPorId);
+    this.router.route('/obtenerProductos')
+      .get(productoController.obtenerProductos);
 
     // Ruta para obtener productos por categoría
-    this.router.get('/categoria/:id_categoria', productoController.obtenerProductosPorCategoria);
+    this.router.route('/obtenerProductosPorCategoria/:id_categoria')
+      .get(productoController.obtenerProductosPorCategoria);
+
+    // Ruta para obtener un producto por su ID
+    this.router.route('/obtenerProducto/:id')
+      .get(productoController.obtenerProductoPorId);
 
     // Ruta para crear producto
-    this.router.post('/create', productoController.crearProducto);
+    this.router.route('/crearProducto')
+      .post(productoController.crearProducto);
 
-    // Ruta unificada para operaciones POST (actualizar, desactivar)
-    this.router.post('/', productoController.manejarProducto);
+    // Ruta para actualizar producto
+    this.router.route('/actualizarProducto')
+      .put(productoController.actualizarProducto);
+
+    // Ruta para desactivar producto
+    this.router.route('/desactivarProducto')
+      .put(productoController.desactivarProducto);
   }
 
   getRouter() {

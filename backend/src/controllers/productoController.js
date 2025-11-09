@@ -110,80 +110,42 @@ productoController.crearProducto = async (req, res) => {
   }
 };
 
-// Manejar operaciones POST (crear, actualizar, desactivar)
-productoController.manejarProducto = async (req, res) => {
-  const { action } = req.query;
+// Actualizar producto
+productoController.actualizarProducto = async (req, res) => {
+  const { id, nombre, precio_venta, stock, descripcion } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: 'ID requerido para actualizar' });
+  }
+  if (!nombre || !nombre.trim()) {
+    return res.status(400).json({ message: 'Nombre requerido' });
+  }
+  if (precio_venta === undefined || precio_venta < 0 || isNaN(parseFloat(precio_venta))) {
+    return res.status(400).json({ message: 'Precio de venta debe ser un número positivo' });
+  }
+  if (stock === undefined || stock < 0 || !Number.isInteger(Number(stock))) {
+    return res.status(400).json({ message: 'Stock debe ser un entero no negativo' });
+  }
+  try {
+    const productoExistente = await productoModel.obtenerProductoPorId(id);
+    if (!productoExistente) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
 
-  if (action === 'update') {
-    // Actualizar producto
-    const { id, nombre, precio_venta, stock, descripcion } = req.body;
-    if (!id) {
-      return res.status(400).json({ message: 'ID requerido para actualizar' });
+    const productoActualizado = {
+      nombre: nombre.trim(),
+      precio_venta: parseFloat(precio_venta),
+      stock: parseInt(stock),
+      descripcion: descripcion ? descripcion.trim() : productoExistente.descripcion
+    };
+    const actualizado = await productoModel.actualizarProducto(id, productoActualizado);
+    if (actualizado) {
+      res.status(200).json({ message: 'Producto actualizado correctamente' });
+    } else {
+      res.status(400).json({ message: 'No se pudo actualizar el producto' });
     }
-    if (!nombre || !nombre.trim()) {
-      return res.status(400).json({ message: 'Nombre requerido' });
-    }
-    if (precio_venta === undefined || precio_venta < 0 || isNaN(parseFloat(precio_venta))) {
-      return res.status(400).json({ message: 'Precio de venta debe ser un número positivo' });
-    }
-    if (stock === undefined || stock < 0 || !Number.isInteger(Number(stock))) {
-      return res.status(400).json({ message: 'Stock debe ser un entero no negativo' });
-    }
-    try {
-      const productoExistente = await productoModel.obtenerProductoPorId(id);
-      if (!productoExistente) {
-        return res.status(404).json({ message: 'Producto no encontrado' });
-      }
-
-      const productoActualizado = {
-        nombre: nombre.trim(),
-        precio_venta: parseFloat(precio_venta),
-        stock: parseInt(stock),
-        descripcion: descripcion ? descripcion.trim() : productoExistente.descripcion
-      };
-      const actualizado = await productoModel.actualizarProducto(id, productoActualizado);
-      if (actualizado) {
-        res.status(200).json({ message: 'Producto actualizado correctamente' });
-      } else {
-        res.status(400).json({ message: 'No se pudo actualizar el producto' });
-      }
-    } catch (err) {
-      console.error('Error al actualizar producto:', err);
-      res.status(500).json({ message: 'Error interno al actualizar producto' });
-    }
-  } else if (action === 'deactivate') {
-    // Desactivar producto
-    const { id } = req.body;
-    if (!id) {
-      return res.status(400).json({ message: 'ID requerido para desactivar' });
-    }
-    try {
-      const productoExistente = await productoModel.obtenerProductoPorId(id);
-      if (!productoExistente) {
-        return res.status(404).json({ message: 'Producto no encontrado' });
-      }
-
-      const desactivado = await productoModel.desactivarProducto(id);
-      if (desactivado) {
-        res.status(200).json({ message: 'Producto marcado como inactivo' });
-      } else {
-        res.status(400).json({ message: 'No se pudo desactivar el producto' });
-      }
-    } catch (err) {
-      console.error('Error al desactivar producto:', err);
-      res.status(500).json({ message: 'Error interno al desactivar producto' });
-    }
-  } else {
-    // Crear producto (sin action)
-    const { nombre, precio_venta, stock, descripcion } = req.body;
-    try {
-      const nuevoProducto = { nombre, precio_venta, stock, descripcion };
-      const productoId = await productoModel.crearProducto(nuevoProducto);
-      res.status(201).json({ message: 'Producto creado', id: productoId });
-    } catch (err) {
-      console.error('Error al crear producto:', err);
-      res.status(500).json({ message: 'Error interno al crear producto' });
-    }
+  } catch (err) {
+    console.error('Error al actualizar producto:', err);
+    res.status(500).json({ message: 'Error interno al actualizar producto' });
   }
 };
 
