@@ -1,19 +1,46 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Dashboard from './components/Dashboard'; 
-import './css/Dashboard.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Login from "./components/Login";
+import Admin from "./components/Admin";
+import Caja from "./components/Caja";
+import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import PrivateRoute from "./components/PrivateRoute";
 
-const App: React.FC = () => {
+function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {  }
-        <Route path="/" element={<Dashboard />} /> 
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Login />} />
 
-        {  }
-      </Routes>
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/caja"
+            element={
+              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+                <Caja />
+              </PrivateRoute>
+            }
+          />
+          <Route 
+            path="/inventario/ajuste" 
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <AjusteInventario />
+              </PrivateRoute>
+            } 
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
-};
+}
 
 export default App;
