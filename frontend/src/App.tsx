@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
-import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import AjusteInventario from './components/AjusteInventario/AjusteInventario';
+import Productos from './components/Productos';
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -29,13 +29,21 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route 
-            path="/inventario/ajuste" 
+          <Route
+            path="/inventario/ajuste"
             element={
               <PrivateRoute roles={['ADMIN', 'CAJA']}>
                 <AjusteInventario />
               </PrivateRoute>
-            } 
+            }
+          />
+          <Route
+            path="/admin/productos"
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Productos />
+              </PrivateRoute>
+            }
           />
         </Routes>
       </AuthProvider>
@@ -44,4 +52,3 @@ function App() {
 }
 
 export default App;
-
