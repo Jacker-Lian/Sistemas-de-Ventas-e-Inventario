@@ -85,22 +85,34 @@ productoController.obtenerProductosPorCategoria = async (req, res) => {
 
 // Crear un nuevo producto
 productoController.crearProducto = async (req, res) => {
-  const { nombre, precio_venta, stock, descripcion } = req.body;
+  const { nombre, precio_venta, precio_compra, stock, descripcion, id_categoria, id_proveedor } = req.body;
   if (!nombre || !nombre.trim()) {
     return res.status(400).json({ message: 'Nombre requerido' });
   }
   if (precio_venta === undefined || precio_venta < 0 || isNaN(parseFloat(precio_venta))) {
     return res.status(400).json({ message: 'Precio de venta debe ser un número positivo' });
   }
+  if (precio_compra === undefined || precio_compra < 0 || isNaN(parseFloat(precio_compra))) {
+    return res.status(400).json({ message: 'Precio de compra debe ser un número positivo' });
+  }
   if (stock === undefined || stock < 0 || !Number.isInteger(Number(stock))) {
     return res.status(400).json({ message: 'Stock debe ser un entero no negativo' });
+  }
+  if (!id_categoria || !Number.isInteger(Number(id_categoria))) {
+    return res.status(400).json({ message: 'ID de categoría requerido y debe ser un entero' });
+  }
+  if (!id_proveedor || !Number.isInteger(Number(id_proveedor))) {
+    return res.status(400).json({ message: 'ID de proveedor requerido y debe ser un entero' });
   }
   try {
     const nuevoProducto = {
       nombre: nombre.trim(),
       precio_venta: parseFloat(precio_venta),
+      precio_compra: parseFloat(precio_compra),
       stock: parseInt(stock),
-      descripcion: descripcion ? descripcion.trim() : null
+      descripcion: descripcion ? descripcion.trim() : null,
+      id_categoria: parseInt(id_categoria),
+      id_proveedor: parseInt(id_proveedor)
     };
     const productoId = await productoModel.crearProducto(nuevoProducto);
     res.status(201).json({ message: 'Producto creado', id: productoId });

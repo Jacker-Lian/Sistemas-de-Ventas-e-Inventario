@@ -6,36 +6,39 @@ class ProductoModel {
   }
 
   async obtenerProductoPorId(id) {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_producto = ?';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_producto = ? AND estado = "activo"';
     const [rows] = await this.pool.query(query, [id]);
     return rows[0]; // Devuelve el primer producto encontrado
   }
 
   async obtenerProductos() {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE estado = "activo"';
     const [rows] = await this.pool.query(query);
     return rows;
   }
 
   async buscarProductos(query) {
-    const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE nombre LIKE ?`;
+    const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE nombre LIKE ? AND estado = "activo"`;
     const [rows] = await this.pool.query(searchQuery, [`%${query}%`]);
     return rows;
   }
 
   async desactivarProducto(id) {
     const query = 'UPDATE producto SET estado = ? WHERE id_producto = ?';
-    const [result] = await this.pool.query(query, ['inactivo', id]);
+    const [result] = await this.pool.query(query, [0, id]);
     return result.affectedRows > 0;
   }
 
   async crearProducto(producto) {
-    const query = 'INSERT INTO producto (nombre, precio_venta, stock, descripcion) VALUES (?, ?, ?, ?)';
+    const query = 'INSERT INTO producto (nombre, precio_venta, precio_compra, stock, descripcion, id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?)';
     const [result] = await this.pool.query(query, [
       producto.nombre,
       producto.precio_venta,
+      producto.precio_compra,
       producto.stock,
       producto.descripcion,
+      producto.id_categoria,
+      producto.id_proveedor,
     ]);
     return result.insertId; // Devuelve el ID del nuevo producto
   }
@@ -53,7 +56,7 @@ class ProductoModel {
   }
 
   async obtenerProductosPorCategoria(id_categoria) {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ?';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ? AND estado = "activo"';
     const [rows] = await this.pool.query(query, [id_categoria]);
     return rows;
   }
