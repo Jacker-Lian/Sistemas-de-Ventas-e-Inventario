@@ -115,7 +115,7 @@ function Caja() {
 
     const payload = {
       id_usuario: user!.id_usuario,
-      id_caja: cajaSeleccionada, 
+      id_caja: user!.id_caja, 
       id_sucursal: user!.id_sucursal, 
       tipo_cliente: tipoCliente,
       metodo_pago: metodoPago,
