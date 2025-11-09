@@ -124,7 +124,7 @@ productoController.crearProducto = async (req, res) => {
 
 // Actualizar producto
 productoController.actualizarProducto = async (req, res) => {
-  const { id, nombre, precio_venta, stock, descripcion } = req.body;
+  const { id, nombre, precio_venta, precio_compra, stock, descripcion, id_categoria, id_proveedor } = req.body;
   if (!id) {
     return res.status(400).json({ message: 'ID requerido para actualizar' });
   }
@@ -134,8 +134,17 @@ productoController.actualizarProducto = async (req, res) => {
   if (precio_venta === undefined || precio_venta < 0 || isNaN(parseFloat(precio_venta))) {
     return res.status(400).json({ message: 'Precio de venta debe ser un número positivo' });
   }
+  if (precio_compra === undefined || precio_compra < 0 || isNaN(parseFloat(precio_compra))) {
+    return res.status(400).json({ message: 'Precio de compra debe ser un número positivo' });
+  }
   if (stock === undefined || stock < 0 || !Number.isInteger(Number(stock))) {
     return res.status(400).json({ message: 'Stock debe ser un entero no negativo' });
+  }
+  if (!id_categoria || !Number.isInteger(Number(id_categoria))) {
+    return res.status(400).json({ message: 'ID de categoría requerido y debe ser un entero' });
+  }
+  if (!id_proveedor || !Number.isInteger(Number(id_proveedor))) {
+    return res.status(400).json({ message: 'ID de proveedor requerido y debe ser un entero' });
   }
   try {
     const productoExistente = await productoModel.obtenerProductoPorId(id);
@@ -146,8 +155,11 @@ productoController.actualizarProducto = async (req, res) => {
     const productoActualizado = {
       nombre: nombre.trim(),
       precio_venta: parseFloat(precio_venta),
+      precio_compra: parseFloat(precio_compra),
       stock: parseInt(stock),
-      descripcion: descripcion ? descripcion.trim() : productoExistente.descripcion
+      descripcion: descripcion ? descripcion.trim() : productoExistente.descripcion,
+      id_categoria: parseInt(id_categoria),
+      id_proveedor: parseInt(id_proveedor)
     };
     const actualizado = await productoModel.actualizarProducto(id, productoActualizado);
     if (actualizado) {
