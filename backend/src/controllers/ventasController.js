@@ -1,8 +1,45 @@
 const ventasModel = require("../models/ventasModel");
 const express = require("express");
+const database = require("../config/database");
 
 const ventasModelInstance = new ventasModel();
+const reporteVentasPorProducto = async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    // Validar fechas
+    if (!fechaInicio || !fechaFin) {
+      return res.status(400).json({ message: "Se requieren fecha de inicio y fecha de fin" });
+    }
 
+    const query = `
+      SELECT 
+        p.id_producto,
+        p.nombre AS nombre_producto,
+        SUM(dv.cantidad) AS cantidad_vendida,
+        SUM(dv.precio_unitario * dv.cantidad) AS total_recaudado
+      FROM 
+        detalle_venta dv
+        JOIN producto p ON dv.id_producto = p.id_producto
+        JOIN ventas v ON dv.id_venta = v.id_venta
+      WHERE 
+        v.fecha_venta BETWEEN ? AND ?
+        AND v.estado_venta = 'COMPLETADA'
+      GROUP BY 
+        p.id_producto, p.nombre
+      ORDER BY 
+        cantidad_vendida DESC
+    `;
+
+    const pool = database.getPool();
+    const [result] = await pool.query(query, [fechaInicio, fechaFin]);
+    res.json(result);
+  } catch (error) {
+    console.error('Error en reporte de ventas por producto:', error);
+    res.status(500).json({ message: "Error al generar el reporte" });
+  }
+};
+//-----------------------------------------------------------------
 const ventasController = {
   // Controlador para registrar una nueva venta
   registrarVenta: async (req, res) => {
@@ -277,3 +314,4 @@ const ventasController = {
 };
 
 module.exports = ventasController;
+module.exports.reporteVentasPorProducto = reporteVentasPorProducto;
