@@ -20,6 +20,12 @@ class VentasRoutes {
     this.router.put('/Desactivar-motivo-cancelacion', ventasController.desactivarMotivoCancelacion);
 
     this.router.put('/Desactivar-ventana', ventasController.desactivarVentana);
+
+    // Rutas extra para probar funcionalidades de gestion de categorias
+
+    this.router.get('/Obtener-categorias', ventasController.obtenerCategorias);
+
+
   }
 
   getRouter() {

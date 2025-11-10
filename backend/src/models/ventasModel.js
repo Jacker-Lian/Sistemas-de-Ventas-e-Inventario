@@ -309,6 +309,19 @@ class VentasModel {
       );
     }
   }
+
+  async obtenerCategorias() {
+    try {
+      const pool = database.getPool();
+      const [rows] = await pool.query(
+        `SELECT id_categoria, nombre, descripcion FROM categoria WHERE estado = 1`
+      );
+      if (rows.length === 0) {
+        throw new Error("No hay categorías activas disponibles.");
+      }
+      return rows;
+    } catch (error) {}
+  }
 }
 
 module.exports = VentasModel;

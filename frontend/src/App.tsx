@@ -5,6 +5,7 @@ import Admin from "./components/Admin";
 import Caja from "./components/Caja";
 import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
 import PrivateRoute from "./components/PrivateRoute";
+import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta";
 
 function App() {
   return (
@@ -37,7 +38,16 @@ function App() {
               </PrivateRoute>
             } 
           />
+          <Route
+            path="/registrarVenta"
+            element={
+              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+                <RegistrarVenta />
+              </PrivateRoute>
+            }
+          />
         </Routes>
+
       </AuthProvider>
     </BrowserRouter>
   );

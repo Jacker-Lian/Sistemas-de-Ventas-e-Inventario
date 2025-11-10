@@ -7,7 +7,17 @@ const ventasController = {
   // Controlador para registrar una nueva venta
   registrarVenta: async (req, res) => {
     try {
-      const ventaData = req.body;
+      const ventaData= {
+        id_usuario: req.body.id_usuario,
+        id_caja:  req.body.id_caja,
+        id_sucursal: req.body.id_sucursal,
+        tipo_cliente: req.body.tipo_cliente,
+        metodo_pago: req.body.metodo_pago,
+        productos: req.body.productos,
+        estado_venta: req.body.estado_venta,
+        
+        productos: req.body.productos,
+      }
 
       // Validar datos requeridos
       if (
@@ -302,7 +312,22 @@ const ventasController = {
         message: "Error al desactivar la ventana: " + error.message,
       });
     }
+  },
+
+  // Controladores extra para probar funcionalidades de gestion de categorias
+
+  obtenerCategorias: async (req, res) => {
+    try {
+      const categorias = await ventasModelInstance.obtenerCategorias();
+      return res.status(200).json(categorias);
+    } catch (error) {
+      return res.status(500).json({
+        message:
+          "Error al obtener las categorías: " + error.message,
+      });
+    }
   }
+
 };
 
 module.exports = ventasController;
