@@ -6,6 +6,7 @@ const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
 
 class App {
   constructor() {
@@ -77,6 +78,11 @@ this.app.use(cors({
     this.app.use(
       "/api/historial-ventas",
       historialVentasRoutesInstance.getRouter()
+    );
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); // Usamos el nombre de la variable importada
+    this.app.use(
+        "/api/detalle-venta", 
+        detalleVentaRoutesInstance.getRouter()
     );
 
     // Ruta 404
