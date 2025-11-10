@@ -11,4 +11,17 @@ export interface AjusteFormData {
     tipo_ajuste: 'AUMENTO' | 'DISMINUCION';
     id_usuario: number | ''; // Necesitas un ID de usuario logueado
     observaciones: string; // En lugar de 'motivo'
+    id_sucursal: number | '';
+}
+
+export interface AjusteRegistro {
+    id_ajuste: number;
+    cantidad_ajustada: number;
+    tipo_ajuste: 'AUMENTO' | 'DISMINUCION';
+    stock_nuevo: number;
+    observaciones: string;
+    fecha_creacion: string; // La fecha viene como string del backend
+    nombre_producto: string; // Viene del JOIN
+    nombre_usuario: string;  // Viene del JOIN
+    nombre_sucursal: string; // Viene del JOIN
 }

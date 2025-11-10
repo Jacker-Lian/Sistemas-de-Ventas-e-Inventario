@@ -32,9 +32,9 @@ function App() {
           <Route 
             path="/inventario/ajuste" 
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              //<PrivateRoute roles={['ADMIN', 'CAJA']}>
                 <AjusteInventario />
-              </PrivateRoute>
+              //</PrivateRoute>
             } 
           />
         </Routes>
