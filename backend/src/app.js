@@ -53,6 +53,7 @@ this.app.use(cors({
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
+          Categorias: "/api/categorias",
           HistorialVentas: "/api/historial-ventas",
         },
       });
