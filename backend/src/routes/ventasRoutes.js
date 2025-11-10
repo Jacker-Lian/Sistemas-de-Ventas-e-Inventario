@@ -8,15 +8,10 @@ class VentasRoutes {
   }
 
   configurarRutas() {
-
     this.router.post('/registrar', ventasController.registrarVenta);
-
     this.router.put('/cancelar', ventasController.cancelarVenta);
-
     this.router.post('/Insertar-motivo-cancelacion', ventasController.registrarMotivoCancelacion);
-
     this.router.get('/Obtener-motivos-cancelacion', ventasController.obtenerMotivosCancelacion);
-
     this.router.put('/Desactivar-motivo-cancelacion', ventasController.desactivarMotivoCancelacion);
   }
 

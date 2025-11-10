@@ -5,10 +5,6 @@ class UsuarioModel {
     this.table = 'usuarios';
   }
 
-  /**
-   * Obtener usuario por email
-   * @param {string} email
-   */
   async obtenerPorEmail(email) {
     try {
       const pool = database.getPool();
