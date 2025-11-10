@@ -59,16 +59,18 @@ const AjusteInventarioModel = {
             };
 
         } catch (error) {
+            // ROLLBACK: Si algo falla, deshace todos los cambios
             if (connection) await connection.rollback(); 
-            throw error; 
+            throw error; // Propaga el error al Controlador
         } finally {
-            if (connection) connection.release(); 
+            if (connection) connection.release(); // Libera la conexión
         }
     },
 
-    // 2. Obtener todos los ajustes de inventario (GET /historial) - ¡CÓDIGO CORRECTO!
+    // 2. Obtener todos los ajustes de inventario (GET /api/inventario/historial)
     obtenerTodos: async () => {
         try {
+            // Query con JOINs a producto, usuarios y sucursal
             const query = `
                 SELECT 
                     ai.id_ajuste, ai.cantidad_ajustada, ai.tipo_ajuste, ai.stock_nuevo, ai.observaciones, ai.fecha_creacion,
@@ -86,9 +88,10 @@ const AjusteInventarioModel = {
         }
     },
 
-    // 3. Obtener ajustes por producto (GET /ajustes-producto/:idProducto) - ¡CÓDIGO CORRECTO!
+    // 3. Obtener ajustes por producto (GET /api/inventario/ajustes-producto/:idProducto)
     obtenerPorProducto: async (idProducto) => {
         try {
+            // Query con JOINs y filtro por id_producto
             const query = `
                 SELECT 
                     ai.id_ajuste, ai.cantidad_ajustada, ai.tipo_ajuste, ai.stock_nuevo, ai.observaciones, ai.fecha_creacion,
