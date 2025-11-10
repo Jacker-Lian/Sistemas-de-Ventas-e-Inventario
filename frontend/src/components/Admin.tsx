@@ -18,6 +18,7 @@ function Admin() {
     { title: "Usuarios", desc: "Gestionar usuarios del sistema", to: "/admin/usuarios" },
     { title: "Productos", desc: "Gestionar productos e inventario", to: "/admin/productos" },
     { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
+    { title: "Proveedores", desc: "Gestionar proveedores y contactos", to: "/proveedores" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
   ];
 
