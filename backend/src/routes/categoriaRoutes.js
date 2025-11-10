@@ -10,9 +10,9 @@ class CategoriaRoutes {
   configurarRutas() {
     this.router.get('/', categoriaController.getCategorias);
     this.router.get('/buscar/:nombre', categoriaController.getCategoriaByNombre);
-    this.router.post('/', categoriaController.createCategoria);
-    this.router.put('/:id', categoriaController.updateCategoria);
-    this.router.delete('/:id', categoriaController.deleteCategoria);
+    this.router.post('/crear', categoriaController.createCategoria);
+    this.router.put('/actualizar/:id', categoriaController.updateCategoria);
+    this.router.delete('/eliminar/:id', categoriaController.deleteCategoria);
   }
 
   getRouter() {
