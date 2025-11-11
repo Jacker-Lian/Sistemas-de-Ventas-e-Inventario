@@ -7,17 +7,16 @@ const ventasController = {
   // Controlador para registrar una nueva venta
   registrarVenta: async (req, res) => {
     try {
-      const ventaData= {
+      const ventaData = {
         id_usuario: req.body.id_usuario,
-        id_caja:  req.body.id_caja,
+        id_caja: req.body.id_caja,
         id_sucursal: req.body.id_sucursal,
         tipo_cliente: req.body.tipo_cliente,
         metodo_pago: req.body.metodo_pago,
         productos: req.body.productos,
-        estado_venta: req.body.estado_venta,
-        
-        productos: req.body.productos,
-      }
+      };
+
+      const estado_venta = req.body.estado_venta || "COMPLETADA";
 
       // Validar datos requeridos
       if (
@@ -77,17 +76,6 @@ const ventasController = {
         });
       }
 
-      // Validar estado_venta si se proporciona
-      if (ventaData.estado_venta) {
-        const estadosVentaValidos = ["COMPLETADA", "PENDIENTE", "CANCELADA"];
-        if (!estadosVentaValidos.includes(ventaData.estado_venta)) {
-          return res.status(400).json({
-            message:
-              "El estado_venta debe ser uno de los siguientes: COMPLETADA, PENDIENTE, CANCELADA.",
-          });
-        }
-      }
-
       // Validar array de productos
       if (
         !Array.isArray(ventaData.productos) ||
@@ -125,27 +113,12 @@ const ventasController = {
             } debe tener una cantidad válida (número entero positivo).`,
           });
         }
-
-        const precioUnitario = parseFloat(producto.precio_unitario);
-        if (isNaN(precioUnitario) || precioUnitario <= 0) {
-          return res.status(400).json({
-            message: `El producto en la posición ${
-              i + 1
-            } debe tener un precio_unitario válido (número positivo).`,
-          });
-        }
-
-        // Validar que el precio no exceda el límite de la base de datos (10,2)
-        if (precioUnitario > 99999999.99) {
-          return res.status(400).json({
-            message: `El precio_unitario del producto en la posición ${
-              i + 1
-            } excede el límite permitido.`,
-          });
-        }
       }
 
-      const resultado = await ventasModelInstance.registrarVenta(ventaData);
+      const resultado = await ventasModelInstance.registrarVenta(
+        ventaData,
+        estado_venta
+      );
 
       return res.status(201).json({
         message: "Venta registrada exitosamente.",
@@ -322,12 +295,10 @@ const ventasController = {
       return res.status(200).json(categorias);
     } catch (error) {
       return res.status(500).json({
-        message:
-          "Error al obtener las categorías: " + error.message,
+        message: "Error al obtener las categorías: " + error.message,
       });
     }
-  }
-
+  },
 };
 
 module.exports = ventasController;

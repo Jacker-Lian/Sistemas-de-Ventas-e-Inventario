@@ -1,12 +1,18 @@
 const database = require("../config/database");
+const UsuarioModel = require("./usuarioModel");
+const ProductoModel = require("./productoModel");
 
 class VentasModel {
   constructor() {
     this.table = "ventas";
   }
 
+  // Instancia de models nesesarios
+  usuarioModel = new UsuarioModel();
+  productoModel = new ProductoModel();
+
   // Registrar una nueva venta
-  async registrarVenta(ventaData) {
+  async registrarVenta(ventaData = {}, estado_venta = "PENDIENTE") {
     /*
     Estructura esperada de ventaData:
       {
@@ -16,31 +22,41 @@ class VentasModel {
         "id_sucursal": 1,                   // ID de la sucursal (OPCIONAL)
         "tipo_cliente": "ALUMNO",           // DOCENTE | ALUMNO | OTRO (REQUERIDO)
         "metodo_pago": "EFECTIVO",          // EFECTIVO | YAPE | PLIN | OTROS (REQUERIDO)
-        "estado_venta": "COMPLETADA",       // COMPLETADA | PENDIENTE | CANCELADA (REQUERIDO)
-        
+        "estado_venta": "COMPLETADA",     // PENDIENTE | COMPLETADA (OPCIONAL, por defecto PENDIENTE)
         // PRODUCTOS VENDIDOS (Detalles)
         "productos": [                      // Array de productos (REQUERIDO, mínimo 1)
           {
             "id_producto": 101,             // ID del producto (REQUERIDO)
             "cantidad": 2,                  // Cantidad vendida (REQUERIDO, > 0)
-            "precio_unitario": 5.00         // Precio por unidad (REQUERIDO)
           },
           {
             "id_producto": 102,
             "cantidad": 3,
-            "precio_unitario": 5.17
           }
         ]
       }
     
     */
 
-    const connection = await database.getPool().getConnection();
+    // Validar que estado_venta sea válido
+    if (!estado_venta || typeof estado_venta !== "string") {
+      throw new Error(
+        "El estado_venta es requerido y debe ser una cadena de texto."
+      );
+    }
+
+    // Normalizar a mayúsculas para evitar errores
+    estado_venta = estado_venta.toUpperCase().trim();
+
+    // Validar que estado_venta sea válido
+    const estadosPermitidos = ["PENDIENTE", "COMPLETADA"];
+    if (!estadosPermitidos.includes(estado_venta)) {
+      throw new Error("El estado_venta debe ser 'PENDIENTE' o 'COMPLETADA'.");
+    }
+
+    const pool = database.getPool();
 
     try {
-      // Iniciar transacción
-      await connection.beginTransaction();
-
       // 1. Validaciones de datos requeridos
       if (
         !ventaData.id_usuario ||
@@ -54,16 +70,16 @@ class VentasModel {
       }
 
       // 2. Verificar que id_usuario exista y esté activo
-      const [usuarioRows] = await connection.query(
-        "SELECT id_usuario FROM usuarios WHERE id_usuario = ? AND estado = 1",
-        [ventaData.id_usuario]
+      const userVerfication = await this.usuarioModel.getUserById(
+        ventaData.id_usuario
       );
-      if (usuarioRows.length === 0) {
+      if (!userVerfication) {
         throw new Error("El usuario no existe o está inactivo.");
       }
 
       // 3. Verificar que id_caja exista y esté abierta
-      const [cajaRows] = await connection.query(
+      // En espera a PR para usasr el model de caja
+      const [cajaRows] = await pool.query(
         "SELECT id_caja, id_sucursal FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
         [ventaData.id_caja]
       );
@@ -82,48 +98,46 @@ class VentasModel {
         if (
           !producto.id_producto ||
           !producto.cantidad ||
-          producto.cantidad <= 0 ||
-          !producto.precio_unitario ||
-          producto.precio_unitario <= 0
+          producto.cantidad <= 0
         ) {
           throw new Error("Datos de producto inválidos.");
         }
 
-        // Verificar que el producto exista y tenga stock suficiente
-        const [productoRows] = await connection.query(
-          "SELECT id_producto, stock, nombre FROM producto WHERE id_producto = ? AND estado = 1",
-          [producto.id_producto]
+        // Verificar que el producto exista, tenga stock suficiente y obtener su precio unitario actual
+        const productoDB = await this.productoModel.obtenerProductoPorId(
+          producto.id_producto
         );
 
-        if (productoRows.length === 0) {
+        if (!productoDB) {
           throw new Error(
             `El producto con ID ${producto.id_producto} no existe o está inactivo.`
           );
         }
 
-        if (productoRows[0].stock < producto.cantidad) {
+        if (productoDB.stock < producto.cantidad) {
           throw new Error(
-            `Stock insuficiente para el producto "${productoRows[0].nombre}". Stock disponible: ${productoRows[0].stock}`
+            `Stock insuficiente para "${productoDB.nombre}". Disponible: ${productoDB.stock}, Solicitado: ${producto.cantidad}`
           );
         }
 
-        const subtotal = parseFloat(
-          (producto.cantidad * producto.precio_unitario).toFixed(2)
+        // Calcular el total de la venta usando el precio de la BD
+        const subTotal = parseFloat(
+          (producto.cantidad * productoDB.precio).toFixed(2)
         );
-        totalVenta += subtotal;
+        totalVenta += subTotal;
 
         productosValidados.push({
           id_producto: producto.id_producto,
           cantidad: producto.cantidad,
-          precio_unitario: producto.precio_unitario,
-          subtotal: subtotal,
+          precio_unitario: productoDB.precio,
+          subtotal: subTotal,
         });
       }
 
-      totalVenta = parseFloat(totalVenta.toFixed(2));
+      totalVenta = parseFloat(totalVenta.toFixed(2)); // Asegurar dos decimales
 
       // 6. Insertar la venta
-      const [resultVenta] = await connection.query(
+      const [resultVenta] = await pool.query(
         `INSERT INTO ${this.table} (
           id_usuario,
           id_caja,
@@ -140,16 +154,40 @@ class VentasModel {
           ventaData.tipo_cliente,
           ventaData.metodo_pago,
           totalVenta,
-          ventaData.estado_venta || "COMPLETADA",
+          estado_venta,
         ]
       );
 
       const id_venta = resultVenta.insertId;
 
-      // 7. Insertar detalles de venta y actualizar stock
+      // Si la venta es pendiente, guardar productos en carrito_venta
+      // NO se actualiza stock ni ingresos de caja
+      if (estado_venta === "PENDIENTE") {
+        for (const producto of productosValidados) {
+          await pool.query(
+            `INSERT INTO carrito_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)`,
+            [
+              id_venta,
+              producto.id_producto,
+              producto.cantidad,
+              producto.precio_unitario,
+              producto.subtotal,
+            ]
+          );
+        }
+        return {
+          id_venta: id_venta,
+          total: totalVenta,
+          estado: "PENDIENTE",
+          productos_en_carrito: productosValidados.length,
+        };
+      }
+
+      // 7. Si la venta es COMPLETADA: Insertar en detalle_venta y actualizar stock
       for (const producto of productosValidados) {
         // Insertar detalle de venta
-        await connection.query(
+        // En espera a PR para usasr el model de detalle_venta
+        await pool.query(
           `INSERT INTO detalle_venta (
             id_venta,
             id_producto,
@@ -167,20 +205,24 @@ class VentasModel {
         );
 
         // Actualizar stock del producto
-        await connection.query(
-          "UPDATE producto SET stock = stock - ? WHERE id_producto = ?",
-          [producto.cantidad, producto.id_producto]
+        const stockActualizado = await this.productoModel.updateStock(
+          producto.id_producto,
+          producto.cantidad
         );
+
+        if (!stockActualizado) {
+          throw new Error(
+            `No se pudo actualizar el stock del producto ID ${producto.id_producto}. Stock insuficiente o producto inactivo.`
+          );
+        }
       }
 
       // 8. Actualizar ingresos de la caja
-      await connection.query(
+      // En espera a PR para usasr el model de caja
+      await pool.query(
         "UPDATE caja SET total_ingresos = total_ingresos + ? WHERE id_caja = ?",
         [totalVenta, ventaData.id_caja]
       );
-
-      // Confirmar transacción
-      await connection.commit();
 
       return {
         id_venta: id_venta,
@@ -188,40 +230,41 @@ class VentasModel {
         productos_registrados: productosValidados.length,
       };
     } catch (error) {
-      // Revertir transacción en caso de error
-      await connection.rollback();
       throw new Error("Error al registrar venta: " + error.message);
-    } finally {
-      // Liberar conexión
-      connection.release();
     }
   }
 
   // Cancelar una venta
-  async cancelarVenta(id_venta, id_motivo_cancelacion) {
+  async cancelarVenta(id_venta, id_motivo) {
     try {
       const pool = database.getPool();
 
       // Verificar que la venta exista
       const [ventaRows] = await pool.query(
-        `SELECT id_venta FROM ${this.table} WHERE id_venta = ?`,
+        `SELECT id_venta, estado_venta FROM ${this.table} WHERE id_venta = ?`,
         [id_venta]
       );
       if (ventaRows.length === 0)
         throw new Error("La venta con el id proporcionado no existe.");
 
+      // Verificar que la venta no esté ya cancelada
+      if (ventaRows[0].estado_venta === "CANCELADA")
+        throw new Error("La venta ya está cancelada.");
+
       // Verificar que el motivo de cancelación exista
       const [motivoRows] = await pool.query(
-        "SELECT id_motivo_cancelacion FROM motivos_cancelacion WHERE id_motivo_cancelacion = ?",
-        [id_motivo_cancelacion]
+        "SELECT COUNT(*) AS count FROM motivos_cancelacion WHERE id_motivo = ?",
+        [id_motivo]
       );
-      if (motivoRows.length === 0)
-        throw new Error("El motivo de cancelación no existe.");
+      if (motivoRows[0].count === 0)
+        throw new Error(
+          "El motivo de cancelación con el id proporcionado no existe."
+        );
 
       // Actualizar la venta con el estado "CANCELADA" y el id_motivo_cancelacion
       await pool.query(
         `UPDATE ${this.table} SET estado_venta = 'CANCELADA', id_motivo_cancelacion = ? WHERE id_venta = ?`,
-        [id_motivo_cancelacion, id_venta]
+        [id_motivo, id_venta]
       );
 
       return true;
@@ -320,7 +363,9 @@ class VentasModel {
         throw new Error("No hay categorías activas disponibles.");
       }
       return rows;
-    } catch (error) {}
+    } catch (error) {
+      throw new Error("Error al obtener categorías: " + error.message);
+    }
   }
 }
 
