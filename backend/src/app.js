@@ -54,6 +54,7 @@ this.app.use(cors({
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
           HistorialVentas: "/api/historial-ventas",
+          DetalleVenta: "/api/detalle-venta"
         },
       });
     });
@@ -79,7 +80,7 @@ this.app.use(cors({
       "/api/historial-ventas",
       historialVentasRoutesInstance.getRouter()
     );
-    const detalleVentaRoutesInstance = new detalleVentaRoutes(); // Usamos el nombre de la variable importada
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
     this.app.use(
         "/api/detalle-venta", 
         detalleVentaRoutesInstance.getRouter()

@@ -1,10 +1,8 @@
 const DetalleVentaModel =require('../models/detalleVentaModel');
-
 const detalleVentaModel = new DetalleVentaModel();
+const detalleVentaController = {};
 
-const database = require('../config/database');
-
-exports.registrarDetalleVenta = async (req, res) =>{
+detalleVentaController.registrarDetalleVenta = async (req, res) =>{
     const datosDetalle = req.body;
     const {id_venta, id_producto, cantidad, precio_unitario, subtotal}= datosDetalle;
 
@@ -17,7 +15,7 @@ exports.registrarDetalleVenta = async (req, res) =>{
 
     let connection;
     try{
-        connection = await db.getConnection();
+        connection = await database.getConnection();
         const resultado = await detalleVentaModel.registrarDetalleVenta(datosDetalle, connection);
 
         res.status(201).json({
@@ -39,3 +37,30 @@ exports.registrarDetalleVenta = async (req, res) =>{
         }
     }
 };
+
+detalleVentaController.obtenerDetallesPorVenta = async (req, res) => {
+    // 1. Extrae el ID de la venta desde los parámetros de la URL
+    const { idVenta } = req.params; 
+
+    try {
+        // 2. Llama a la función del modelo para obtener los datos
+        const detalles = await detalleVentaModelInstance.getDetallesPorVenta(idVenta);
+
+        // 3. Verifica el resultado y responde
+        if (detalles.length > 0) {
+            return res.status(200).json(detalles);
+        } else {
+            return res.status(404).json({ 
+                mensaje: `No se encontraron detalles para la Venta con ID: ${idVenta}` 
+            });
+        }
+    } catch (error) {
+        console.error("Error en obtenerDetallesPorVenta:", error);
+        return res.status(500).json({ 
+            mensaje: "Error interno del servidor al obtener detalles de venta.",
+            error: error.message 
+        });
+    }
+};
+
+module.exports = detalleVentaController;

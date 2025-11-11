@@ -1,17 +1,16 @@
-const { createConnection } = require("mysql2");
 const database =require("../config/database");
 
 class DetalleVentaModel {
-    constructor(){
-        this.table = "detalle_venta";
-    }
+    
+    constructor() {
+        this.pool = database.getPool();
+      }
 
     /**
    * Registra producto de una venta
    * @param {object} datosDetalle
-   * @param {object} connection
    */
-    async registrarDetalleVenta(datosDetalle, connection){
+    async registrarDetalleVenta(datosDetalle){
         try{
             //datos del objeto
             const{
@@ -28,7 +27,7 @@ class DetalleVentaModel {
             VALUES (?, ?, ?, ?, ?)`;
 
             //se ejecuta la consulta
-            const [resultado] = await connection.query(query, [
+            const [resultado] = await pool.query(query, [
                 id_venta,
                 id_producto,
                 cantidad,
@@ -40,6 +39,35 @@ class DetalleVentaModel {
             throw new Error("Error al registrar detalle de venta " + error.message);
         }
 
+    }
+
+    /**
+     * @param {number} idVenta 
+     * @returns {Promise<Array<Object>>} 
+     */
+    async getDetallesPorVenta(idVenta) {
+        try {
+            // Consulta SQL para seleccionar los detalles de una venta
+            const query = `
+                SELECT 
+                    dv.id AS id_detalle, 
+                    dv.id_producto, 
+                    p.nombre AS nombre_producto,
+                    dv.cantidad, 
+                    dv.precio_unitario,
+                    (dv.cantidad * dv.precio_unitario) AS subtotal
+                FROM detalle_venta dv
+                JOIN producto p ON dv.id_producto = p.id
+                WHERE dv.id_venta = ?
+            `;
+            
+            const [rows] = await this.pool.query(query, [idVenta]);
+            
+            return rows;
+        } catch (error) {
+            console.error("Error en el Modelo al obtener detalles por venta:", error);
+            throw error; 
+        }
     }
 }
 

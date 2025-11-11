@@ -1,13 +1,41 @@
-const express = require('express');
-const router = express.Router();
-const detalleVentaController = require('../controllers/detalleVentaController');
 
-/**
- * Rutas para el Detalle de Venta
- * * POST /api/detalle-venta  -> Registra un nuevo detalle de venta
- */
+const { Router } = require('express');
+const detalleVentaController = require('../controllers/detalleVentaController'); 
 
-// Ruta para registrar un nuevo detalle de venta
-router.post('/detalle-venta', detalleVentaController.registrarDetalle);
 
-module.exports = router;
+class DetalleVentaRoutes {
+    
+    
+    constructor() {
+        this.router = Router(); 
+        
+        this.configRoutes(); 
+    }
+
+   
+    configRoutes() {
+        
+        // Ruta POST para registrar un nuevo detalle de venta
+        // La ruta completa será: /api/detalle-venta/
+        this.router.post(
+            '/', 
+            detalleVentaController.registrarDetalleVenta
+        );
+        
+        this.router.get(
+            '/:idVenta', 
+            detalleVentaController.obtenerDetallesPorVenta
+        );
+         
+    }
+    
+    /**
+     * @returns {Router} 
+     */
+    getRouter() {
+        return this.router;
+    }
+}
+
+
+module.exports = DetalleVentaRoutes;
