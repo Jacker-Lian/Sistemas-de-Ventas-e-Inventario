@@ -1,109 +1,101 @@
-const database = require("../config/database");
+const database = require('../config/database');
 
 class CajaModel {
-  constructor() {
-    this.table = "caja";
-  }
-
-  // Abrir una nueva caja
-  async abrirCaja({ id_usuario, id_sucursal }) {
+  async abrirCaja(idUsuario, idSucursal) {
     try {
       const pool = database.getPool();
 
-      // Verificar que el usuario exista
-      const [usuario] = await pool.query(
-        "SELECT id_usuario FROM usuarios WHERE id_usuario = ? AND estado = 1",
-        [id_usuario]
-      );
-      if (usuario.length === 0)
-        throw new Error("El usuario no existe o está inactivo.");
-
-      // Verificar si ya hay una caja abierta para ese usuario
+      // Verificar si ya hay una caja abierta para ese usuario (solo columnas necesarias)
       const [cajaAbierta] = await pool.query(
-        "SELECT * FROM caja WHERE id_usuario = ? AND estado_caja = 'ABIERTA'",
-        [id_usuario]
+        "SELECT id_caja FROM caja WHERE id_usuario = ? AND estado_caja = 'ABIERTA'",
+        [idUsuario]
       );
-      if (cajaAbierta.length > 0)
-        throw new Error("Ya existe una caja abierta para este usuario.");
 
-      // Insertar la nueva caja
+      if (cajaAbierta.length > 0) {
+        throw new Error('Ya existe una caja abierta para este usuario.');
+      }
+
       const [result] = await pool.query(
-        `INSERT INTO ${this.table} (fecha_apertura, id_usuario, id_sucursal, estado_caja) VALUES (NOW(), ?, ?, 'ABIERTA')`,
-        [id_usuario, id_sucursal || null]
+        `INSERT INTO caja (fecha_apertura, id_usuario, id_sucursal) 
+         VALUES (NOW(), ?, ?)`,
+        [idUsuario, idSucursal]
       );
 
-      return result.insertId;
+      return { id_caja: result.insertId };
     } catch (error) {
-      throw new Error("Error al abrir la caja: " + error.message);
+      throw error;
     }
   }
 
-  // Registrar ingreso o egreso
-  async registrarMovimiento(id_caja, tipo, monto) {
+  async registrarMovimiento(idCaja, tipo, monto) {
     try {
       const pool = database.getPool();
 
-      // Verificar que la caja esté abierta
-      const [caja] = await pool.query(
-        "SELECT * FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA'",
-        [id_caja]
+      // Verificar que la caja esté abierta (usando COUNT)
+      const [rows] = await pool.query(
+        "SELECT COUNT(1) AS count FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA'",
+        [idCaja]
       );
-      if (caja.length === 0)
-        throw new Error("La caja no existe o ya está cerrada.");
 
-      if (isNaN(monto) || monto <= 0)
-        throw new Error("El monto debe ser un número positivo.");
+      if (rows[0].count === 0) {
+        throw new Error('La caja no está abierta o no existe.');
+      }
 
       if (tipo === "INGRESO") {
         await pool.query(
           "UPDATE caja SET total_ingresos = total_ingresos + ? WHERE id_caja = ?",
-          [monto, id_caja]
+          [monto, idCaja]
         );
       } else if (tipo === "EGRESO") {
+        // Corregido: los egresos deben restar
         await pool.query(
           "UPDATE caja SET total_egresos = total_egresos + ? WHERE id_caja = ?",
-          [monto, id_caja]
+          [monto, idCaja]
         );
       } else {
-        throw new Error("Tipo de movimiento inválido. Use 'INGRESO' o 'EGRESO'.");
+        throw new Error("Tipo de movimiento no válido.");
       }
 
-      return true;
+      return { message: "Movimiento registrado correctamente." };
     } catch (error) {
-      throw new Error("Error al registrar el movimiento: " + error.message);
+      throw error;
     }
   }
 
-  // Cerrar caja
-  async cerrarCaja(id_caja) {
+  async cerrarCaja(idCaja) {
     try {
       const pool = database.getPool();
 
-      // Verificar caja abierta
+      // Verificar caja abierta (usando COUNT)
       const [rows] = await pool.query(
-        "SELECT * FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA'",
-        [id_caja]
+        "SELECT COUNT(1) AS count FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA'",
+        [idCaja]
       );
-      if (rows.length === 0)
-        throw new Error("No se encontró una caja abierta con ese ID.");
 
-      // Actualizar estado
+      if (rows[0].count === 0) {
+        throw new Error('La caja ya está cerrada o no existe.');
+      }
+
       await pool.query(
-        `UPDATE caja SET estado_caja = 'CERRADA', fecha_cierre = NOW() WHERE id_caja = ?`,
-        [id_caja]
+        "UPDATE caja SET estado_caja = 'CERRADA', fecha_cierre = NOW() WHERE id_caja = ?",
+        [idCaja]
       );
 
-      return true;
+      return { message: "Caja cerrada correctamente." };
     } catch (error) {
-      throw new Error("Error al cerrar la caja: " + error.message);
+      throw error;
     }
   }
 
-  // Listar cajas (abiertas o cerradas)
   async listarCajas(estado = null) {
     try {
       const pool = database.getPool();
-      let query = "SELECT * FROM caja";
+      let query = `
+        SELECT 
+          id_caja, fecha_apertura, fecha_cierre, total_ingresos, total_egresos, 
+          estado_caja, id_usuario, id_sucursal, estado, fecha_creacion, fecha_actualizacion
+        FROM caja
+      `;
       const params = [];
 
       if (estado) {
@@ -114,9 +106,9 @@ class CajaModel {
       const [rows] = await pool.query(query, params);
       return rows;
     } catch (error) {
-      throw new Error("Error al listar las cajas: " + error.message);
+      throw error;
     }
   }
 }
 
-module.exports = CajaModel;
+module.exports = new CajaModel();
