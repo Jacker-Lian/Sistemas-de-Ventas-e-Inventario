@@ -4,11 +4,10 @@ const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
+const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 const AlertasRoutes = require("./routes/alertasRoutes");
 const stockRouter = require("./routes/stockRoutes");
-
-
 
 class App {
   constructor() {
@@ -21,8 +20,8 @@ class App {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
     const ALLOWED_ORIGINS = [
-      "http://localhost:5173",       // para desarrollo local
-      "http://38.250.161.15"         // para producción
+      "http://localhost:5173",
+      "http://38.250.161.15"
     ];
 
     this.app.use(cors({
@@ -39,7 +38,8 @@ class App {
     this.app.use(cookieParser());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    // Middleware para logear todas las peticiones
+
+    // Log de peticiones
     this.app.use((req, res, next) => {
       console.log(`${req.method} ${req.path}`);
       next();
@@ -54,50 +54,37 @@ class App {
           Login: "/api/usuario",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
-          HistorialVentas: "api/historial-ventas",
+          Productos: "/api/productos",
+          HistorialVentas: "/api/historial-ventas",
           Alertas: "/api/alertas",
           Stock: "/api/stock"
         },
       });
     });
 
-    // 🌟 MONTAJE DE PRUEBA 1: Solo Usuario
-    // Montar tus rutas de login
+    // Usuario
     const usuarioRoutes = new UsuarioRoutes();
-    this.app.use("/api/usuario", usuarioRoutes.getRouter()); // <--- Probamos esta
+    this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
-    // Montar rutas de ventas (COMENTADA)
-  //  const ventasRoutesInstance = new ventasRoutes();
-    //this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+    // Productos
+    const productoRoutersInstance = new ProductoRouters();
+    this.app.use("/api/productos", productoRoutersInstance.getRouter());
 
-    // Montar rutas de ajustes de inventario (COMENTADA)
-   // const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
-    //this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
+    // Historial de Ventas
+    const historialVentasRoutesInstance = new HistorialVentasRoutes();
+    this.app.use("/api/historial-ventas", historialVentasRoutesInstance.getRouter());
 
-    // Montar ruta para mostrar historial ventas (COMENTADA)
-   // const historialVentasRoutesInstance = new HistorialVentasRoutes();
-   // this.app.use(
-   //   "/api/historial-ventas",
-    //  historialVentasRoutesInstance.getRouter()
-   // );
+    // Alertas
+    const alertasRoutesInstance = new AlertasRoutes();
+    this.app.use("/api/alertas", alertasRoutesInstance.getRouter());
 
-
-    // Montar ruta alertas de inventario (COMENTADA)
-    //const alertasRoutesInstance = new AlertasRoutes();
-    //this.app.use("/api/alertas", alertasRoutesInstance.getRouter());
-
+    // Stock (montado correctamente en /api)
     this.app.use("/api", stockRouter);
-    console.log("DEBUG A.4: Router de Stock montado en /api.");
 
-
-
-
-
-    // Ruta 404
+    // 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
     });
-
   }
 
   getApp() {
@@ -106,4 +93,3 @@ class App {
 }
 
 module.exports = App;
-  
