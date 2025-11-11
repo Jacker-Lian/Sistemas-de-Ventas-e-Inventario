@@ -8,9 +8,6 @@ class UsuarioRoutes {
   }
 
   configurarRutas() {
-    /**
-     * POST /api/usuario/login
-     */
     this.router.post('/login', authController.login);
   }
 
@@ -20,4 +17,3 @@ class UsuarioRoutes {
 }
 
 module.exports = UsuarioRoutes;
-

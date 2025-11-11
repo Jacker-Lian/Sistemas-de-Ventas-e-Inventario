@@ -1,8 +1,7 @@
 const UsuarioModel = require('../models/usuarioModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 const usuarioModel = new UsuarioModel();
 
@@ -50,7 +49,6 @@ authController.login = async (req, res) => {
       maxAge: 8 * 60 * 60 * 1000 
     });
 
-    // Redirección según rol
     let redirect = '/caja';
     if (usuario.rol_usuario === 'ADMIN') redirect = '/admin';
 
