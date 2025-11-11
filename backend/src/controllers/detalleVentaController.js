@@ -39,14 +39,11 @@ detalleVentaController.registrarDetalleVenta = async (req, res) =>{
 };
 
 detalleVentaController.obtenerDetallesPorVenta = async (req, res) => {
-    // 1. Extrae el ID de la venta desde los parámetros de la URL
     const { idVenta } = req.params; 
 
     try {
-        // 2. Llama a la función del modelo para obtener los datos
         const detalles = await detalleVentaModelInstance.getDetallesPorVenta(idVenta);
 
-        // 3. Verifica el resultado y responde
         if (detalles.length > 0) {
             return res.status(200).json(detalles);
         } else {

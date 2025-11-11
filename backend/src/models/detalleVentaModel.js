@@ -47,7 +47,6 @@ class DetalleVentaModel {
      */
     async getDetallesPorVenta(idVenta) {
         try {
-            // Consulta SQL para seleccionar los detalles de una venta
             const query = `
                 SELECT 
                     dv.id AS id_detalle, 
