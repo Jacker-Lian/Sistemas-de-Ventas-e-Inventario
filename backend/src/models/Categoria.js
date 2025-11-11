@@ -5,7 +5,7 @@ class Categoria {
     
     static async findAll() {
         const pool = database.getPool();
-        const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE estado = TRUE');
+        const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE estado = 1'); 
         return rows;
     }
 
@@ -13,7 +13,7 @@ class Categoria {
         const pool = database.getPool();
         const searchTerm = `%${nombre}%`;
         const [rows] = await pool.query(
-            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre LIKE ? AND estado = TRUE', 
+            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre LIKE ? AND estado = 1', 
             [searchTerm]
         );
         return rows;
@@ -22,7 +22,7 @@ class Categoria {
     static async findById(id) {
         const pool = database.getPool();
         const [rows] = await pool.query(
-            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE id_categoria = ? AND estado = TRUE', 
+            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE id_categoria = ? AND estado = 1', 
             [id]
         );
         return rows[0];
@@ -35,7 +35,7 @@ class Categoria {
             'INSERT INTO categoria (nombre, descripcion) VALUES (?, ?)',
             [nombre, descripcion]
         );
-        return { id_categoria: result.insertId, nombre, descripcion, estado: true};
+        return { id_categoria: result.insertId, nombre, descripcion, estado: 1}; 
     }
 
     static async update(id, { nombre, descripcion }) {
@@ -49,7 +49,7 @@ class Categoria {
 
     static async delete(id) {
         const pool = database.getPool();
-        const [result] = await pool.query('UPDATE categoria SET estado = FALSE WHERE id_categoria = ?', [id]);
+        const [result] = await pool.query('UPDATE categoria SET estado = 0 WHERE id_categoria = ?', [id]); 
         return result.affectedRows > 0;
     }
 }

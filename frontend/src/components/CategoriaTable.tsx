@@ -30,7 +30,8 @@ export default function CrudCategorias() {
   const [editando, setEditando] = useState<EditCategoriaState | null>(null);
 
   // 🎯 DEFINICIÓN CONSISTENTE DE LA URL BASE (Usaremos esto en todas las llamadas)
-  const BASE_URL = "http://localhost:3000"; // Ajusta según tu configuración
+  //const BASE_URL = "http://localhost:3000"; // Ajusta según tu configuración
+  const SERVER_URL = "http://38.250.161.15:3000";
 
   // 2. Función para Cargar/Recargar Datos (Estabilizada con useCallback)
   const buscarCategorias = useCallback(async () => {
@@ -38,10 +39,10 @@ export default function CrudCategorias() {
     setMensaje("Cargando...");
 
     try {
-      // ✅ Usa BASE_URL: Construir la URL: /api/categorias o /api/categorias/buscar/:nombre
+      // ✅ Usa SERVER_URL: Construir la URL: /api/categorias o /api/categorias/buscar/:nombre
       const url = trimmedBusqueda
-        ? `${BASE_URL}/api/categorias/buscar/${encodeURIComponent(trimmedBusqueda)}`
-        : `${BASE_URL}/api/categorias`;
+        ? `${SERVER_URL}/api/categorias/buscar/${encodeURIComponent(trimmedBusqueda)}`
+        : `${SERVER_URL}/api/categorias`;
 
       const res = await fetch(url);
 
@@ -107,9 +108,9 @@ export default function CrudCategorias() {
         descripcion: String(editando.descripcion).trim(),
       };
 
-      // ✅ Usa BASE_URL
+      // ✅ Usa SERVER_URL
       const res = await fetch(
-        `${BASE_URL}/api/categorias/actualizar/${editando.id_categoria}`,
+        `${SERVER_URL}/api/categorias/actualizar/${editando.id_categoria}`,
         {
           method: "PUT",
           headers: {
@@ -140,9 +141,9 @@ export default function CrudCategorias() {
     if (!categoriaEncontrada || !confirm(`¿Deseas marcar la categoría "${categoriaEncontrada.nombre}" como inactiva?`)) return;
 
     try {
-      // ✅ Usa BASE_URL
+      // ✅ Usa SERVER_URL
       const res = await fetch(
-        `${BASE_URL}/api/categorias/eliminar/${id}`,
+        `${SERVER_URL}/api/categorias/eliminar/${id}`,
         {
           method: "DELETE",
         }
@@ -224,20 +225,7 @@ export default function CrudCategorias() {
             borderRadius: "5px",
           }}
         />
-        <button
-          onClick={buscarCategorias}
-          style={{
-            padding: "8px 16px",
-            border: "2px solid #000",
-            background: "#000",
-            color: "#fff",
-            fontWeight: "bold",
-            cursor: "pointer",
-            borderRadius: "5px",
-          }}
-        >
-          Buscar
-        </button>
+        
       </div>
 
       <p
