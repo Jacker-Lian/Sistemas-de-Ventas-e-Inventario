@@ -37,12 +37,11 @@ jobs:
           fi
 
       #  Instalar y construir el frontend
-      - name: Clean npm cache and reinstall frontend
+      - name: Install Frontend Dependencies
         working-directory: ./frontend
         run: |
-          echo "Limpiando cache y reinstalando dependencias..."
-          rm -rf node_modules package-lock.json
-          npm install
+          echo "Instalando dependencias del frontend..."
+          npm ci --force
 
       - name: Build Frontend
         working-directory: ./frontend
