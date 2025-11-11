@@ -1,30 +1,56 @@
 import React, { useState, useEffect } from 'react';
 
-interface ProductoStock {
-  id: number;
-  nombre: string;
-  stockActual: number;
-  stockMinimo: number;
-  precio: number;
+// 1. DEFINICIÓN DE INTERFAZ ADAPTADA a la respuesta del Backend
+interface ResumenStock {
+  productos_en_stock: number;
+  productos_vendidos: number;
+  total_productos: number;
 }
 
-// Detectar si está en local o en servidor
+// Valor inicial para el estado del resumen
+const INITIAL_RESUMEN: ResumenStock = {
+  productos_en_stock: 0,
+  productos_vendidos: 0,
+  total_productos: 0,
+};
+
+// 2. ENDPOINT CORREGIDO
+// La ruta que devuelve tu resumen de stock es: /api/stock/resumen-inventario
 const API_URL = import.meta.env.MODE === "development"
-  ? "http://localhost:3000/api/stock"
-  : "http://38.250.161.15/api/stock";
+  ? "http://localhost:3000/api/stock/resumen-inventario"
+  : "http://38.250.161.15/api/stock/resumen-inventario";
+
 
 const ControlStock: React.FC = () => {
-  const [productos, setProductos] = useState<ProductoStock[]>([]);
+  // 3. ESTADO ADAPTADO: Usamos la interfaz de ResumenStock
+  const [resumen, setResumen] = useState<ResumenStock>(INITIAL_RESUMEN);
   const [cargando, setCargando] = useState<boolean>(true);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   useEffect(() => {
     const cargarStock = async () => {
       try {
         const respuesta = await fetch(API_URL, { credentials: "include" });
+        
+        if (!respuesta.ok) {
+            throw new Error(`Error en la red: ${respuesta.status}`);
+        }
+        
         const datos = await respuesta.json();
-        setProductos(datos);
+
+        // 4. MANEJO DE LA RESPUESTA
+        // El backend devuelve { success: true, data: resumen }
+        if (datos.success && datos.data) {
+            setResumen(datos.data);
+        } else {
+            // Maneja caso donde la respuesta es OK, pero success: false
+            throw new Error(datos.mensaje || "Respuesta de API inesperada");
+        }
+
       } catch (error) {
         console.error("Error al cargar el stock:", error);
+        // Mostrar error en la UI
+        setErrorCarga("Fallo al conectar o recibir datos del servidor.");
       } finally {
         setCargando(false);
       }
@@ -33,85 +59,71 @@ const ControlStock: React.FC = () => {
     cargarStock();
   }, []);
 
-  if (cargando) return <div>Cargando datos de stock...</div>;
-
-  const esStockBajo = (producto: ProductoStock): boolean =>
-    producto.stockActual <= producto.stockMinimo;
-
+  if (cargando) return <div style={styles.contenedor}>Cargando datos de stock...</div>;
+  if (errorCarga) return <div style={{...styles.contenedor, color: 'red'}}>🚨 Error: {errorCarga}</div>;
+  
+  // 5. RENDERIZADO ADAPTADO: Mostrando el resumen
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>📦 Control de Stock</h1>
-      <p>Vista general del inventario de productos conectado al backend.</p>
+    <div style={styles.contenedor}>
+      <h1>📦 Resumen de Inventario</h1>
+      <p>Vista rápida de las métricas clave del inventario.</p>
 
-      {productos.some(esStockBajo) && (
-        <div style={styles.alertaGeneral}>
-          ⚠️ <strong>¡ATENCIÓN!</strong> Hay productos con stock bajo.
-        </div>
-      )}
+      <div style={styles.cardContainer}>
+          <Card title="Productos en Stock" value={resumen.productos_en_stock} color="#4CAF50" />
+          <Card title="Productos Vendidos" value={resumen.productos_vendidos} color="#2196F3" />
+          <Card title="Total de Productos" value={resumen.total_productos} color="#FF9800" />
+      </div>
 
-      <table style={styles.table}>
-        <thead style={styles.thead}>
-          <tr>
-            <th style={styles.th}>ID</th>
-            <th style={styles.th}>Producto</th>
-            <th style={styles.th}>Stock Actual</th>
-            <th style={styles.th}>Stock Mínimo</th>
-            <th style={styles.th}>Precio</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productos.map((producto) => (
-            <tr
-              key={producto.id}
-              style={esStockBajo(producto) ? styles.rowBajoStock : {}}
-            >
-              <td style={styles.td}>{producto.id}</td>
-              <td style={styles.td}>{producto.nombre}</td>
-              <td
-                style={{
-                  ...styles.td,
-                  fontWeight: esStockBajo(producto) ? 'bold' : 'normal',
-                  color: esStockBajo(producto) ? '#d32f2f' : 'inherit'
-                }}
-              >
-                {producto.stockActual}
-              </td>
-              <td style={styles.td}>{producto.stockMinimo}</td>
-              <td style={styles.td}>${producto.precio.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };
 
+// Componente simple para mostrar las métricas
+interface CardProps {
+    title: string;
+    value: number;
+    color: string;
+}
+
+const Card: React.FC<CardProps> = ({ title, value, color }) => (
+    <div style={{ ...styles.card, borderLeftColor: color }}>
+        <h3 style={styles.cardTitle}>{title}</h3>
+        <p style={styles.cardValue}>{value.toLocaleString()}</p>
+    </div>
+);
+
+
+// 6. ESTILOS ADAPTADOS
 const styles: { [key: string]: React.CSSProperties } = {
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  contenedor: {
+    padding: '20px',
+    maxWidth: '800px',
+    margin: '0 auto',
+    fontFamily: 'Arial, sans-serif'
   },
-  thead: {
-    backgroundColor: '#f4f4f4',
+  cardContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '20px',
+    marginTop: '30px',
   },
-  th: {
-    padding: '12px 15px',
-    textAlign: 'left',
-    borderBottom: '2px solid #ddd',
+  card: {
+    flex: 1,
+    padding: '20px',
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    borderLeft: '5px solid',
   },
-  td: {
-    padding: '10px 15px',
-    borderBottom: '1px solid #eee',
+  cardTitle: {
+    fontSize: '1em',
+    color: '#555',
+    margin: '0 0 10px 0',
   },
-  rowBajoStock: {
-    backgroundColor: '#fbe9e7',
-  },
-  alertaGeneral: {
-    backgroundColor: '#ffe0b2',
-    padding: '10px',
-    marginBottom: '20px',
-    borderLeft: '5px solid #ff9800',
+  cardValue: {
+    fontSize: '2em',
+    fontWeight: 'bold',
+    margin: 0,
   }
 };
 

@@ -1,29 +1,17 @@
+// C:\gith\Sistemas-de-Ventas-e-Inventario\backend\src\routes\alertasRoutes.js
+
 const express = require('express');
 const router = express.Router();
-const db = require('../config/database');
+const AlertasController = require('../controllers/alertasController');
 
-router.get('/alertas', async (req, res) => {
-  try {
-    const [rows] = await db.query(`
-      SELECT 
-        a.id_alerta,
-        p.nombre AS producto,
-        a.tipo_alerta,
-        a.stock_minimo,
-        p.stock AS stock_actual,
-        a.mensaje,
-        a.visto,
-        a.fecha_creacion
-      FROM alertas_inventario a
-      INNER JOIN producto p ON a.id_producto = p.id_producto
-      ORDER BY a.fecha_creacion DESC
-    `);
+console.log("DEBUG R.5: Express cargado en alertasRoutes.");
 
-    res.json(rows);
-  } catch (error) {
-    console.error("ERROR GET /alertas:", error);
-    res.status(500).json({ error: "Error al obtener alertas" });
-  }
-});
+// Ruta para obtener las alertas activas (no vistas)
+router.get('/alertas/activas', AlertasController.obtenerAlertasActivas);
+console.log("DEBUG R.6: Ruta /alertas/activas definida.");
+
+// Ruta para marcar una alerta como vista (Notificación eliminada)
+router.post('/alertas/marcar-visto/:id', AlertasController.marcarAlertaComoVista);
+console.log("DEBUG R.7: Ruta /alertas/marcar-visto/:id definida.");
 
 module.exports = router;

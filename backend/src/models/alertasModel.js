@@ -1,38 +1,96 @@
-const db = require("../config/database");
+// C:\gith\Sistemas-de-Ventas-e-Inventario\backend\src\models\alertasModel.js
 
-const alertasModel = {
+const database = require('../config/database');
 
-  obtenerAlertas() {
-    const sql = `
-      SELECT a.id_alerta, a.id_producto, a.tipo_alerta, a.stock_minimo,
-             a.mensaje, a.visto, a.fecha_creacion, p.nombre AS nombre_producto
-      FROM alertas_inventario a
-      INNER JOIN producto p ON p.id_producto = a.id_producto
-      ORDER BY a.fecha_creacion DESC;
-    `;
-    return db.promise().query(sql);
-  },
+class AlertasModel {
+    constructor() {
+        console.log("DEBUG A.1: Instancia de AlertasModel creada.");
+    }
 
-  obtenerAlertasNoVistas() {
-    const sql = `
-      SELECT a.id_alerta, a.id_producto, a.tipo_alerta, a.stock_minimo,
-             a.mensaje, a.visto, a.fecha_creacion, p.nombre AS nombre_producto
-      FROM alertas_inventario a
-      INNER JOIN producto p ON p.id_producto = a.id_producto
-      WHERE a.visto = 0
-      ORDER BY a.fecha_creacion DESC;
-    `;
-    return db.promise().query(sql);
-  },
+    // Método para obtener todas las alertas activas y no vistas
+    async obtenerAlertasNoVistas() {
+        console.log("DEBUG A.2: AlertasModel.obtenerAlertasNoVistas() ejecutado.");
+        try {
+            const conn = database.getPool();
+            // Consulta para obtener alertas no vistas (visto = 0)
+            const [rows] = await conn.query(
+                `SELECT 
+                    a.id_alerta, 
+                    a.tipo_alerta, 
+                    a.mensaje, 
+                    a.fecha_creacion,
+                    p.nombre AS nombre_producto
+                FROM alertas_inventario a
+                JOIN producto p ON a.id_producto = p.id_producto
+                WHERE a.visto = 0
+                ORDER BY a.fecha_creacion DESC`
+            );
+            console.log(`DEBUG A.3: Se encontraron ${rows.length} alertas no vistas.`);
+            return rows;
+        } catch (error) {
+            console.error("ERROR A.4: Fallo al obtener alertas:", error.message);
+            throw error;
+        }
+    }
 
-  marcarComoVisto(id_alerta) {
-    const sql = `
-      UPDATE alertas_inventario
-      SET visto = 1, fecha_actualizacion = NOW()
-      WHERE id_alerta = ?;
-    `;
-    return db.promise().query(sql, [id_alerta]);
-  }
-};
+    // Método principal para revisar el stock y generar nuevas alertas
+    async generarAlertasDeStock() {
+        console.log("DEBUG A.5: Iniciando proceso de generación de alertas...");
+        const conn = database.getPool();
+        const alertsToInsert = [];
+        
+        try {
+            // 1. Obtener todos los productos con su stock actual (se asume un 'stock_minimo' de 10 como ejemplo)
+            // NOTA: Para alertas de 'SOBRE_STOCK', necesitarías una columna 'stock_maximo' en la tabla 'producto'.
+            const [productos] = await conn.query(
+                `SELECT id_producto, nombre, stock 
+                 FROM producto 
+                 WHERE estado = 1` // Solo productos activos
+            );
 
-module.exports = alertasModel;
+            for (const prod of productos) {
+                const STOCK_MINIMO = 10; // Valor de alerta de ejemplo
+                const tipo_alerta = 'STOCK_BAJO';
+                
+                // Si el stock está bajo (menor o igual al mínimo)
+                if (prod.stock <= STOCK_MINIMO) {
+                    const mensaje = `¡Alerta! El stock de ${prod.nombre} es de ${prod.stock} y está bajo o igual al mínimo de ${STOCK_MINIMO}.`;
+                    
+                    // 2. Verificar si ya existe una alerta activa para este producto y tipo
+                    const [existingAlerts] = await conn.query(
+                        `SELECT id_alerta FROM alertas_inventario 
+                         WHERE id_producto = ? AND tipo_alerta = ? AND visto = 0`,
+                        [prod.id_producto, tipo_alerta]
+                    );
+
+                    // Si no existe una alerta activa, la generamos
+                    if (existingAlerts.length === 0) {
+                        alertsToInsert.push([
+                            prod.id_producto, 
+                            tipo_alerta, 
+                            STOCK_MINIMO,
+                            mensaje
+                        ]);
+                    }
+                }
+            }
+            
+            // 3. Insertar las nuevas alertas
+            if (alertsToInsert.length > 0) {
+                const sql = `INSERT INTO alertas_inventario (id_producto, tipo_alerta, stock_minimo, mensaje) VALUES ?`;
+                const [result] = await conn.query(sql, [alertsToInsert]);
+                console.log(`DEBUG A.6: Se insertaron ${result.affectedRows} nuevas alertas de STOCK_BAJO.`);
+                return { success: true, count: result.affectedRows };
+            }
+            
+            console.log("DEBUG A.7: No se generaron nuevas alertas.");
+            return { success: true, count: 0 };
+
+        } catch (error) {
+            console.error("ERROR A.8: Fallo en la generación de alertas:", error.message);
+            throw error;
+        }
+    }
+}
+
+module.exports = new AlertasModel();
