@@ -1,21 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Space, DatePicker, Button, Alert } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import type { ColumnsType } from 'antd/es/table';
+
+
+interface VentaProducto {
+  id_producto: number;
+  nombre: string;
+  cantidad_vendida: string;
+  total_recaudado: string;
+}
 
 const { RangePicker } = DatePicker;
 
 const ReporteVentas = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [fechas, setFechas] = useState({
     fechaInicio: dayjs().startOf('month').format('YYYY-MM-DD'),
     fechaFin: dayjs().format('YYYY-MM-DD')
   });
 
-  const columns = [
+  const columns: ColumnsType<VentaProducto> = [
     {
       title: 'Producto',
       dataIndex: 'nombre_producto',
@@ -39,7 +48,7 @@ const ReporteVentas = () => {
   const cargarReporte = async () => {
     try {
       setLoading(true);
-      setError(null);
+      setError(undefined);
       const response = await axios.get('http://localhost:3000/api/ventas/reporte-ventas-por-producto', {
         params: {
           fechaInicio: fechas.fechaInicio,
@@ -59,8 +68,8 @@ const ReporteVentas = () => {
     cargarReporte();
   }, []);
 
-  const handleBuscar = (dates) => {
-    if (dates && dates.length === 2) {
+  const handleBuscar = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
+    if (dates && dates[0] && dates[1]) {
       setFechas({
         fechaInicio: dates[0].format('YYYY-MM-DD'),
         fechaFin: dates[1].format('YYYY-MM-DD')
@@ -109,9 +118,9 @@ const ReporteVentas = () => {
 
             return (
               <Table.Summary.Row style={{ fontWeight: 'bold' }}>
-                <Table.Summary.Cell>Total</Table.Summary.Cell>
-                <Table.Summary.Cell align="right">{totalUnidades}</Table.Summary.Cell>
-                <Table.Summary.Cell align="right">S/ {totalVentas.toFixed(2)}</Table.Summary.Cell>
+                <Table.Summary.Cell index={0} align="center">Total</Table.Summary.Cell>
+                <Table.Summary.Cell index={1} align="right">{totalUnidades}</Table.Summary.Cell>
+                <Table.Summary.Cell index={2} align="right">S/ {totalVentas.toFixed(2)}</Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}
