@@ -4,7 +4,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-
+const Base_url = import.meta.env.Server || 'http://localhost:3000' ;
 
 interface VentaProducto {
   id_producto: number;
@@ -49,7 +49,7 @@ const ReporteVentas = () => {
     try {
       setLoading(true);
       setError(undefined);
-      const response = await axios.get('http://localhost:3000/api/ventas/reporte-ventas-por-producto', {
+      const response = await axios.get(`${Base_url}/api/ventas/reporte-ventas-por-producto`, {
         params: {
           fechaInicio: fechas.fechaInicio,
           fechaFin: fechas.fechaFin
