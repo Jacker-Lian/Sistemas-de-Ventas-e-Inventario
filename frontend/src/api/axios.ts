@@ -1,15 +1,13 @@
 import axios from "axios";
 
-// Usar la URL del backend configurada en Vite (VITE_API_URL) si existe
-const BACKEND = (import.meta as any).env?.VITE_API_URL || "http://localhost:3000";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-const apiClient = axios.create({
-  baseURL: `${BACKEND}/api/usuario`,
-  withCredentials: true, // enviar cookies en cada petición por defecto
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
-// No añadimos Authorization desde localStorage: el backend usa cookies HttpOnly
-export default apiClient;
+export default api;
