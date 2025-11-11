@@ -3,7 +3,7 @@ const database =require("../config/database");
 class DetalleVentaModel {
     
     constructor() {
-        this.pool = database.getPool();
+        this.table = "detalle_venta"
       }
 
     /**
