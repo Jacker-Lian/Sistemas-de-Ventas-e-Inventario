@@ -71,6 +71,8 @@ class DetalleVentaModel {
             throw error; 
         }
     }
+
+    
 }
 
 module.exports =DetalleVentaModel;
