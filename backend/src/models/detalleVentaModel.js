@@ -11,6 +11,7 @@ class DetalleVentaModel {
    * @param {object} datosDetalle
    */
     async registrarDetalleVenta(datosDetalle){
+        const pool = database.getPool();
         try{
             //datos del objeto
             const{
@@ -46,21 +47,22 @@ class DetalleVentaModel {
      * @returns {Promise<Array<Object>>} 
      */
     async getDetallesPorVenta(idVenta) {
+        const pool = database.getPool();
         try {
             const query = `
                 SELECT 
-                    dv.id AS id_detalle, 
+                    dv.id_detalle, 
                     dv.id_producto, 
                     p.nombre AS nombre_producto,
                     dv.cantidad, 
                     dv.precio_unitario,
                     (dv.cantidad * dv.precio_unitario) AS subtotal
                 FROM detalle_venta dv
-                JOIN producto p ON dv.id_producto = p.id
+                JOIN producto p ON dv.id_producto = p.id_producto
                 WHERE dv.id_venta = ?
             `;
             
-            const [rows] = await this.pool.query(query, [idVenta]);
+            const [rows] = await pool.query(query, [idVenta]);
             
             return rows;
         } catch (error) {
