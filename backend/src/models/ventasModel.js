@@ -299,7 +299,7 @@ class VentasModel {
         );
 
       const [result] = await pool.query(
-        `UPDATE ventas SET estado_venta = 0 WHERE id_venta = ?`,
+        `UPDATE ventas SET estado = 0 WHERE id_venta = ?`,
         [id_venta]
       );
       return result.affectedRows > 0;
