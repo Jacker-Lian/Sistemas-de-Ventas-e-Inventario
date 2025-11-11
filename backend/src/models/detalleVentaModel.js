@@ -52,10 +52,11 @@ class DetalleVentaModel {
             const query = `
                 SELECT 
                     dv.id_detalle, 
-                    dv.id_producto, 
                     p.nombre AS nombre_producto,
                     dv.cantidad, 
                     dv.precio_unitario,
+                    dv.fecha_creacion,
+                    dv.fecha_actualizacion,
                     (dv.cantidad * dv.precio_unitario) AS subtotal
                 FROM detalle_venta dv
                 JOIN producto p ON dv.id_producto = p.id_producto
