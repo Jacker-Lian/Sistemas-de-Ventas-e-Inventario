@@ -1,17 +1,12 @@
 const UsuarioModel = require('../models/apisModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
 const usuarioModel = new UsuarioModel();
 
 const authController = {};
 
-/**
- * POST /api/auth/login
- * Body: { email, password }
- */
 authController.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -30,14 +25,12 @@ authController.login = async (req, res) => {
       return res.status(403).json({ message: 'Usuario inactivo' });
     }
 
-    const passwordHash = usuario.password_hash || usuario.passwordHash || usuario.password;
     const passwordMatches = await bcrypt.compare(password, usuario.password_hash);
 
     if (!passwordMatches) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    // Datos almacenados
     const payload = {
       id_usuario: usuario.id_usuario,
       nombre_usuario: usuario.nombre_usuario,
@@ -49,7 +42,6 @@ authController.login = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN || '8h'
     });
 
-    // redirección según rol
     let redirect = '/caja';
     if (usuario.rol_usuario === 'ADMIN') redirect = '/admin';
 

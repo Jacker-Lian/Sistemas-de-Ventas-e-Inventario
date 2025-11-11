@@ -15,30 +15,25 @@ class App {
   }
 
   configurarMiddlewares() {
-    const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+    const ALLOWED_ORIGINS = ["http://localhost:5173", "http://38.250.161.15"];
 
-const ALLOWED_ORIGINS = [
-  "http://localhost:5173",       // para desarrollo local
-  "http://38.250.161.15"         // para producción
-];
-
-this.app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS no permitido para este origen: " + origin));
-    }
-  },
-  credentials: true
-}));
+    this.app.use(cors({
+      origin: function (origin, callback) {
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("CORS no permitido para este origen: " + origin));
+        }
+      },
+      credentials: true
+    }));
 
     this.app.use(cookieParser());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    // Middleware para logear todas las peticiones
+    
     this.app.use((req, res, next) => {
-      console.log(`${req.method} ${req.path}`);
+      console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
       next();
     });
   }
@@ -57,15 +52,12 @@ this.app.use(cors({
       });
     });
 
-    // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
-    // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
 
-    // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
 
@@ -74,14 +66,19 @@ this.app.use(cors({
     this.app.use("/api/productos", productoRoutersInstance.getRouter());
     // Montar ruta para mostrar historial ventas
     const historialVentasRoutesInstance = new HistorialVentasRoutes();
-    this.app.use(
-      "/api/historial-ventas",
-      historialVentasRoutesInstance.getRouter()
-    );
+    this.app.use("/api/historial-ventas", historialVentasRoutesInstance.getRouter());
 
-    // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
+    });
+
+    this.app.use((error, req, res, next) => {
+      console.error('Error global:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     });
   }
 
