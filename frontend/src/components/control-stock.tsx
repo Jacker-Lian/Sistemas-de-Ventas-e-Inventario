@@ -65,8 +65,8 @@ const ControlStock: React.FC = () => {
   // 5. RENDERIZADO ADAPTADO: Mostrando el resumen
   return (
     <div style={styles.contenedor}>
-      <h1>📦 Resumen de Inventario</h1>
-      <p>Vista rápida de las métricas clave del inventario.</p>
+      <h1> Resumen de Inventario</h1>
+      <p>Vista rápida del inventario.</p>
 
       <div style={styles.cardContainer}>
           <Card title="Productos en Stock" value={resumen.productos_en_stock} color="#4CAF50" />

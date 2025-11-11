@@ -8,7 +8,7 @@ const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 const alertasRoutes = require("./routes/alertasRoutes");
 const stockRouter = require("./routes/stockRoutes");
-const AlertasModel = require('./src/models/alertasModel');
+//const AlertasModel = require('./src/models/alertasModel');
 
 class App {
   constructor() {
