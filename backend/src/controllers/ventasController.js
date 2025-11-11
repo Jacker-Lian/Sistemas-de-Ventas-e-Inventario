@@ -285,7 +285,7 @@ const ventasController = {
     }
   },
 
-  desactivarVentana: async (req, res) => {
+  desactivarVentas: async (req, res) => {
     try {
       const { id_caja } = req.body;
 
@@ -296,20 +296,20 @@ const ventasController = {
         });
       }
 
-      const desactivado = await ventasModelInstance.desactivarVentana(id_caja);
+      const desactivado = await ventasModelInstance.desactivarVentas(id_caja);
 
       if (desactivado) {
         return res.status(200).json({
-          message: "Ventana desactivada exitosamente.",
+          message: "Ventas desactivadas exitosamente.",
         });
       } else {
         return res.status(404).json({
-          message: "Caja no encontrada o ventana ya desactivada.",
+          message: "Caja no encontrada o ventas ya desactivadas.",
         });
       }
     } catch (error) {
       return res.status(500).json({
-        message: "Error al desactivar la ventana: " + error.message,
+        message: "Error al desactivar las ventas: " + error.message,
       });
     }
   },
