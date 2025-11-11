@@ -41,7 +41,9 @@ jobs:
         working-directory: ./frontend
         run: |
           echo "Instalando dependencias del frontend..."
-          npm ci --force
+          rm -rf node_modules package-lock.json
+          npm install
+          npm install @rollup/rollup-linux-x64-gnu --save-optional
 
       - name: Build Frontend
         working-directory: ./frontend
