@@ -6,10 +6,10 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-const api = axios.create({
+const apiClient = axios.create({
   baseURL: `${BACKEND}/api/usuario`,
   withCredentials: true, // enviar cookies en cada petición por defecto
 });
 
 // No añadimos Authorization desde localStorage: el backend usa cookies HttpOnly
-export default api;
+export default apiClient;
