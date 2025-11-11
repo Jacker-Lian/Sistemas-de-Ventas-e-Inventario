@@ -6,9 +6,7 @@ const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
-const alertasRoutes = require("./routes/alertasRoutes");
-const stockRouter = require("./routes/stockRoutes");
-//const AlertasModel = require('./src/models/alertasModel');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
 
 class App {
   constructor() {
@@ -59,6 +57,7 @@ class App {
           HistorialVentas: "/api/historial-ventas",
           Alertas: "/api/alertas",
           Stock: "/api/stock"
+          DetalleVenta: "/api/detalle-venta"
         },
       });
     });
@@ -81,6 +80,15 @@ class App {
     // 2. Montar Router de STOCK
     this.app.use("/api", stockRouter);
     console.log("DEBUG A.4: Router de Stock montado en /api.");
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
+    this.app.use(
+        "/api/detalle-venta", 
+        detalleVentaRoutesInstance.getRouter()
+    );
 
     // 404
     this.app.use((req, res) => {
