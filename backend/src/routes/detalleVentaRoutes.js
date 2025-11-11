@@ -1,5 +1,5 @@
 
-const { Router } = require('express');
+const express = require('express');
 const detalleVentaController = require('../controllers/detalleVentaController'); 
 
 
@@ -7,18 +7,17 @@ class DetalleVentaRoutes {
     
     
     constructor() {
-        this.router = Router(); 
-        
-        this.configRoutes(); 
+        this.router = express.Router(); 
+        this.configurarRutas(); 
     }
 
    
-    configRoutes() {
+    configurarRutas() {
         
         // Ruta POST para registrar un nuevo detalle de venta
         // La ruta completa será: /api/detalle-venta/
         this.router.post(
-            '/', 
+            '/registrar', 
             detalleVentaController.registrarDetalleVenta
         );
         
