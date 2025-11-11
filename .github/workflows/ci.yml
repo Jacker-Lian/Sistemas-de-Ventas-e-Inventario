@@ -20,8 +20,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "24"
+          cache: "npm"
 
       #  Instalar y construir el backend
       - name: Install & Build Backend
@@ -37,11 +37,16 @@ jobs:
           fi
 
       #  Instalar y construir el frontend
-      - name: Install & Build Frontend
+      - name: Clean npm cache and reinstall frontend
         working-directory: ./frontend
         run: |
-          echo "Instalando dependencias del frontend..."
-          npm ci
+          echo "Limpiando cache y reinstalando dependencias..."
+          rm -rf node_modules package-lock.json
+          npm install
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
           echo "Construyendo frontend..."
           npm run build
 
