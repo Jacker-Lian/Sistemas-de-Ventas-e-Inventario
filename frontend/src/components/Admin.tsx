@@ -19,6 +19,7 @@ function Admin() {
     { title: "Productos", desc: "Gestionar productos e inventario", to: "/admin/productos" },
     { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
+    { title: "Control de Stock", desc: "Monitorear y gestionar el inventario en tiempo real", to: "/admin/control-stock" },
   ];
 
   return (

@@ -3,9 +3,9 @@ import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
-import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import AjusteInventario from './components/AjusteInventario/AjusteInventario';
 import PrivateRoute from "./components/PrivateRoute";
-
+import ControlStock from './components/control-stock';
 function App() {
   return (
     <BrowserRouter>
@@ -29,13 +29,23 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route 
-            path="/inventario/ajuste" 
+          <Route
+            path="/inventario/ajuste"
             element={
               <PrivateRoute roles={['ADMIN', 'CAJA']}>
                 <AjusteInventario />
               </PrivateRoute>
-            } 
+            }
+          />
+
+
+          <Route
+            path="/admin/control-stock" // Debe coincidir con el 'to' de tu botón
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <ControlStock /> {/* <-- Usa el componente importado */}
+              </PrivateRoute>
+            }
           />
         </Routes>
       </AuthProvider>
