@@ -52,9 +52,9 @@ this.app.use(cors({
           Login: "/api/usuario",
           Ventas: "/api/ventas",
           Gastos: "/api/gastos",
-          AjustesInventario: "/api/ajustes-inventario"
+          AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
-          HistorialVentas: "/api/historial-ventas",
+          HistorialVentas: "/api/historial-ventas"
         },
       });
     });

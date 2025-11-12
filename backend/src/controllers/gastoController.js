@@ -11,7 +11,7 @@ const getGastos = async (req, res) => {
   try {
     // habilitar parametros de paginacion por url = ?page=2&limit=10
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 100;
 
     const { gastos, totalGastos, totalPaginas, paginaActual, error } =
       await gastoModel.obtenerGastos({ page, limit });
@@ -72,12 +72,12 @@ const getOneGasto = (req, res) => {
 };
 
 const putGasto = async (req, res) => {
-  const { descripcion, monto, tipo_gasto, metodo_pago } = req.body;
+  const { descripcion, monto, id_tipo_gasto, metodo_pago } = req.body;
   try {
     const updated = await gastoModel.actualizarGasto(req.gasto.id_gasto, {
       descripcion,
       monto,
-      tipo_gasto,
+      id_tipo_gasto,
       metodo_pago,
     });
 
@@ -137,18 +137,18 @@ Ruta: POST /api/gastos
  * {
  *   "descripcion": "Servicio para la limpieza del local",
  *   "monto": 220.50,
- *   "tipo_gasto": "SERVICIOS",
+ *   "id_tipo_gasto": "2",
  *   "metodo_pago": "EFECTIVO",
- *   "id_usuario": 1
+ *   "id_usuario": 2
  * }
 */
 const postGasto = async (req, res) => {
   try {
-    const { descripcion, monto, tipo_gasto, metodo_pago, id_usuario } = req.body;
+    const { descripcion, monto, id_tipo_gasto, metodo_pago, id_usuario } = req.body;
     const id = await gastoModel.crearGasto({
       descripcion,
       monto,
-      tipo_gasto,
+      id_tipo_gasto,
       metodo_pago,
       id_usuario
     });

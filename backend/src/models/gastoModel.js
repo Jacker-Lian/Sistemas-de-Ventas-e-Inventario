@@ -3,9 +3,9 @@ const pool = getPool();
 
 class gastosModel {
 
-  async obtenerGastos({ page = 1, limit = 20 } = {}) {
+  async obtenerGastos({ page = 1, limit = 100 } = {}) {
     try {
-      const MAX_LIMIT = 20; 
+      const MAX_LIMIT = 100; 
       // evita sobrecargar la base de datos
       limit = Math.min(limit, MAX_LIMIT); 
       
@@ -51,13 +51,13 @@ class gastosModel {
     }
   }
 
-  async actualizarGasto(id_gasto, { descripcion, monto, tipo_gasto, metodo_pago }) {
+  async actualizarGasto(id_gasto, { descripcion, monto, id_tipo_gasto, metodo_pago }) {
     try {
       const [actualizar] = await pool.query(`
         UPDATE gastos 
         SET descripcion = ?, monto = ?, id_tipo_gasto = ?, metodo_pago = ?
         WHERE id_gasto = ? AND estado = 1
-      `, [descripcion, monto, tipo_gasto, metodo_pago, id_gasto]);
+      `, [descripcion, monto, id_tipo_gasto, metodo_pago, id_gasto]);
       if (actualizar.affectedRows === 0) return null;
       return this.obtenerGasto(id_gasto);
     } catch (error) {
@@ -79,12 +79,12 @@ class gastosModel {
     }
   }
 
-  async crearGasto({ descripcion, monto, tipo_gasto, metodo_pago, id_usuario }) {
+  async crearGasto({ descripcion, monto, id_tipo_gasto, metodo_pago, id_usuario }) {
     try {
       const [crear] = await pool.query(`
         INSERT INTO gastos (descripcion, monto, id_tipo_gasto, metodo_pago, id_usuario)
         VALUES (?, ?, ?, ?, ?)
-      `, [descripcion, monto, tipo_gasto, metodo_pago, id_usuario]);
+      `, [descripcion, monto, id_tipo_gasto, metodo_pago, id_usuario]);
       return crear.insertId; // solo devolvemos el id
     } catch (error) {
       return { error };

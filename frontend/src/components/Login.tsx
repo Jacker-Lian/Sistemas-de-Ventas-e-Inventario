@@ -20,7 +20,7 @@ function Login() {
 
     try {
       const res = await api.post(
-        "/login",
+        "/usuario/login",
         { email, password },
         { withCredentials: true }
       );

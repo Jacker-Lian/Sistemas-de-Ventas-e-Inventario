@@ -87,6 +87,15 @@ Este método permite **"eliminar"** un gasto. En realidad, realiza un softdelete
 
 ---
 
+### Vistas
+
+![Tabla](https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario/blob/feature/gestion-gastos-pr/media/tabladegastos.png?raw=true)
+
+
+![card](https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario/blob/feature/gestion-gastos-pr/media/gastocard.png?raw=true)
+
+---
+
 ### Estructura
 
 ```plaintext
