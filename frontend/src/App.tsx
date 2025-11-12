@@ -6,6 +6,8 @@ import Caja from "./components/Caja";
 import AjusteInventario from './components/AjusteInventario/AjusteInventario';
 import PrivateRoute from "./components/PrivateRoute";
 import ControlStock from './components/control-stock';
+import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
+
 function App() {
   return (
     <BrowserRouter>
@@ -44,6 +46,14 @@ function App() {
             element={
               <PrivateRoute roles={['ADMIN']}>
                 <ControlStock /> {/* <-- Usa el componente importado */}
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/ventas/historial"
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <HistorialVentas />
               </PrivateRoute>
             }
           />
