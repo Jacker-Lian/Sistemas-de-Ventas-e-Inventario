@@ -91,7 +91,7 @@ productoController.crearProducto = async (req, res) => {
     const nuevoProducto = {
       nombre: nombre.trim(),
       precio_venta: Number.parseFloat(precio_venta),
-      precio_compra: Number.parseFloat(precio_compra), // CORREGIDO: Error de sintaxis
+      precio_compra: Number.parseFloat(precio_compra),
       stock: parseInt(stock),
       descripcion: descripcion ? descripcion.trim() : null,
       id_categoria: parseInt(id_categoria),

@@ -29,6 +29,18 @@ class VentasRoutes {
         requireRole(['ADMIN', 'CAJA']), 
         ventasController.obtenerMotivosCancelacion
     );
+
+    // Obtener venta por ID
+this.router.get('/:id', 
+    requireRole(['ADMIN', 'CAJA']), 
+    ventasController.obtenerVentaPorId
+);
+
+// Reporte de ventas por producto
+this.router.get('/reporte/producto', 
+    requireRole(['ADMIN']), 
+    ventasController.reporteVentasPorProducto
+);
   }
 
   getRouter() {

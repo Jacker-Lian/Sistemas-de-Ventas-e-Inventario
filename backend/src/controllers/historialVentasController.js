@@ -1,4 +1,4 @@
-const HistorialVentasModel = require("../models/historialVentasModel"); // CORREGIDO: nombre de archivo
+const HistorialVentasModel = require("../models/historialVentasModel");
 
 const historialVentasModelInstance = new HistorialVentasModel();
 
