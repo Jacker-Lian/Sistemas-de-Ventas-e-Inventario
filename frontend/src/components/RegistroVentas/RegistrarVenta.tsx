@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
-import axios from "axios";
 import Navbar from "../Navbar";
 import "../../styles/admin.css";
 import "../../styles/registrarVenta.css";
@@ -20,7 +19,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 // Obtener la URL base desde variables de entorno
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.SERVER_URL || "http://localhost:3000";
 
 function RegistrarVenta() {
   const { user } = useAuth();
@@ -43,6 +42,7 @@ function RegistrarVenta() {
   >("EFECTIVO");
 
   // Datos de ejemplo para caja (se cambiarán después)
+  // EN ESPERA DE INTEGRAR CON EL MODELO DE CAJA
   const cajaEjemplo = {
     id_caja: 2,
     ubicacion: "Caja Principal",
@@ -55,10 +55,16 @@ function RegistrarVenta() {
     const cargarCategorias = async () => {
       setLoadingCategorias(true);
       try {
-        const response = await axios.get<Categoria[]>(
-          `${BASE_URL}/api/ventas/Obtener-categorias`
-        );
-        setCategorias(response.data);
+
+        const res= await fetch(`${BASE_URL}/api/ventas/Obtener-categorias`,{
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.message || 'Error al cargar categorías');
+
+
+        setCategorias(data);
       } catch (err) {
         console.error("Error al cargar categorías:", err);
         setError("No se pudieron cargar las categorías");
@@ -84,16 +90,14 @@ function RegistrarVenta() {
     setCategoriaSeleccionada(idCategoria);
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${BASE_URL}/api/productos/obtenerProductosPorCategoria/${idCategoria}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setProductosDisponibles(response.data);
+      const res= await fetch(`${BASE_URL}/api/productos/obtenerProductosPorCategoria/${idCategoria}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.message || 'Error al cargar productos');
+      
+      setProductosDisponibles(data);
     } catch (err: any) {
       setError(err.response?.data?.message || "Error al cargar productos");
       console.error("Error al cargar productos:", err);
@@ -195,21 +199,21 @@ function RegistrarVenta() {
 
       console.log("Enviando datos de venta:", ventaData);
 
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${BASE_URL}/api/ventas/registrar`,
-        ventaData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/ventas/registrar`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ventaData)
+      });
 
-      console.log("Respuesta del servidor:", response.data);
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.message || 'Error al registrar venta');
+      console.log("Respuesta del servidor:", data);
+
       alert(
-        `Venta registrada exitosamente. ID Venta: ${response.data.data.id_venta}, Total: S/. ${response.data.data.total}`
+        `Venta registrada exitosamente. ID Venta: ${data.data.id_venta}, Total: S/. ${data.data.total}`
       );
 
       // Limpiar carrito después de venta exitosa
@@ -266,21 +270,20 @@ function RegistrarVenta() {
 
       console.log("Guardando venta pendiente:", ventaData);
 
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${BASE_URL}/api/ventas/registrar`,
-        ventaData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Respuesta del servidor:", response.data);
+      const res= await fetch(`${BASE_URL}/api/ventas/registrar`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ventaData)
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.message || 'Error al registrar venta');
+      console.log("Respuesta del servidor:", data);
+      
       alert(
-        `Venta guardada como pendiente. ID Venta: ${response.data.data.id_venta}`
+        `Venta guardada como pendiente. ID Venta: ${data.data.id_venta}`
       );
 
       // Limpiar carrito después de guardar
