@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react"; 
-
+const SERVER_URL = import.meta.env.SERVER_URL || "http://38.250.161.15:3000";
 // 1. Definición de Tipos (Interface)
 interface Categoria {
   id_categoria: number;
@@ -31,8 +31,6 @@ export default function CrudCategorias() {
 
   // 🎯 DEFINICIÓN CONSISTENTE DE LA URL BASE (Usaremos esto en todas las llamadas)
   //const BASE_URL = "http://localhost:3000"; // Ajusta según tu configuración
-  const SERVER_URL = "http://38.250.161.15:3000";
-
   // 2. Función para Cargar/Recargar Datos (Estabilizada con useCallback)
   const buscarCategorias = useCallback(async () => {
     const trimmedBusqueda = busqueda.trim();

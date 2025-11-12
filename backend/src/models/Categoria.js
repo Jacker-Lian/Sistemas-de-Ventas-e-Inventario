@@ -19,16 +19,6 @@ class Categoria {
         return rows;
     }
     
-    static async findById(id) {
-        const pool = database.getPool();
-        const [rows] = await pool.query(
-            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE id_categoria = ? AND estado = 1', 
-            [id]
-        );
-        return rows[0];
-    }
-
-
     static async create({ nombre, descripcion }) {
         const pool = database.getPool();
         const [result] = await pool.query(

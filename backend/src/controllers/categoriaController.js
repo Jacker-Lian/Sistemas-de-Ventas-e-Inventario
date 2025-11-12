@@ -59,9 +59,9 @@ const updateCategoria = async (req, res) => {
         }
         
         const idNum = parseInt(id, 10);
-        const { nombre, descripcion, estado } = req.body;
+        const { nombre, descripcion } = req.body;
         
-        const ok = await Categoria.update(idNum, { nombre, descripcion, estado });
+        const ok = await Categoria.update(idNum, { nombre, descripcion });
         
         if (!ok) return res.status(404).json({ message: 'Categoría no encontrada' });
         res.json({ message: 'Categoría actualizada correctamente' });
