@@ -1,28 +1,7 @@
 
 const express = require('express');
-const authController = require('../controllers/usuarioController');
-
-class UsuarioRoutes {
-  constructor() {
-    this.router = express.Router();
-    this.configurarRutas();
-  }
-
-  configurarRutas() {
-    /**
-     * POST /api/usuario/login
-     */
-    this.router.post('/login', authController.login);
-  }
-
-  getRouter() {
-    return this.router;
-  }
-}
-
-module.exports = UsuarioRoutes;
-
-const apisController = require('../controllers/apisController');
+// Usar el controlador de usuarios existente (alias explicito para apis)
+const usuarioController = require('../controllers/usuarioController');
 
 class ApisRoutes {
   constructor() {
@@ -32,10 +11,10 @@ class ApisRoutes {
 
   configurarRutas() {
     /**
-     * Rutas relacionadas con autenticación/Apis
+     * Rutas relacionadas con autenticación / APIs
      * POST   /api/auth/login    -> login (apisController.login)
      */
-    this.router.post('/login', apisController.login);
+      this.router.post('/login', usuariosController.login);
   }
 
   getRouter() {
@@ -44,3 +23,4 @@ class ApisRoutes {
 }
 
 module.exports = ApisRoutes;
+

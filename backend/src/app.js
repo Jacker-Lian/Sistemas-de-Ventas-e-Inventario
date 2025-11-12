@@ -5,6 +5,7 @@ const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
+const ApisRoutes = require('./routes/apisRoutes');
 
 class App {
   constructor() {
@@ -48,6 +49,7 @@ this.app.use(cors({
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
           Login: "/api/usuario",
+          Auth: "/api/auth",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           HistorialVentas: "api/historial-ventas",
@@ -58,6 +60,10 @@ this.app.use(cors({
     // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
+
+  // Montar rutas de autenticación alternativas (apis)
+  const apisRoutesInstance = new ApisRoutes();
+  this.app.use('/api/auth', apisRoutesInstance.getRouter());
 
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
