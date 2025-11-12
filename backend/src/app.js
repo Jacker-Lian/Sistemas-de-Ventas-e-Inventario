@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
+const CategoriaRoutes = require('./routes/categoriaRoutes');
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const CajaRoutes = require("./routes/cajaRoutes");
 const ProductoRouters = require("./routes/productoRouters");
@@ -54,6 +55,7 @@ this.app.use(cors({
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
+          Categorias: "/api/categorias",
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
           Proveedores: "/api/proveedores",
@@ -68,6 +70,10 @@ this.app.use(cors({
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+    
+    // Montar rutas de categorías
+    const categoriaRoutes = new CategoriaRoutes();
+    this.app.use('/api/categorias', categoriaRoutes.getRouter());
 
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
@@ -95,6 +101,7 @@ this.app.use(cors({
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
     });
+
   }
 
   getApp() {
