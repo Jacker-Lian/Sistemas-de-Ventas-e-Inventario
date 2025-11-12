@@ -60,10 +60,10 @@ class App {
           Productos: "/api/productos",
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
-          // Endpoints de tus rutas nuevas
+      
           Alertas: "/api/alertas",
-          Stock: "/api/stock"
-          Proveedores: "/api/proveedores",
+          Stock: "/api/stock", 
+          Proveedores: "/api/proveedores"
         },
       });
     });
@@ -87,7 +87,7 @@ class App {
       "/api/detalle-venta",
       detalleVentaRoutesInstance.getRouter()
     );
-   
+
 
     // Montar rutas para la gestion de caja
     const cajaRoutesInstance = new CajaRoutes();
@@ -103,7 +103,7 @@ class App {
       historialVentasRoutesInstance.getRouter()
     );
 
- 
+
     this.app.use("/api", alertasRoutes);
     console.log("DEBUG: Router de Alertas montado en /api.");
 
