@@ -5,6 +5,7 @@ import Admin from "./components/Admin";
 import Caja from "./components/Caja";
 import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
 import PrivateRoute from "./components/PrivateRoute";
+import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 
@@ -38,6 +39,14 @@ function App() {
             element={
               <PrivateRoute roles={['ADMIN', 'CAJA']}>
                 <AjusteInventario />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/categorias" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudCategorias />
               </PrivateRoute>
             } 
           />
