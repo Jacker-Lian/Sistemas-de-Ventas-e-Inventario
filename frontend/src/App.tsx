@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { Login, Admin, Caja, AjusteInventario, PrivateRoute, Gastos} from './components';
+import { Login, Admin, Caja, AjusteInventario,
+  PrivateRoute, Gastos, HistorialVentas} from './components';
 
 function App() {
   return (
@@ -32,6 +33,14 @@ function App() {
                 <AjusteInventario />
               </PrivateRoute>
             } 
+          />
+          <Route
+            path="/ventas/historial"
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <HistorialVentas />
+              </PrivateRoute>
+            }
           />
           <Route
             path="/gastos"
