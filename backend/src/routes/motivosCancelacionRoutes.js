@@ -18,15 +18,15 @@ class MotivosCancelacionRoutes {
             MotivosCancelacionController.crearMotivoCancelacion
         );
 
-        // Obtener todos los motivos activos - ADMIN, SUPERVISOR, CAJERO
+        // Obtener todos los motivos activos - ADMIN y CAJA
         this.router.get('/', 
-            requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+            requireRole(['ADMIN', 'CAJA']), 
             MotivosCancelacionController.obtenerMotivosActivos
         );
 
-        // Obtener motivo por ID - ADMIN, SUPERVISOR, CAJERO
+        // Obtener motivo por ID - ADMIN y CAJA
         this.router.get('/:id', 
-            requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+            requireRole(['ADMIN', 'CAJA']), 
             MotivosCancelacionController.obtenerMotivoPorId
         );
 

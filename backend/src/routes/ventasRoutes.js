@@ -12,24 +12,23 @@ class VentasRoutes {
     // Todas las rutas requieren autenticación
     this.router.use(verificarToken);
 
-    // Registrar venta - ADMIN y CAJERO
+    // Registrar venta - ADMIN y CAJA
     this.router.post('/registrar', 
-        requireRole(['ADMIN', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         ventasController.registrarVenta
     );
 
-    // Cancelar venta - ADMIN y CAJERO
+    // Cancelar venta - ADMIN y CAJA
     this.router.put('/cancelar', 
-        requireRole(['ADMIN', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         ventasController.cancelarVenta
     );
 
-    // Obtener motivos de cancelación - ADMIN, SUPERVISOR, CAJERO
+    // Obtener motivos de cancelación - ADMIN y CAJA
     this.router.get('/motivos-cancelacion', 
-        requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         ventasController.obtenerMotivosCancelacion
     );
-
   }
 
   getRouter() {

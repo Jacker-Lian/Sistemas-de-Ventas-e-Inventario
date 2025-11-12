@@ -3,7 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 // Importar las rutas actualizadas
-const AuthRoutes = require("./routes/authRoutes");
+const UsuarioRoutes = require("./routes/usuarioRoutes");
 const VentasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const CajaRoutes = require("./routes/cajaRoutes");
@@ -54,8 +54,9 @@ class App {
         success: true,
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         timestamp: new Date().toISOString(),
+        roles_disponibles: ["ADMIN", "CAJA"],
         endpoints: {
-          Auth: "/api/auth",
+          Login: "/api/usuario",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Caja: "/api/caja",
@@ -77,8 +78,8 @@ class App {
     });
 
     // Instanciar y configurar todas las rutas
-    const authRoutes = new AuthRoutes();
-    this.app.use("/api/auth", authRoutes.getRouter());
+    const usuarioRoutes = new UsuarioRoutes();
+    this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
     const ventasRoutesInstance = new VentasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());

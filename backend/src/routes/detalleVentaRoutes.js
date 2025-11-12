@@ -1,6 +1,6 @@
 const express = require('express');
 const detalleVentaController = require('../controllers/detalleVentaController');
-const { verificarToken } = require('../middleware/verificarToken');
+const { verificarToken, requireRole } = require('../middleware/verificarToken');
 
 class DetalleVentaRoutes {
     constructor() {
@@ -12,11 +12,17 @@ class DetalleVentaRoutes {
         // Todas las rutas requieren autenticación
         this.router.use(verificarToken);
 
-        // Registrar detalle de venta
-        this.router.post('/registrar', detalleVentaController.registrarDetalleVenta);
+        // Registrar detalle de venta - ADMIN y CAJA
+        this.router.post('/registrar', 
+            requireRole(['ADMIN', 'CAJA']), 
+            detalleVentaController.registrarDetalleVenta
+        );
 
-        // Obtener detalles por venta
-        this.router.get('/venta/:idVenta', detalleVentaController.obtenerDetallesPorVenta);
+        // Obtener detalles por venta - ADMIN y CAJA
+        this.router.get('/venta/:idVenta', 
+            requireRole(['ADMIN', 'CAJA']), 
+            detalleVentaController.obtenerDetallesPorVenta
+        );
     }
 
     getRouter() {

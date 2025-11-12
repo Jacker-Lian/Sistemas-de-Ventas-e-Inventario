@@ -1,8 +1,8 @@
 const express = require('express');
-const authController = require('../controllers/authController');
+const authController = require('../controllers/usuariosController');
 const { verificarToken } = require('../middleware/verificarToken');
 
-class AuthRoutes {
+class UsuarioRoutes {
   constructor() {
     this.router = express.Router();
     this.configurarRutas();
@@ -22,4 +22,4 @@ class AuthRoutes {
   }
 }
 
-module.exports = AuthRoutes;
+module.exports = UsuarioRoutes;

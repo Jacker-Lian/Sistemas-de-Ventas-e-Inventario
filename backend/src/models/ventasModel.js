@@ -5,39 +5,87 @@ class VentasModel {
     this.table = "ventas";
   }
 
-  // Registrar una nueva venta con transacción
+  async reporteVentaProducto(fechaInicio, fechaFin) {
+    try {
+      const pool = database.getPool();
+
+      const query = `
+        SELECT 
+          p.id_producto,
+          p.nombre AS nombre_producto,
+          SUM(dv.cantidad) AS cantidad_vendida,
+          SUM(dv.subtotal) AS total_recaudado
+        FROM 
+          detalle_venta dv
+          JOIN producto p ON dv.id_producto = p.id_producto
+          JOIN ventas v ON dv.id_venta = v.id_venta
+        WHERE 
+          DATE(v.fecha_venta) BETWEEN ? AND ?
+          AND v.estado_venta = 'COMPLETADA'
+        GROUP BY 
+          p.id_producto, p.nombre
+        ORDER BY 
+          cantidad_vendida DESC
+    `;
+
+      const [rows] = await pool.query(query, [fechaInicio, fechaFin]);
+      return rows;
+    } catch (error) {
+      throw new Error(
+        "Error al generar reporte de ventas por producto: " + error.message
+      );
+    }
+  }
+
+  // Registrar una nueva venta
   async registrarVenta(ventaData) {
     /*
     Estructura esperada de ventaData:
       {
-        "id_usuario": 2,                    // REQUERIDO
-        "id_caja": 1,                       // REQUERIDO  
-        "id_sucursal": 1,                   // OPCIONAL
-        "tipo_cliente": "ALUMNO",           // REQUERIDO
-        "metodo_pago": "EFECTIVO",          // REQUERIDO
-        "estado_venta": "COMPLETADA",       // OPCIONAL (default: COMPLETADA)
-        "productos": [                      // REQUERIDO, mínimo 1
+        // DATOS DE LA VENTA (Encabezado)
+        "id_usuario": 2,                    // ID del cajero (REQUERIDO)
+        "id_caja": 1,                       // ID de la caja abierta (REQUERIDO)
+        "id_sucursal": 1,                   // ID de la sucursal (OPCIONAL)
+        "tipo_cliente": "ALUMNO",           // DOCENTE | ALUMNO | OTRO (REQUERIDO)
+        "metodo_pago": "EFECTIVO",          // EFECTIVO | YAPE | PLIN | OTROS (REQUERIDO)
+        "estado_venta": "COMPLETADA",       // COMPLETADA | PENDIENTE | CANCELADA (REQUERIDO)
+        
+        // PRODUCTOS VENDIDOS (Detalles)
+        "productos": [                      // Array de productos (REQUERIDO, mínimo 1)
           {
-            "id_producto": 101,             // REQUERIDO
-            "cantidad": 2,                  // REQUERIDO, > 0
-            "precio_unitario": 5.00         // REQUERIDO
+            "id_producto": 101,             // ID del producto (REQUERIDO)
+            "cantidad": 2,                  // Cantidad vendida (REQUERIDO, > 0)
+            "precio_unitario": 5.00         // Precio por unidad (REQUERIDO)
+          },
+          {
+            "id_producto": 102,
+            "cantidad": 3,
+            "precio_unitario": 5.17
           }
         ]
       }
+    
     */
 
     const connection = await database.getPool().getConnection();
 
     try {
+      // Iniciar transacción
       await connection.beginTransaction();
 
       // 1. Validaciones de datos requeridos
-      if (!ventaData.id_usuario || !ventaData.id_caja || !ventaData.tipo_cliente || 
-          !ventaData.metodo_pago || !ventaData.productos || ventaData.productos.length === 0) {
+      if (
+        !ventaData.id_usuario ||
+        !ventaData.id_caja ||
+        !ventaData.tipo_cliente ||
+        !ventaData.metodo_pago ||
+        !ventaData.productos ||
+        ventaData.productos.length === 0
+      ) {
         throw new Error("Faltan datos requeridos para registrar la venta.");
       }
 
-      // 2. Verificar que usuario exista y esté activo
+      // 2. Verificar que id_usuario exista y esté activo
       const [usuarioRows] = await connection.query(
         "SELECT id_usuario FROM usuarios WHERE id_usuario = ? AND estado = 1",
         [ventaData.id_usuario]
@@ -46,7 +94,7 @@ class VentasModel {
         throw new Error("El usuario no existe o está inactivo.");
       }
 
-      // 3. Verificar que caja exista y esté abierta
+      // 3. Verificar que id_caja exista y esté abierta
       const [cajaRows] = await connection.query(
         "SELECT id_caja, id_sucursal FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
         [ventaData.id_caja]
@@ -57,13 +105,19 @@ class VentasModel {
 
       // 4. Obtener id_sucursal de la caja si no se proporciona
       const id_sucursal = ventaData.id_sucursal || cajaRows[0].id_sucursal;
+
+      // 5. Validar productos y calcular total
       let totalVenta = 0;
       const productosValidados = [];
 
-      // 5. Validar productos y calcular total
       for (const producto of ventaData.productos) {
-        if (!producto.id_producto || !producto.cantidad || producto.cantidad <= 0 || 
-            !producto.precio_unitario || producto.precio_unitario <= 0) {
+        if (
+          !producto.id_producto ||
+          !producto.cantidad ||
+          producto.cantidad <= 0 ||
+          !producto.precio_unitario ||
+          producto.precio_unitario <= 0
+        ) {
           throw new Error("Datos de producto inválidos.");
         }
 
@@ -74,14 +128,20 @@ class VentasModel {
         );
 
         if (productoRows.length === 0) {
-          throw new Error(`El producto con ID ${producto.id_producto} no existe o está inactivo.`);
+          throw new Error(
+            `El producto con ID ${producto.id_producto} no existe o está inactivo.`
+          );
         }
 
         if (productoRows[0].stock < producto.cantidad) {
-          throw new Error(`Stock insuficiente para el producto "${productoRows[0].nombre}". Stock disponible: ${productoRows[0].stock}`);
+          throw new Error(
+            `Stock insuficiente para el producto "${productoRows[0].nombre}". Stock disponible: ${productoRows[0].stock}`
+          );
         }
 
-        const subtotal = Number.parseFloat((producto.cantidad * producto.precio_unitario).toFixed(2));
+        const subtotal = parseFloat(
+          (producto.cantidad * producto.precio_unitario).toFixed(2)
+        );
         totalVenta += subtotal;
 
         productosValidados.push({
@@ -92,14 +152,28 @@ class VentasModel {
         });
       }
 
-      totalVenta = Number.parseFloat(totalVenta.toFixed(2));
+      totalVenta = parseFloat(totalVenta.toFixed(2));
 
-      // 6. Insertar venta principal
+      // 6. Insertar la venta
       const [resultVenta] = await connection.query(
-        `INSERT INTO ${this.table} (id_usuario, id_caja, id_sucursal, tipo_cliente, metodo_pago, total, estado_venta)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [ventaData.id_usuario, ventaData.id_caja, id_sucursal, ventaData.tipo_cliente, 
-         ventaData.metodo_pago, totalVenta, ventaData.estado_venta || "COMPLETADA"]
+        `INSERT INTO ${this.table} (
+          id_usuario,
+          id_caja,
+          id_sucursal,
+          tipo_cliente,
+          metodo_pago,
+          total,
+          estado_venta
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          ventaData.id_usuario,
+          ventaData.id_caja,
+          id_sucursal,
+          ventaData.tipo_cliente,
+          ventaData.metodo_pago,
+          totalVenta,
+          ventaData.estado_venta || "COMPLETADA",
+        ]
       );
 
       const id_venta = resultVenta.insertId;
@@ -108,9 +182,20 @@ class VentasModel {
       for (const producto of productosValidados) {
         // Insertar detalle de venta
         await connection.query(
-          `INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal)
-           VALUES (?, ?, ?, ?, ?)`,
-          [id_venta, producto.id_producto, producto.cantidad, producto.precio_unitario, producto.subtotal]
+          `INSERT INTO detalle_venta (
+            id_venta,
+            id_producto,
+            cantidad,
+            precio_unitario,
+            subtotal
+          ) VALUES (?, ?, ?, ?, ?)`,
+          [
+            id_venta,
+            producto.id_producto,
+            producto.cantidad,
+            producto.precio_unitario,
+            producto.subtotal,
+          ]
         );
 
         // Actualizar stock del producto
@@ -120,12 +205,13 @@ class VentasModel {
         );
       }
 
-      // 8. Actualizar ingresos de caja
+      // 8. Actualizar ingresos de la caja
       await connection.query(
         "UPDATE caja SET total_ingresos = total_ingresos + ? WHERE id_caja = ?",
         [totalVenta, ventaData.id_caja]
       );
 
+      // Confirmar transacción
       await connection.commit();
 
       return {
@@ -134,9 +220,11 @@ class VentasModel {
         productos_registrados: productosValidados.length,
       };
     } catch (error) {
+      // Revertir transacción en caso de error
       await connection.rollback();
       throw new Error("Error al registrar venta: " + error.message);
     } finally {
+      // Liberar conexión
       connection.release();
     }
   }
@@ -202,23 +290,57 @@ class VentasModel {
     }
   }
 
+  // Obtener venta por ID
+  async obtenerVentaPorId(id_venta) {
+    try {
+      const pool = database.getPool();
+      
+      // Obtener venta principal
+      const [ventaRows] = await pool.query(
+        `SELECT * FROM ${this.table} WHERE id_venta = ?`,
+        [id_venta]
+      );
+      
+      if (ventaRows.length === 0) {
+        return null;
+      }
+      
+      const venta = ventaRows[0];
+      
+      // Obtener detalles
+      const [detalleRows] = await pool.query(
+        `SELECT dv.*, p.nombre as nombre_producto 
+         FROM detalle_venta dv 
+         INNER JOIN producto p ON dv.id_producto = p.id_producto 
+         WHERE dv.id_venta = ?`,
+        [id_venta]
+      );
+      
+      venta.detalles = detalleRows;
+      return venta;
+    } catch (error) {
+      throw new Error("Error al obtener venta por ID: " + error.message);
+    }
+  }
+
   // Registrar un nuevo motivo de cancelación
   async registrarMotivoCancelacion(descripcion) {
     try {
       const pool = database.getPool();
 
-      if (!descripcion || descripcion.trim().length === 0) {
+      if (!descripcion || descripcion.length === 0)
         throw new Error("La descripción de cancelación no puede estar vacía.");
-      }
 
       const [result] = await pool.query(
         `INSERT INTO motivos_cancelacion (descripcion) VALUES (?)`,
-        [descripcion.trim()]
+        [descripcion]
       );
 
       return result.insertId;
     } catch (error) {
-      throw new Error("Error al registrar motivo de cancelación: " + error.message);
+      throw new Error(
+        "Error al registrar motivo de cancelación: " + error.message
+      );
     }
   }
 
@@ -231,7 +353,9 @@ class VentasModel {
       );
       return rows;
     } catch (error) {
-      throw new Error("Error al obtener motivos de cancelación: " + error.message);
+      throw new Error(
+        "Error al obtener motivos de cancelación: " + error.message
+      );
     }
   }
 
@@ -240,22 +364,20 @@ class VentasModel {
     try {
       const pool = database.getPool();
 
-      if (!id_motivo || !Number.isInteger(id_motivo) || id_motivo <= 0) {
-        throw new Error("El id_motivo es requerido y debe ser un número entero positivo.");
-      }
+      if (!id_motivo || !Number.isInteger(id_motivo) || id_motivo <= 0)
+        throw new Error(
+          "El id_motivo es requerido y debe ser un número entero positivo."
+        );
 
       const [result] = await pool.query(
         `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo = ?`,
         [id_motivo]
       );
-      
-      if (result.affectedRows === 0) {
-        throw new Error("No se encontró el motivo de cancelación especificado.");
-      }
-      
-      return true;
+      return result.affectedRows > 0;
     } catch (error) {
-      throw new Error("Error al desactivar motivo de cancelación: " + error.message);
+      throw new Error(
+        "Error al desactivar motivo de cancelación: " + error.message
+      );
     }
   }
 }

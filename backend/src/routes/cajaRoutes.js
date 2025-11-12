@@ -12,33 +12,33 @@ class CajaRoutes {
     // Todas las rutas requieren autenticación
     this.router.use(verificarToken);
 
-    // Apertura de caja - Solo ADMIN y CAJERO
+    // Apertura de caja - Solo ADMIN y CAJA
     this.router.post("/abrir", 
-        requireRole(['ADMIN', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         cajaController.abrirCaja
     );
 
-    // Registrar movimiento - Solo ADMIN y CAJERO
+    // Registrar movimiento - Solo ADMIN y CAJA
     this.router.post("/movimiento", 
-        requireRole(['ADMIN', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         cajaController.registrarMovimiento
     );
 
-    // Cerrar caja - Solo ADMIN y CAJERO
+    // Cerrar caja - Solo ADMIN y CAJA
     this.router.put("/cerrar/:id_caja", 
-        requireRole(['ADMIN', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         cajaController.cerrarCaja
     );
 
-    // Listar cajas - ADMIN, SUPERVISOR, CAJERO
+    // Listar cajas - ADMIN y CAJA
     this.router.get("/listar", 
-        requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         cajaController.listarCajas
     );
 
-    // Obtener caja por ID - ADMIN, SUPERVISOR, CAJERO
+    // Obtener caja por ID - ADMIN y CAJA
     this.router.get("/:id_caja", 
-        requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         cajaController.obtenerCajaPorId
     );
   }

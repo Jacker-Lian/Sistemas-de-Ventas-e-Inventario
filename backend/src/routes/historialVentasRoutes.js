@@ -12,21 +12,15 @@ class HistorialVentasRoutes {
     // Todas las rutas requieren autenticación
     this.router.use(verificarToken);
 
-    /*
-     * Obtener historial de ventas con filtros y paginación
-     * Roles: ADMIN, SUPERVISOR
-     */
+    // Obtener historial de ventas - Solo ADMIN
     this.router.get("/", 
-        requireRole(['ADMIN', 'SUPERVISOR']), 
+        requireRole(['ADMIN']), 
         HistorialVentasController.getSalesHistory
     );
 
-    /*
-     * Obtener detalle de una venta específica
-     * Roles: ADMIN, SUPERVISOR, CAJERO
-     */
+    // Obtener detalle de una venta - ADMIN y CAJA
     this.router.get("/:id", 
-        requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+        requireRole(['ADMIN', 'CAJA']), 
         HistorialVentasController.getSaleDetail
     );
   }

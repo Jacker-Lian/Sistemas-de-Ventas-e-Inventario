@@ -1,4 +1,4 @@
-const UsuarioModel = require('../models/authModel');
+const UsuarioModel = require('../models/usuarioModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -68,9 +68,8 @@ authController.login = async (req, res) => {
     });
 
     // Determinar redirección según rol
-    let redirect = '/caja';
+    let redirect = '/caja'; // Por defecto para CAJA
     if (usuario.rol_usuario === 'ADMIN') redirect = '/admin';
-    if (usuario.rol_usuario === 'SUPERVISOR') redirect = '/reportes';
 
     return res.json({
       success: true,
@@ -83,7 +82,7 @@ authController.login = async (req, res) => {
           rol_usuario: usuario.rol_usuario
         },
         redirect,
-        token // Incluir token en respuesta para APIs
+        token
       }
     });
   } catch (error) {
