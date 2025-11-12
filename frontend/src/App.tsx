@@ -46,6 +46,7 @@ function App() {
                 <CrudCategorias />
               </PrivateRoute>
             } 
+          />
           <Route
             path="/ventas/historial"
             element={
