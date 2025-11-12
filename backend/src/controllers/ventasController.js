@@ -118,6 +118,40 @@ const ventasController = {
         message: error.message || "Error interno del servidor al obtener la venta." 
       });
     }
+  },
+
+  reporteVentasPorProducto: async (req, res) => {
+    try {
+      const { fechaInicio, fechaFin } = req.query;
+    
+    // Validar fechas
+      if (!fechaInicio || !fechaFin) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Se requieren fecha de inicio y fecha de fin" 
+        });
+      }
+
+      const result = await ventasModelInstance.reporteVentaProducto(fechaInicio, fechaFin);
+    
+      if (result.length === 0) {
+        return res.status(404).json({ 
+          success: false,
+          message: "No se encontraron ventas en el rango de fechas proporcionado" 
+        });
+      }
+    
+        res.status(200).json({
+          success: true,
+          data: result
+        });
+    } catch (error) {
+      console.error('Error en reporte de ventas por producto:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Error al generar el reporte" 
+      });
+    }
   }
 };
 
