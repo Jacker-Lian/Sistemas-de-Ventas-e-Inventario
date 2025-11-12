@@ -1,6 +1,9 @@
 const database = require("../config/database");
 const UsuarioModel = require("./usuarioModel");
 const ProductoModel = require("./productoModel");
+const motivoCancelacionModel = require("./motivoCancelacionModel");
+const CarritoVentaModel = require("./carritoVentaModel");
+const DetalleVentaModel = require("./detalleVentaModel");
 
 class VentasModel {
   constructor() {
@@ -10,6 +13,9 @@ class VentasModel {
   // Instancia de models nesesarios
   usuarioModel = new UsuarioModel();
   productoModel = new ProductoModel();
+  motivoCancelacionModel = new motivoCancelacionModel();
+  carritoVentaModel = new CarritoVentaModel();
+  detalleVentaModel = new DetalleVentaModel();
 
   // Registrar una nueva venta
   async registrarVenta(ventaData = {}, estado_venta = "PENDIENTE") {
@@ -164,17 +170,14 @@ class VentasModel {
       // NO se actualiza stock ni ingresos de caja
       if (estado_venta === "PENDIENTE") {
         for (const producto of productosValidados) {
-          await pool.query(
-            `INSERT INTO carrito_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)`,
-            [
-              id_venta,
-              producto.id_producto,
-              producto.cantidad,
-              producto.precio_unitario,
-              producto.subtotal,
-            ]
-          );
+          await this.carritoVentaModel.agregarProductoAlCarrito(id_venta, {
+            id_producto: producto.id_producto,
+            cantidad: producto.cantidad,
+            precio_unitario: producto.precio_unitario,
+            subtotal: producto.subtotal,
+          });
         }
+
         return {
           id_venta: id_venta,
           total: totalVenta,
@@ -186,23 +189,13 @@ class VentasModel {
       // 7. Si la venta es COMPLETADA: Insertar en detalle_venta y actualizar stock
       for (const producto of productosValidados) {
         // Insertar detalle de venta
-        // En espera a PR para usasr el model de detalle_venta
-        await pool.query(
-          `INSERT INTO detalle_venta (
-            id_venta,
-            id_producto,
-            cantidad,
-            precio_unitario,
-            subtotal
-          ) VALUES (?, ?, ?, ?, ?)`,
-          [
-            id_venta,
-            producto.id_producto,
-            producto.cantidad,
-            producto.precio_unitario,
-            producto.subtotal,
-          ]
-        );
+        await this.detalleVentaModel.registrarDetalleVenta({
+          id_venta: id_venta,
+          id_producto: producto.id_producto,
+          cantidad: producto.cantidad,
+          precio_unitario: producto.precio_unitario,
+          subtotal: producto.subtotal,
+        });
 
         // Actualizar stock del producto
         const stockActualizado = await this.productoModel.updateStock(
@@ -252,11 +245,9 @@ class VentasModel {
         throw new Error("La venta ya está cancelada.");
 
       // Verificar que el motivo de cancelación exista
-      const [motivoRows] = await pool.query(
-        "SELECT COUNT(*) AS count FROM motivos_cancelacion WHERE id_motivo = ?",
-        [id_motivo]
-      );
-      if (motivoRows[0].count === 0)
+
+      const motivosRows = await this.motivoCancelacionModel.obtenerMotivoCancelacionByID(id_motivo);
+      if (motivosRows.length === 0)
         throw new Error(
           "El motivo de cancelación con el id proporcionado no existe."
         );
@@ -273,63 +264,7 @@ class VentasModel {
     }
   }
 
-  // Registrar un nuevo motivo de cancelación
-  async registrarMotivoCancelacion(descripcion) {
-    try {
-      const pool = database.getPool();
 
-      if (!descripcion || descripcion.length === 0)
-        throw new Error("La descripción de cancelación no puede estar vacía.");
-
-      const [result] = await pool.query(
-        `INSERT INTO motivos_cancelacion (descripcion) VALUES (?)`,
-        [descripcion]
-      );
-
-      return result.insertId;
-    } catch (error) {
-      throw new Error(
-        "Error al registrar motivo de cancelación: " + error.message
-      );
-    }
-  }
-
-  // Obtener motivos de cancelación activos
-  async obtenerMotivosCancelacion() {
-    try {
-      const pool = database.getPool();
-      const [rows] = await pool.query(
-        `SELECT id_motivo, descripcion FROM motivos_cancelacion WHERE estado = 1`
-      );
-      return rows;
-    } catch (error) {
-      throw new Error(
-        "Error al obtener motivos de cancelación: " + error.message
-      );
-    }
-  }
-
-  // Desactivar un motivo de cancelación
-  async desactivarMotivoCancelacion(id_motivo) {
-    try {
-      const pool = database.getPool();
-
-      if (!id_motivo || !Number.isInteger(id_motivo) || id_motivo <= 0)
-        throw new Error(
-          "El id_motivo es requerido y debe ser un número entero positivo."
-        );
-
-      const [result] = await pool.query(
-        `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo = ?`,
-        [id_motivo]
-      );
-      return result.affectedRows > 0;
-    } catch (error) {
-      throw new Error(
-        "Error al desactivar motivo de cancelación: " + error.message
-      );
-    }
-  }
 
   // Desactivar la ventana de ventas de una sucursal
   async desactivarVentas(id_venta) {
@@ -347,15 +282,15 @@ class VentasModel {
       );
       return result.affectedRows > 0;
     } catch (error) {
-      throw new Error(
-        "Error al desactivar las ventas: " + error.message
-      );
+      throw new Error("Error al desactivar las ventas: " + error.message);
     }
   }
 
   async obtenerCategorias() {
     try {
       const pool = database.getPool();
+      // Obtener todas las categorías activas
+      // En espera a PR para usasr el model de categoria
       const [rows] = await pool.query(
         `SELECT id_categoria, nombre, descripcion FROM categoria WHERE estado = 1`
       );
