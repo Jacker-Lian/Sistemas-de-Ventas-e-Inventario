@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Login, Admin, Caja, AjusteInventario,
-  PrivateRoute, Gastos, HistorialVentas} from './components';
+  PrivateRoute, Gastos, HistorialVentas, ReporteVentas } from './components';
 
 function App() {
   return (
@@ -41,6 +41,14 @@ function App() {
                 <HistorialVentas />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/inventario/ReporteVentas" 
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <ReporteVentas />
+              </PrivateRoute>
+            } 
           />
           <Route
             path="/gastos"

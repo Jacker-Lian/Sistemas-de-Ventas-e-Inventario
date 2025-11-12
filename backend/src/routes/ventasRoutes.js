@@ -8,6 +8,7 @@ class VentasRoutes {
   }
 
   configurarRutas() {
+    this.router.get('/reporte-ventas-por-producto', ventasController.reporteVentasPorProducto);
 
     this.router.post('/registrar', ventasController.registrarVenta);
 

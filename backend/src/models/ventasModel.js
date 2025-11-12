@@ -5,6 +5,38 @@ class VentasModel {
     this.table = "ventas";
   }
 
+  async reporteVentaProducto(fechaInicio, fechaFin) {
+    try {
+      const pool = database.getPool();
+
+      const query = `
+        SELECT 
+          p.id_producto,
+          p.nombre AS nombre_producto,
+          SUM(dv.cantidad) AS cantidad_vendida,
+          SUM(dv.subtotal) AS total_recaudado
+        FROM 
+          detalle_venta dv
+          JOIN producto p ON dv.id_producto = p.id_producto
+          JOIN ventas v ON dv.id_venta = v.id_venta
+        WHERE 
+          DATE(v.fecha_venta) BETWEEN ? AND ?
+          AND v.estado_venta = 'COMPLETADA'
+        GROUP BY 
+          p.id_producto, p.nombre
+        ORDER BY 
+          cantidad_vendida DESC
+    `;
+
+      const [rows] = await pool.query(query, [fechaInicio, fechaFin]);
+      return rows;
+    } catch (error) {
+      throw new Error(
+        "Error al generar reporte de ventas por producto: " + error.message
+      );
+    }
+  }
+
   // Registrar una nueva venta
   async registrarVenta(ventaData) {
     /*
