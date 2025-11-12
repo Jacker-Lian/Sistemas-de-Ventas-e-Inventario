@@ -57,7 +57,8 @@ this.app.use(cors({
           Productos: "/api/productos",
           Categorias: "/api/categorias",
           HistorialVentas: "/api/historial-ventas",
-          DetalleVenta: "/api/detalle-venta"
+          DetalleVenta: "/api/detalle-venta",
+          Proveedores: "/api/proveedores",
         },
       });
     });

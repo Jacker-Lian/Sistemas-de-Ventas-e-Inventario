@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react"; 
-const SERVER_URL = import.meta.env.SERVER_URL || "http://38.250.161.15:3000";
+const Server = import.meta.env.Server || "http://38.250.161.15:3000";
 // 1. Definición de Tipos (Interface)
 interface Categoria {
   id_categoria: number;
@@ -37,10 +37,10 @@ export default function CrudCategorias() {
     setMensaje("Cargando...");
 
     try {
-      // ✅ Usa SERVER_URL: Construir la URL: /api/categorias o /api/categorias/buscar/:nombre
+      // ✅ Usa Server: Construir la URL: /api/categorias o /api/categorias/buscar/:nombre
       const url = trimmedBusqueda
-        ? `${SERVER_URL}/api/categorias/buscar/${encodeURIComponent(trimmedBusqueda)}`
-        : `${SERVER_URL}/api/categorias`;
+        ? `${Server}/api/categorias/buscar/${encodeURIComponent(trimmedBusqueda)}`
+        : `${Server}/api/categorias`;
 
       const res = await fetch(url);
 
@@ -106,9 +106,9 @@ export default function CrudCategorias() {
         descripcion: String(editando.descripcion).trim(),
       };
 
-      // ✅ Usa SERVER_URL
+      // ✅ Usa Server
       const res = await fetch(
-        `${SERVER_URL}/api/categorias/actualizar/${editando.id_categoria}`,
+        `${Server}/api/categorias/actualizar/${editando.id_categoria}`,
         {
           method: "PUT",
           headers: {
@@ -139,9 +139,9 @@ export default function CrudCategorias() {
     if (!categoriaEncontrada || !confirm(`¿Deseas marcar la categoría "${categoriaEncontrada.nombre}" como inactiva?`)) return;
 
     try {
-      // ✅ Usa SERVER_URL
+      // ✅ Usa Server
       const res = await fetch(
-        `${SERVER_URL}/api/categorias/eliminar/${id}`,
+        `${Server}/api/categorias/eliminar/${id}`,
         {
           method: "DELETE",
         }

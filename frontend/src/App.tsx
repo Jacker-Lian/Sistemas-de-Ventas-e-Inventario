@@ -7,6 +7,9 @@ import AjusteInventario from './components/AjusteInventario/AjusteInventario';
 import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
+import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+
+
 
 function App() {
   return (
@@ -54,6 +57,14 @@ function App() {
                 <HistorialVentas />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/inventario/ReporteVentas" 
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <ReporteVentas />
+              </PrivateRoute>
+            } 
           />
         </Routes>
       </AuthProvider>
