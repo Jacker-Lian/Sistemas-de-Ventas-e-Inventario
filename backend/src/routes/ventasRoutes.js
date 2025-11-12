@@ -10,6 +10,7 @@ class VentasRoutes {
   }
 
   configurarRutas() {
+    this.router.get('/reporte-ventas-por-producto', ventasController.reporteVentasPorProducto);
 
     // Aplicar middleware de autenticación a todas las rutas
     this.router.use(verificarToken);

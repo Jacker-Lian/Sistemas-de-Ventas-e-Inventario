@@ -20,6 +20,8 @@ function Admin() {
     { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
     { title: "Registrar Venta", desc: "Registro de Ventas", to: "/registrarVenta" },
+    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },
+    { title: "Reporte de Ventas", desc: "Ver reportes y estadísticas de ventas", to: "/inventario/ReporteVentas" },
     { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
   ];
 
@@ -60,4 +62,3 @@ function Admin() {
   );
 }
 export default Admin;
-// ...existing code...

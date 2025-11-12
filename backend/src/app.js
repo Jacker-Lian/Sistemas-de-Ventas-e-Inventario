@@ -55,7 +55,8 @@ this.app.use(cors({
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
           HistorialVentas: "/api/historial-ventas",
-          DetalleVenta: "/api/detalle-venta"
+          DetalleVenta: "/api/detalle-venta",
+          Proveedores: "/api/proveedores",
         },
       });
     });
