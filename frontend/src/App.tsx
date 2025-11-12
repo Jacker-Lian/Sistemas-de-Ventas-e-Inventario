@@ -4,12 +4,10 @@ import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
 import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
-import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta";
-import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
 import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
-import PrivateRoute from "./components/PrivateRoute";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 
 
