@@ -5,4 +5,5 @@ export { default as AjusteInventario } from './AjusteInventario/AjusteInventario
 export { default as PrivateRoute } from './PrivateRoute';
 export { default as HistorialVentas } from './HistorialVentas/HistorialVentas';
 export { default as ReporteVentas } from './ReporteVentas/ReporteVentas';
+export { default as CrudCategorias} from "./CategoriaTable";
 export * from './Gastos';
