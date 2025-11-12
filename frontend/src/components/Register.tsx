@@ -34,7 +34,8 @@ const Register: React.FC = () => {
         rol_usuario: rol,
       };
 
-      const res = await api.post('/register', payload);
+  // Alineado con el backend: endpoint de registro en /api/usuario/register
+  const res = await api.post('/usuario/register', payload);
 
       if (res.status === 201 || res.status === 200) {
         setMensaje('Registro exitoso. Redirigiendo a inicio de sesión...');

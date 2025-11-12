@@ -5,7 +5,6 @@ const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
-const ApisRoutes = require('./routes/apisRoutes');
 
 class App {
   constructor() {
@@ -61,9 +60,8 @@ this.app.use(cors({
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
-  // Montar rutas de autenticación alternativas (apis)
-  const apisRoutesInstance = new ApisRoutes();
-  this.app.use('/api/auth', apisRoutesInstance.getRouter());
+  // Nota: `ApisRoutes` eliminado para evitar duplicar endpoints de autenticación.
+  // Usar `/api/usuario` para login/register/logout (definidos en usuarioRoutes.js).
 
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
