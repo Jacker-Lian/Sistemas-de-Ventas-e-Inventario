@@ -39,7 +39,7 @@ class ProductoModel {
       producto.descripcion,
       producto.id_categoria,
       producto.id_proveedor,
-      1, // Estado activo por defecto
+      1, 
     ]);
     return result.insertId; // Devuelve el ID del nuevo producto
   }
@@ -56,7 +56,7 @@ class ProductoModel {
       producto.id_proveedor,
       id,
     ]);
-    return result.affectedRows > 0; // Si la actualización afectó alguna fila
+    return result.affectedRows > 0; 
   }
 
   //gandy correcion
