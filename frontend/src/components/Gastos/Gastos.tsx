@@ -3,6 +3,7 @@ import "./Gastos.css";
 import type { Gasto, TipoGasto } from '../../types/gastos';
 import { getGastos, getGasto, getTiposGasto } from '../../api/gastos';
 import GastoCard from './GastoCard';
+import GastoCreateCard from './GastoCreateCard';
 
 const Gastos: React.FC = () => {
   const [gastos, setGastos] = useState<Gasto[]>([]);
@@ -13,21 +14,22 @@ const Gastos: React.FC = () => {
 
   const [gastoSeleccionado, setGastoSeleccionado] = useState<Gasto | null>(null);
   const [loadingGasto, setLoadingGasto] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   // Función para cargar gastos
   const cargarGastos = async () => {
     try {
       const data = await getGastos(pagina, limit);
-      setGastos(data.data);
-      setTotalPaginas(data.totalPaginas);
+      setGastos(data.data ?? []);
+      setTotalPaginas(data.totalPaginas ?? 1);
     } catch (error) {
       console.error("Error al cargar gastos:", error);
     }
   };
-  // Función para cargar tipos
+
   const cargarTipos = async () => {
     try {
       const res = await getTiposGasto();
-      setTiposGasto(res.data);
+      setTiposGasto(res.data ?? []);
     } catch (error) {
       console.error("Error cargando tipos:", error);
     }
@@ -54,22 +56,39 @@ const Gastos: React.FC = () => {
     cargarGastos();
   }, [pagina, limit]);
 
+  const handleCreated = async () => {
+    setShowCreateModal(false);
+    setPagina(1);
+    await cargarGastos();
+  };
+
   return (
     <div className="gastos-table-container">
-      <div className="gastos-limit-selector">
-        <label htmlFor="limit">Mostrar</label>
-        <select id="limit" value={limit} onChange={(e) => {
-          const newLimit = parseInt(e.target.value, 10);
-          setLimit(newLimit);
-          setPagina(1); // Resetear a página 1
-        }}>
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          <option value={75}>75</option>
-          <option value={100}>100</option>
-        </select>
-        <span>gastos por página</span>
+      <div className="gastos-header">
+        <div className="gastos-limit-selector">
+          <label htmlFor="limit">Mostrar</label>
+          <select
+            id="limit"
+            value={limit}
+            onChange={(e) => {
+              const newLimit = parseInt(e.target.value, 10);
+              setLimit(newLimit);
+              setPagina(1); // Resetear a página 1
+            }}>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={75}>75</option>
+            <option value={100}>100</option>
+          </select>
+          <span>gastos por página</span>
+        </div>
+
+        <button
+          className="gasto-create-card"
+          onClick={() => setShowCreateModal(true)}
+        >
+          + Nuevo gasto
+        </button>
       </div>
 
       <div className="gastos-table-wrapper">
@@ -119,6 +138,14 @@ const Gastos: React.FC = () => {
         <span>{pagina} / {totalPaginas}</span>
         <button disabled={pagina >= totalPaginas} onClick={() => setPagina(pagina + 1)}>Siguiente</button>
       </div>
+
+      {showCreateModal && (
+        <GastoCreateCard
+          tiposGasto={tiposGasto}
+          onClose={() => setShowCreateModal(false)}
+          onCreated={handleCreated}
+        />
+      )}
 
       {gastoSeleccionado && !loadingGasto && (
         <GastoCard

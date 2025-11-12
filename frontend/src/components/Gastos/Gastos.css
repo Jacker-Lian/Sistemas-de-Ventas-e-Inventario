@@ -1,6 +1,6 @@
 .gastos-table-container {
   position: relative;
-  padding: 24px;
+  padding: 20px;
   max-width: 1000px;
   height: 880px;
   margin: 0 auto;
@@ -10,8 +10,15 @@
   cursor: default;
 }
 
-.gastos-limit-selector {
+.gastos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 12px;
+}
+
+.gastos-limit-selector {
+  margin-top: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -33,6 +40,35 @@
   background-color: #fff;
   color: black;
   cursor: pointer;
+  font-size: 14px;
+  height: 32px;
+}
+
+/* boton crear Gasto */
+.gasto-create-card {
+  height: 32px;
+  padding: 0 10px;
+  background-color: #00c8ff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+  display: inline-block;
+  width: auto;
+  box-sizing: border-box;
+}
+
+.gasto-create-card:hover {
+  background-color: #00a9d4;
+  transform: scale(1.04);
+}
+
+.gasto-create-card:active {
+  transform: scale(0.95);
 }
 
 /* SCROLL WRAPPER */
@@ -93,7 +129,7 @@
 
 /* HOVER FILA */
 .gastos-table tbody tr:hover td {
-  background-color: #f3f4f6; 
+  background-color: #f3f4f6;
   transition: background-color 0.15s ease;
 }
 
@@ -132,17 +168,17 @@
 /* TRES PUNTITOS */
 .gastos-table thead th:last-child,
 .gastos-table tbody td:last-child {
-  width: 28px !important;        
+  width: 28px !important;
   min-width: 28px !important;
   max-width: 28px !important;
   text-align: center;
   padding: 0 !important;
 }
 
-/* Icono de los tres puntos */
+/* Icono tres puntos */
 .card-trigger {
   cursor: pointer;
-  font-size: 18px;               
+  font-size: 18px;
   padding: 2px;
   user-select: none;
   opacity: 0.6;
@@ -159,7 +195,7 @@
 
 /* PAGINACIÓN */
 .gastos-pagination {
-  margin-top: 12px;
+  margin-top: 4px;
   display: flex;
   justify-content: center;
   gap: 10px;

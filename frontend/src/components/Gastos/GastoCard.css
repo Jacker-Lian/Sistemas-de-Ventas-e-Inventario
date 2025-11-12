@@ -4,30 +4,24 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(2px);
 }
 
 .modal-card {
-  background-color: #ffffff;
+  background-color: #fff;
   color: #111;
   padding: 24px 28px;
   border-radius: 10px;
-  width: 420px;
+  width: 400px;
+  height: 640px;
   max-width: 90%;
   font-family: "Poppins", sans-serif;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   border: 1px solid #e5e7eb;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.modal-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .modal-card h2 {
@@ -55,14 +49,24 @@
   background-color: #fff;
   color: #111;
   font-size: 14px;
-  transition: all 0.25s ease;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
 .modal-card input:focus,
 .modal-card select:focus {
-  border-color: #00c8ff;
-  background-color: #f0fbff;
+  border-color: #00bcd4;
+  background-color: #f9fdff;
   outline: none;
+}
+
+.fila-doble {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fila-doble .campo {
+  flex: 1;
 }
 
 .modal-card p {
@@ -76,26 +80,25 @@
   margin: 14px 0;
 }
 
+/* botones */
 .actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 18px;
+  margin-top: 12px;
   gap: 10px;
 }
 
-/* Botones */
 .actions button {
   flex: 1;
   padding: 8px 12px;
   border-radius: 6px;
-  border: 1px solid transparent;
+  border: none;
   font-size: 14.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-/* Guardar */
 button.guardar {
   background-color: #111;
   color: #fff;
@@ -104,29 +107,38 @@ button.guardar:hover {
   background-color: #333;
 }
 button.guardar:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
-/* Eliminar */
-button.eliminar {
-  background-color: #f44336;
-  color: #fff;
-}
-button.eliminar:hover {
-  background-color: #d32f2f;
-}
-button.eliminar:active {
-  transform: scale(0.96);
-}
-
-/* Cerrar */
 button.cerrar {
-  background-color: #9e9e9e;
+  background-color: #b0b0b0;
   color: #fff;
 }
 button.cerrar:hover {
-  background-color: #757575;
+  background-color: #8d8d8d;
 }
 button.cerrar:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
+}
+
+.resumen-costos {
+  margin-top: 16px;
+  padding: 6px 0;
+}
+
+.resumen-costos p {
+  margin: 3px 0;
+  font-size: 14px;
+  text-align: right;
+}
+
+.resumen-costos hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 6px 0;
+}
+
+.resumen-costos strong {
+  font-size: 15px;
+  color: #000;
 }
