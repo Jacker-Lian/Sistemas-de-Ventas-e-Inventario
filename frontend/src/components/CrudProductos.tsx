@@ -29,7 +29,7 @@ export default function CrudProductos() {
 
     // Realizar la solicitud con fetch hacia la ruta correcta
     const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/productos/obtenerProductos${queryString}`
+      `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`
     );
 
     if (!res.ok) {
@@ -87,7 +87,7 @@ export default function CrudProductos() {
       };
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/productos/actualizarProducto`,
+        `${import.meta.env.VITE_SERVER_URL}/api/productos/actualizarProducto`,
         {
           method: "PUT",
           headers: {
