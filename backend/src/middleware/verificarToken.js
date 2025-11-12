@@ -1,8 +1,17 @@
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const verificarToken = (req, res, next) => {
   try {
     const token = req.cookies.token;
+    const isDevelopment = process.env.NODE_ENV === 'production';
+
+    // Permitir todas las solicitudes en desarrollo, omitiendo la verificación del token
+    if (isDevelopment) {
+      return next();
+    }
+
 
     if (!token) {
       return res.status(401).json({ message: "No autorizado: token no proporcionado" });
