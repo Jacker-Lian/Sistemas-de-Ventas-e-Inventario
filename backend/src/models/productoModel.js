@@ -39,7 +39,7 @@ class ProductoModel {
       producto.descripcion,
       producto.id_categoria,
       producto.id_proveedor,
-      1, 
+      1,
     ]);
     return result.insertId; // Devuelve el ID del nuevo producto
   }
@@ -56,7 +56,7 @@ class ProductoModel {
       producto.id_proveedor,
       id,
     ]);
-    return result.affectedRows > 0; 
+    return result.affectedRows > 0;
   }
 
   //gandy correcion
@@ -66,6 +66,12 @@ class ProductoModel {
                   WHERE estado = 1`;
     const [productos] = await this.pool.query(query);
     return productos;
+  }
+
+  async obtenerProductosPorCategoria(id_categoria) {
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ? AND estado = 1';
+    const [rows] = await this.pool.query(query, [id_categoria]);
+    return rows;
   }
 
   async obtenerStockTotal() {
