@@ -109,6 +109,21 @@ class CajaModel {
       throw error;
     }
   }
+// Obtiene una caja específica por su ID, solo si está ABIERTA y activa (estado=1)
+  async obtenerCajaAbiertaPorId(idCaja) {
+    try {
+      const pool = database.getPool();
+      const [rows] = await pool.query(
+        "SELECT id_caja, id_sucursal FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
+        [idCaja]
+      );
+      
+      // Devuelve la primera fila encontrada o undefined si el array está vacío
+      return rows[0];
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = new CajaModel();

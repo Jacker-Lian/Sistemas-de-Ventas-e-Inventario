@@ -57,6 +57,28 @@ const cajaController = {
       res.status(500).json({ message: error.message });
     }
   },
+  
+  obtenerCajaPorId: async (req, res) => {
+    try {
+      const { id_caja } = req.params;
+
+      if (!id_caja) {
+        return res.status(400).json({ message: "El id_caja es obligatorio en la URL." });
+      }
+
+      const caja = await cajaModel.obtenerCajaAbiertaPorId(id_caja);
+
+      if (caja) {
+        // Si encontramos la caja, la devolvemos con estado 200
+        res.status(200).json(caja);
+      } else {
+        // Si no se encuentra (o no cumple la condición), devolvemos 404
+        res.status(404).json({ message: "No se encontró una caja abierta y activa con ese ID." });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
 };
 
 module.exports = cajaController;

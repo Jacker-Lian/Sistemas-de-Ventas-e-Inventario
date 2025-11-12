@@ -12,6 +12,8 @@ class CajaRoutes {
     this.router.post("/movimiento", cajaController.registrarMovimiento);
     this.router.put("/cerrar/:id_caja", cajaController.cerrarCaja);
     this.router.get("/listar", cajaController.listarCajas);
+
+    this.router.get("/:id_caja", cajaController.obtenerCajaPorId);
   }
 
   getRouter() {
