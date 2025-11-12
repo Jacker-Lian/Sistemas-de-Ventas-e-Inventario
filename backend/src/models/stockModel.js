@@ -1,32 +1,29 @@
 // C:\gith\Sistemas-de-Ventas-e-Inventario\backend\src\models\stockModel.js
 
-const database = require('../config/database'); 
-
+const database = require('../config/database');
+const ProductoModel = require('./productoModel');
 class StockModel {
     constructor() {
         console.log("DEBUG M.1: Instancia de StockModel creada.");
+        this.productoModel = new ProductoModel();
     }
 
     async getResumenInventario() {
         console.log("DEBUG M.2: StockModel.getResumenInventario() ejecutado. Obteniendo datos reales...");
 
         try {
-    
+
             const conn = database.getPool();
 
-            // 1. Obtener el STOCK ACTUAL TOTAL (De la tabla producto)
-            const [stockResult] = await conn.query(
-                "SELECT SUM(stock) AS en_stock FROM producto WHERE estado = 1"
-            );
-            const productos_en_stock = stockResult[0].en_stock || 0;
+            // 1. Obtener el STOCK ACTUAL TOTAL (¡REFACTORIZADO!)
+            const productos_en_stock = await this.productoModel.obtenerStockTotal();
 
 
-            // 2. Obtener la CANTIDAD TOTAL VENDIDA (De la tabla detalle_venta)
+    
             const [vendidoResult] = await conn.query(
                 "SELECT SUM(cantidad) AS vendidos FROM detalle_venta"
             );
             const productos_vendidos = vendidoResult[0].vendidos || 0;
-
 
             // 3. Crear el objeto de resumen
             const resumen = {

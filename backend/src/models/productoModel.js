@@ -59,12 +59,20 @@ class ProductoModel {
     return result.affectedRows > 0; // Si la actualización afectó alguna fila
   }
 
-  async obtenerProductosPorCategoria(id_categoria) {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ? AND estado = 1';
-    const [rows] = await this.pool.query(query, [id_categoria]);
-    return rows;
+  //gandy correcion
+  async obtenerProductosParaAlertas() {
+    const query = `SELECT id_producto, nombre, stock 
+                  FROM producto 
+                  WHERE estado = 1`;
+    const [productos] = await this.pool.query(query);
+    return productos;
+  }
+
+  async obtenerStockTotal() {
+    const query = "SELECT SUM(stock) AS en_stock FROM producto WHERE estado = 1";
+    const [result] = await this.pool.query(query);
+    return result[0].en_stock || 0;
   }
 
 }
-
 module.exports = ProductoModel;

@@ -6,6 +6,7 @@ const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
 const alertasRoutes = require("./routes/alertasRoutes");
 const stockRouter = require("./routes/stockRoutes");
 
@@ -21,8 +22,8 @@ class App {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
     const ALLOWED_ORIGINS = [
-      "http://localhost:5173",
-      "http://38.250.161.15"
+      "http://localhost:5173",      // para desarrollo local
+      "http://38.250.161.15"         // para producción
     ];
 
     this.app.use(cors({
@@ -57,32 +58,57 @@ class App {
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
           HistorialVentas: "/api/historial-ventas",
+          DetalleVenta: "/api/detalle-venta",
+          // Endpoints de tus rutas nuevas
           Alertas: "/api/alertas",
           Stock: "/api/stock"
         },
       });
     });
 
-    // Usuario
+    // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
-    // Productos
+    //RUTAS DE COMPAÑEROS (RESTAURADAS)
+    // Montar rutas de ventas
+    const ventasRoutesInstance = new ventasRoutes();
+    this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+
+    // Montar rutas de ajustes de inventario
+    const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
+    this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
+
+    // Montar rutas de detalle de venta
+    const detalleVentaRoutesInstance = new detalleVentaRoutes();
+    this.app.use(
+      "/api/detalle-venta",
+      detalleVentaRoutesInstance.getRouter()
+    );
+   
+
+    // Montar rutas de productos
     const productoRoutersInstance = new ProductoRouters();
     this.app.use("/api/productos", productoRoutersInstance.getRouter());
 
-    // Historial de Ventas
+    // Montar ruta para mostrar historial ventas
     const historialVentasRoutesInstance = new HistorialVentasRoutes();
-    this.app.use("/api/historial-ventas", historialVentasRoutesInstance.getRouter());
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
 
+ 
     this.app.use("/api", alertasRoutes);
-    console.log("DEBUG A.5: Router de Alertas montado en /api.");
+    console.log("DEBUG: Router de Alertas montado en /api.");
 
     // 2. Montar Router de STOCK
     this.app.use("/api", stockRouter);
-    console.log("DEBUG A.4: Router de Stock montado en /api.");
+    console.log("DEBUG: Router de Stock montado en /api.");
 
-    // 404
+
+
+    // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
     });
