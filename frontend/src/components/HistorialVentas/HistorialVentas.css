@@ -1,0 +1,171 @@
+.historial-card {
+  background: #fff;
+  color: #222;
+  padding: 1.2rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+/* ====== FILTROS ====== */
+.filtros-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.filtros-grid select,
+.filtros-grid input[type="date"] {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  color: #222;
+  font-size: 0.85rem;
+}
+
+/* * AÑADIDO: Corregir el color del icono del calendario en inputs de fecha.
+ * Esto soluciona el problema que mencionaste.
+ */
+.filtros-grid input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.3);
+  cursor: pointer;
+}
+
+
+.btn-filtrar,
+.btn-limpiar {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-filtrar {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-filtrar:hover {
+  background-color: #005ecb;
+}
+
+.btn-limpiar {
+  background-color: #e11d48;
+  color: white;
+}
+
+.btn-limpiar:hover {
+  background-color: #b91c1c;
+}
+
+/* ====== TABLA ====== */
+.ventas-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.ventas-table thead {
+  background-color: #f4f4f4;
+}
+
+.ventas-table th,
+.ventas-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #ddd;
+  color: #222;
+}
+
+.ventas-table tr:hover {
+  background-color: #f9fafb;
+  cursor: pointer;
+}
+
+/* ====== ESTADOS ====== */
+.estado-badge {
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize; /* Para que 'CANCELADA' se vea bien */
+}
+
+.estado-badge.completada {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.estado-badge.pendiente {
+  background-color: #fef9c3;
+  color: #92400e;
+}
+
+/* CAMBIADO: Añadido .cancelada para que tome el mismo estilo */
+.estado-badge.anulada,
+.estado-badge.cancelada { 
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* ====== PAGINACIÓN ====== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pagination button {
+  padding: 0.35rem 0.7rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.pagination button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* ====== DETALLE DE VENTA ====== */
+.detalle-venta h3 {
+  margin-bottom: 0.5rem;
+  color: #111;
+}
+
+/* AÑADIDO: Estilo para el botón de cerrar */
+.btn-cerrar {
+  margin-top: 1rem;
+  background: #e11d48;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-cerrar:hover {
+  background: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .filtros-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
