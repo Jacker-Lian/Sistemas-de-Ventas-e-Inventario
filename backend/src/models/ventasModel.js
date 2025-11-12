@@ -4,6 +4,7 @@ const ProductoModel = require("./productoModel");
 const motivoCancelacionModel = require("./motivoCancelacionModel");
 const CarritoVentaModel = require("./carritoVentaModel");
 const DetalleVentaModel = require("./detalleVentaModel");
+const cajaModel = require("./cajaModel");
 
 class VentasModel {
   constructor() {
@@ -16,6 +17,7 @@ class VentasModel {
   motivoCancelacionModel = new motivoCancelacionModel();
   carritoVentaModel = new CarritoVentaModel();
   detalleVentaModel = new DetalleVentaModel();
+  cajaModel = new cajaModel();
 
   // Registrar una nueva venta
   async registrarVenta(ventaData = {}, estado_venta = "PENDIENTE") {
@@ -84,17 +86,15 @@ class VentasModel {
       }
 
       // 3. Verificar que id_caja exista y esté abierta
-      // En espera a PR para usasr el model de caja
-      const [cajaRows] = await pool.query(
-        "SELECT id_caja, id_sucursal FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
-        [ventaData.id_caja]
+      const cajaAbierta = await this.cajaModel.obtenerCajaAbiertaPorId(
+        ventaData.id_caja
       );
-      if (cajaRows.length === 0) {
+      if (!cajaAbierta) {
         throw new Error("La caja no existe, está cerrada o inactiva.");
       }
 
       // 4. Obtener id_sucursal de la caja si no se proporciona
-      const id_sucursal = ventaData.id_sucursal || cajaRows[0].id_sucursal;
+      const id_sucursal = ventaData.id_sucursal || cajaAbierta.id_sucursal;
 
       // 5. Validar productos y calcular total
       let totalVenta = 0;
@@ -211,10 +211,10 @@ class VentasModel {
       }
 
       // 8. Actualizar ingresos de la caja
-      // En espera a PR para usasr el model de caja
-      await pool.query(
-        "UPDATE caja SET total_ingresos = total_ingresos + ? WHERE id_caja = ?",
-        [totalVenta, ventaData.id_caja]
+      await this.cajaModel.registrarMovimiento(
+        ventaData.id_caja,
+        "INGRESO",
+        totalVenta
       );
 
       return {
