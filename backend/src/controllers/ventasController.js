@@ -3,6 +3,28 @@ const VentasModel = require("../models/ventasModel");
 const ventasModelInstance = new VentasModel();
 
 const ventasController = {
+
+  reporteVentasPorProducto: async (req, res) => {
+  try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    // Validar fechas
+    if (!fechaInicio || !fechaFin) {
+      return res.status(400).json({ message: "Se requieren fecha de inicio y fecha de fin" });
+    }
+
+    const result = await ventasModelInstance.reporteVentaProducto(fechaInicio, fechaFin);
+    
+    if( result.length === 0 ) {
+      return  res.status(404).json({ message: "No se encontraron ventas en el rango de fechas proporcionado" });
+    }
+    res.json(result);
+  } catch (error) {
+    console.error('Error en reporte de ventas por producto:', error);
+    res.status(500).json({ message: "Error al generar el reporte" });
+  }
+},
+
   // Controlador para registrar una nueva venta
   registrarVenta: async (req, res) => {
     try {
