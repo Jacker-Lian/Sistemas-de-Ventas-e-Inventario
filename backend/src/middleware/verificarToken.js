@@ -5,8 +5,7 @@ dotenv.config();
 const verificarToken = (req, res, next) => {
   try {
     const token = req.cookies.token;
-    const isDevelopment = process.env.NODE_ENV === 'production';
-
+    const isDevelopment = process.env.NODE_ENV !== 'production';
     // Permitir todas las solicitudes en desarrollo, omitiendo la verificación del token
     if (isDevelopment) {
       return next();
