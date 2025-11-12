@@ -11,6 +11,7 @@ const ProductoRoutes = require("./routes/productoRoutes");
 const HistorialVentasRoutes = require('./routes/historialVentasRoutes');
 const DetalleVentaRoutes = require('./routes/detalleVentaRoutes');
 const MotivosCancelacionRoutes = require('./routes/motivosCancelacionRoutes');
+const CategoriaRoutes = require('./routes/categoriaRoutes');
 
 class App {
   constructor() {
@@ -63,7 +64,8 @@ class App {
           Productos: "/api/productos",
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
-          MotivosCancelacion: "/api/motivos-cancelacion"
+          MotivosCancelacion: "/api/motivos-cancelacion",
+          Categorias: "/api/categorias"
         },
       });
     });
@@ -101,6 +103,9 @@ class App {
 
     const motivosCancelacionRoutesInstance = new MotivosCancelacionRoutes();
     this.app.use("/api/motivos-cancelacion", motivosCancelacionRoutesInstance.getRouter());
+
+    const categoriaRoutesInstance = new CategoriaRoutes();
+    this.app.use("/api/categorias", categoriaRoutesInstance.getRouter());
 
     // Manejo de rutas no encontradas
     this.app.use((req, res) => {
