@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const UsuarioRoutes = require("./routes/usuarioRoutes");
 const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
+const CajaRoutes = require("./routes/cajaRoutes");
 const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
@@ -71,6 +72,9 @@ this.app.use(cors({
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
 
+    // Montar rutas para la gestion de caja
+    const cajaRoutesInstance = new CajaRoutes();
+    this.app.use("/api/caja", cajaRoutesInstance.getRouter());
     // Montar rutas de productos
     const productoRoutersInstance = new ProductoRouters();
     this.app.use("/api/productos", productoRoutersInstance.getRouter());
