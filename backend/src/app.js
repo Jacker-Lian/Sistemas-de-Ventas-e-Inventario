@@ -63,6 +63,7 @@ class App {
           // Endpoints de tus rutas nuevas
           Alertas: "/api/alertas",
           Stock: "/api/stock"
+          Proveedores: "/api/proveedores",
         },
       });
     });
