@@ -6,6 +6,7 @@ const ventasRoutes = require("./routes/ventasRoutes");
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
 
 class App {
   constructor() {
@@ -48,6 +49,7 @@ class App {
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
           HistorialVentas: "/api/historial-ventas",
+          DetalleVenta: "/api/detalle-venta"
         },
       });
     });
@@ -61,12 +63,14 @@ class App {
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
 
-    // Montar rutas de productos
     const productoRoutersInstance = new ProductoRouters();
     this.app.use("/api/productos", productoRoutersInstance.getRouter());
-    // Montar ruta para mostrar historial ventas
+
     const historialVentasRoutesInstance = new HistorialVentasRoutes();
     this.app.use("/api/historial-ventas", historialVentasRoutesInstance.getRouter());
+
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
+    this.app.use("/api/detalle-venta", detalleVentaRoutesInstance.getRouter());
 
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
