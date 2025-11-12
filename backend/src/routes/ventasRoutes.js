@@ -1,5 +1,6 @@
 const express = require("express");
 const ventasController = require("../controllers/ventasController");
+const { verificarToken, requireRole } = require('../middleware/verificarToken');
 
 class VentasRoutes {
   constructor() {
@@ -8,11 +9,27 @@ class VentasRoutes {
   }
 
   configurarRutas() {
-    this.router.post('/registrar', ventasController.registrarVenta);
-    this.router.put('/cancelar', ventasController.cancelarVenta);
-    this.router.post('/Insertar-motivo-cancelacion', ventasController.registrarMotivoCancelacion);
-    this.router.get('/Obtener-motivos-cancelacion', ventasController.obtenerMotivosCancelacion);
-    this.router.put('/Desactivar-motivo-cancelacion', ventasController.desactivarMotivoCancelacion);
+    // Todas las rutas requieren autenticación
+    this.router.use(verificarToken);
+
+    // Registrar venta - ADMIN y CAJERO
+    this.router.post('/registrar', 
+        requireRole(['ADMIN', 'CAJERO']), 
+        ventasController.registrarVenta
+    );
+
+    // Cancelar venta - ADMIN y CAJERO
+    this.router.put('/cancelar', 
+        requireRole(['ADMIN', 'CAJERO']), 
+        ventasController.cancelarVenta
+    );
+
+    // Obtener motivos de cancelación - ADMIN, SUPERVISOR, CAJERO
+    this.router.get('/motivos-cancelacion', 
+        requireRole(['ADMIN', 'SUPERVISOR', 'CAJERO']), 
+        ventasController.obtenerMotivosCancelacion
+    );
+
   }
 
   getRouter() {

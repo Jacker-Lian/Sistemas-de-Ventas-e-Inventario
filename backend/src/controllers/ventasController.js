@@ -1,151 +1,124 @@
-const ventasModel = require("../models/ventasModel");
+const VentasModel = require("../models/ventasModel");
 
-const ventasModelInstance = new ventasModel();
+const ventasModelInstance = new VentasModel();
 
 const ventasController = {
+  // Controlador para registrar una nueva venta
   registrarVenta: async (req, res) => {
     try {
       const ventaData = req.body;
 
+      // Validar datos requeridos
       if (!ventaData.id_usuario || !ventaData.id_caja || !ventaData.tipo_cliente || !ventaData.metodo_pago || !ventaData.productos) {
-        return res.status(400).json({ message: "Faltan datos requeridos para registrar la venta." });
-      }
-
-      if (!Number.isInteger(ventaData.id_usuario) || ventaData.id_usuario <= 0) {
-        return res.status(400).json({ message: "El id_usuario debe ser un número entero positivo." });
-      }
-
-      if (!Number.isInteger(ventaData.id_caja) || ventaData.id_caja <= 0) {
-        return res.status(400).json({ message: "El id_caja debe ser un número entero positivo." });
-      }
-
-      if (ventaData.id_sucursal && (!Number.isInteger(ventaData.id_sucursal) || ventaData.id_sucursal <= 0)) {
-        return res.status(400).json({ message: "El id_sucursal debe ser un número entero positivo." });
-      }
-
-      const tiposClienteValidos = ["DOCENTE", "ALUMNO", "OTRO"];
-      if (!tiposClienteValidos.includes(ventaData.tipo_cliente)) {
-        return res.status(400).json({ message: "El tipo_cliente debe ser uno de los siguientes: DOCENTE, ALUMNO, OTRO." });
-      }
-
-      const metodosPagoValidos = ["EFECTIVO", "YAPE", "PLIN", "OTROS"];
-      if (!metodosPagoValidos.includes(ventaData.metodo_pago)) {
-        return res.status(400).json({ message: "El metodo_pago debe ser uno de los siguientes: EFECTIVO, YAPE, PLIN, OTROS." });
-      }
-
-      if (ventaData.estado_venta) {
-        const estadosVentaValidos = ["COMPLETADA", "PENDIENTE", "CANCELADA"];
-        if (!estadosVentaValidos.includes(ventaData.estado_venta)) {
-          return res.status(400).json({ message: "El estado_venta debe ser uno de los siguientes: COMPLETADA, PENDIENTE, CANCELADA." });
-        }
-      }
-
-      if (!Array.isArray(ventaData.productos) || ventaData.productos.length === 0) {
-        return res.status(400).json({ message: "Debe proporcionar al menos un producto para la venta." });
-      }
-
-      for (let i = 0; i < ventaData.productos.length; i++) {
-        const producto = ventaData.productos[i];
-
-        if (!producto.id_producto || !Number.isInteger(producto.id_producto) || producto.id_producto <= 0) {
-          return res.status(400).json({ message: `El producto en la posición ${i + 1} debe tener un id_producto válido.` });
-        }
-
-        if (!producto.cantidad || !Number.isInteger(producto.cantidad) || producto.cantidad <= 0) {
-          return res.status(400).json({ message: `El producto en la posición ${i + 1} debe tener una cantidad válida.` });
-        }
-
-        const precioUnitario = parseFloat(producto.precio_unitario);
-        if (isNaN(precioUnitario) || precioUnitario <= 0) {
-          return res.status(400).json({ message: `El producto en la posición ${i + 1} debe tener un precio_unitario válido.` });
-        }
-
-        if (precioUnitario > 99999999.99) {
-          return res.status(400).json({ message: `El precio_unitario del producto en la posición ${i + 1} excede el límite permitido.` });
-        }
+        return res.status(400).json({ 
+          success: false,
+          message: "Faltan datos requeridos para registrar la venta." 
+        });
       }
 
       const resultado = await ventasModelInstance.registrarVenta(ventaData);
-      return res.status(201).json({ message: "Venta registrada exitosamente.", data: resultado });
+      
+      return res.status(201).json({ 
+        success: true,
+        message: "Venta registrada exitosamente.", 
+        data: resultado 
+      });
     } catch (error) {
-      return res.status(500).json({ message: "Error al registrar la venta: " + error.message });
+      console.error('Error al registrar venta:', error);
+      return res.status(500).json({ 
+        success: false,
+        message: error.message || "Error interno del servidor al registrar la venta." 
+      });
     }
   },
 
+  // Controlador para cancelar una venta
   cancelarVenta: async (req, res) => {
     try {
-      const Data = req.body;
+      const { id_venta, id_motivo } = req.body;
       
-      if (Data.id_venta <= 0 || !Number.isInteger(Data.id_venta)) {
-        return res.status(400).json({ message: "El id_venta debe ser un número entero positivo." });
+      // Validaciones básicas
+      if (!id_venta || !id_motivo) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Se requieren id_venta e id_motivo." 
+        });
       }
 
-      if (!Data.id_motivo_cancelacion || !Number.isInteger(Data.id_motivo_cancelacion) || Data.id_motivo_cancelacion <= 0) {
-        return res.status(400).json({ message: "El id_motivo_cancelacion debe ser un número entero positivo." });
-      }
-
-      const cancelado = await ventasModelInstance.cancelarVenta(Data.id_venta, Data.id_motivo_cancelacion);
+      const cancelado = await ventasModelInstance.cancelarVenta(id_venta, id_motivo);
 
       if (cancelado) {
-        return res.status(200).json({ message: "Venta cancelada exitosamente." });
+        return res.status(200).json({ 
+          success: true,
+          message: "Venta cancelada exitosamente." 
+        });
       } else {
-        return res.status(404).json({ message: "Venta no encontrada." });
+        return res.status(404).json({ 
+          success: false,
+          message: "Venta no encontrada." 
+        });
       }
     } catch (error) {
-      return res.status(500).json({ message: "Error al cancelar la venta: " + error.message });
+      console.error('Error al cancelar venta:', error);
+      return res.status(500).json({ 
+        success: false,
+        message: error.message || "Error interno del servidor al cancelar la venta." 
+      });
     }
   },
 
-  registrarMotivoCancelacion: async (req, res) => {
-    try {
-      const { descripcion } = req.body;
-
-      if (!descripcion) {
-        return res.status(400).json({ message: "Faltan datos requeridos para registrar el motivo de cancelación." });
-      }
-      if (!isNaN(descripcion)) {
-        return res.status(400).json({ message: "La descripción de cancelación no puede ser un número." });
-      }
-      if (descripcion.length === 0) {
-        return res.status(400).json({ message: "La descripción de cancelación no puede estar vacía." });
-      }
-
-      await ventasModelInstance.registrarMotivoCancelacion(descripcion);
-      return res.status(201).json({ message: "Motivo de cancelación registrado exitosamente." });
-    } catch (error) {
-      return res.status(500).json({ message: "Error al registrar el motivo de cancelación: " + error.message });
-    }
-  },
-
+  // Obtener motivos de cancelación
   obtenerMotivosCancelacion: async (req, res) => {
     try {
       const motivos = await ventasModelInstance.obtenerMotivosCancelacion();
-      return res.status(200).json(motivos);
+      
+      return res.status(200).json({ 
+        success: true,
+        data: motivos 
+      });
     } catch (error) {
-      return res.status(500).json({ message: "Error al obtener los motivos de cancelación: " + error.message });
+      console.error('Error al obtener motivos de cancelación:', error);
+      return res.status(500).json({ 
+        success: false,
+        message: error.message || "Error interno del servidor al obtener los motivos de cancelación." 
+      });
     }
   },
 
-  desactivarMotivoCancelacion: async (req, res) => {
+  // Obtener venta por ID
+  obtenerVentaPorId: async (req, res) => {
     try {
-      const { id_motivo_cancelacion } = req.body;
-      const id_motivo_num = Number(id_motivo_cancelacion);
+      const { id } = req.params;
+      const id_venta = parseInt(id);
 
-      if (!Number.isInteger(id_motivo_num) || id_motivo_num <= 0) {
-        return res.status(400).json({ message: "El id_motivo debe ser un número entero positivo." });
+      if (!id_venta || id_venta <= 0) {
+        return res.status(400).json({ 
+          success: false,
+          message: "ID de venta inválido." 
+        });
       }
 
-      const desactivado = await ventasModelInstance.desactivarMotivoCancelacion(id_motivo_num);
-
-      if (desactivado) {
-        return res.status(200).json({ message: "Motivo de cancelación desactivado exitosamente." });
-      } else {
-        return res.status(404).json({ message: "Motivo de cancelación no encontrado." });
+      const venta = await ventasModelInstance.obtenerVentaPorId(id_venta);
+      
+      if (!venta) {
+        return res.status(404).json({ 
+          success: false,
+          message: "Venta no encontrada." 
+        });
       }
+
+      return res.status(200).json({ 
+        success: true,
+        data: venta 
+      });
     } catch (error) {
-      return res.status(500).json({ message: "Error al desactivar el motivo de cancelación: " + error.message });
+      console.error('Error al obtener venta por ID:', error);
+      return res.status(500).json({ 
+        success: false,
+        message: error.message || "Error interno del servidor al obtener la venta." 
+      });
     }
-  },
+  }
 };
 
 module.exports = ventasController;

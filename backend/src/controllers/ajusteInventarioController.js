@@ -1,6 +1,7 @@
 const AjusteInventarioModel = require('../models/ajusteInventarioModel');
 
 const AjusteInventarioController = {
+    // Crear un nuevo ajuste de inventario
     crearAjuste: async (req, res) => {
         const id_usuario = req.usuario?.id_usuario;
         
@@ -10,52 +11,55 @@ const AjusteInventarioController = {
 
         const { id_producto, cantidad_ajustada, tipo_ajuste, observaciones, id_sucursal } = req.body;
 
+        // Validación básica de campos obligatorios
         if (!id_producto || !cantidad_ajustada || !tipo_ajuste || !id_sucursal) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'Faltan campos obligatorios: id_producto, cantidad_ajustada, tipo_ajuste, id_sucursal' 
             });
         }
-        
-        const cantidadNumerica = parseInt(cantidad_ajustada);
-        if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
-            return res.status(400).json({ success: false, message: 'La cantidad debe ser un número entero positivo.' });
-        }
-
-        const tiposAjusteValidos = ['AUMENTO', 'DISMINUCION'];
-        if (!tiposAjusteValidos.includes(tipo_ajuste)) {
-            return res.status(400).json({ success: false, message: 'El tipo_ajuste debe ser AUMENTO o DISMINUCION.' });
-        }
 
         try {
-            const producto = await AjusteInventarioModel.obtenerProductoConStock(id_producto);
-            if (!producto) {
-                return res.status(404).json({ success: false, message: 'Producto no encontrado o inactivo.' });
-            }
+            const datosParaModelo = { 
+                id_producto, 
+                cantidad_ajustada, 
+                tipo_ajuste, 
+                id_usuario, 
+                observaciones: observaciones || '', 
+                id_sucursal 
+            };
 
-            const datosParaModelo = { id_producto, cantidad_ajustada: cantidadNumerica, tipo_ajuste, id_usuario, observaciones: observaciones || '', id_sucursal };
             const resultado = await AjusteInventarioModel.crear(datosParaModelo);
 
-            res.status(201).json({ success: true, message: 'Ajuste de inventario creado exitosamente', data: resultado });
+            res.status(201).json({ 
+                success: true, 
+                message: 'Ajuste de inventario creado exitosamente', 
+                data: resultado 
+            });
         } catch (error) {
             console.error('Error al crear ajuste:', error);
             
-            if (error.message.includes('negativo')) {
-                return res.status(400).json({ success: false, message: error.message });
-            }
-            
-            if (error.message.includes('no fue encontrado')) {
-                return res.status(404).json({ success: false, message: error.message });
+            // Manejo de errores específicos del model
+            if (error.message.includes('negativo') || error.message.includes('no fue encontrado')) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: error.message 
+                });
             }
 
-            res.status(500).json({ success: false, message: error.message || 'Error al crear el ajuste de inventario' });
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error interno del servidor al crear el ajuste de inventario' 
+            });
         }
     },
 
+    // Obtener todos los ajustes de inventario con filtros
     obtenerTodosLosAjustes: async (req, res) => {
         try {
             const filtros = {};
             
+            // Aplicar filtros desde query params
             if (req.query.id_producto) filtros.id_producto = parseInt(req.query.id_producto);
             if (req.query.tipo_ajuste) filtros.tipo_ajuste = req.query.tipo_ajuste;
             if (req.query.id_sucursal) filtros.id_sucursal = parseInt(req.query.id_sucursal);
@@ -67,19 +71,30 @@ const AjusteInventarioController = {
 
             const resultado = await AjusteInventarioModel.obtenerTodos(filtros);
             
-            res.json({ success: true, data: resultado.ajustes, paginacion: resultado.paginacion, filtros: filtros });
+            res.json({ 
+                success: true, 
+                data: resultado.ajustes, 
+                paginacion: resultado.paginacion
+            });
         } catch (error) {
             console.error('Error al obtener ajustes:', error);
-            res.status(500).json({ success: false, message: 'Error al obtener los ajustes de inventario', error: error.message });
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error interno del servidor al obtener los ajustes de inventario'
+            });
         }
     },
 
+    // Obtener ajustes por producto específico
     obtenerAjustesPorProducto: async (req, res) => {
         try {
             const { idProducto } = req.params;
             
             if (!idProducto || isNaN(parseInt(idProducto))) {
-                return res.status(400).json({ success: false, message: 'ID de producto inválido' });
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'ID de producto inválido' 
+                });
             }
 
             const filtros = {};
@@ -90,13 +105,20 @@ const AjusteInventarioController = {
 
             const ajustes = await AjusteInventarioModel.obtenerPorProducto(parseInt(idProducto), filtros);
             
-            res.json({ success: true, data: ajustes, total: ajustes.length, producto: { id_producto: parseInt(idProducto) } });
+            res.json({ 
+                success: true, 
+                data: ajustes
+            });
         } catch (error) {
             console.error('Error al obtener ajustes por producto:', error);
-            res.status(500).json({ success: false, message: 'Error al obtener los ajustes del producto', error: error.message });
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error interno del servidor al obtener los ajustes del producto'
+            });
         }
     },
 
+    // Obtener estadísticas de ajustes
     obtenerEstadisticas: async (req, res) => {
         try {
             const filtros = {};
@@ -107,31 +129,16 @@ const AjusteInventarioController = {
 
             const estadisticas = await AjusteInventarioModel.obtenerEstadisticas(filtros);
             
-            res.json({ success: true, data: estadisticas });
+            res.json({ 
+                success: true, 
+                data: estadisticas 
+            });
         } catch (error) {
             console.error('Error al obtener estadísticas:', error);
-            res.status(500).json({ success: false, message: 'Error al obtener estadísticas', error: error.message });
-        }
-    },
-
-    obtenerProducto: async (req, res) => {
-        try {
-            const { idProducto } = req.params;
-            
-            if (!idProducto || isNaN(parseInt(idProducto))) {
-                return res.status(400).json({ success: false, message: 'ID de producto inválido' });
-            }
-
-            const producto = await AjusteInventarioModel.obtenerProductoConStock(parseInt(idProducto));
-            
-            if (!producto) {
-                return res.status(404).json({ success: false, message: 'Producto no encontrado' });
-            }
-
-            res.json({ success: true, data: producto });
-        } catch (error) {
-            console.error('Error al obtener producto:', error);
-            res.status(500).json({ success: false, message: 'Error al obtener el producto', error: error.message });
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error interno del servidor al obtener estadísticas'
+            });
         }
     }
 };

@@ -1,6 +1,6 @@
 const express = require('express');
 const AjusteInventarioController = require('../controllers/ajusteInventarioController');
-const { verificarToken, requireRole } = require('../middlewares/verificarToken');
+const { verificarToken, requireRole } = require('../middleware/verificarToken');
 
 class AjusteInventarioRoutes {
     constructor() {
@@ -9,13 +9,34 @@ class AjusteInventarioRoutes {
     }
 
     configurarRutas() {
+        // Todas las rutas requieren autenticación
         this.router.use(verificarToken);
 
-        this.router.post('/', requireRole(['ADMIN', 'CAJERO']), AjusteInventarioController.crearAjuste);
-        this.router.get('/', AjusteInventarioController.obtenerTodosLosAjustes);
-        this.router.get('/estadisticas', AjusteInventarioController.obtenerEstadisticas);
-        this.router.get('/producto/:idProducto', AjusteInventarioController.obtenerAjustesPorProducto);
-        this.router.get('/producto-info/:idProducto', AjusteInventarioController.obtenerProducto);
+        // Crear ajuste - Solo ADMIN y CAJERO
+        this.router.post('/', 
+            requireRole(['ADMIN', 'CAJERO']), 
+            AjusteInventarioController.crearAjuste
+        );
+
+        // Obtener todos los ajustes con filtros
+        this.router.get('/', 
+            requireRole(['ADMIN', 'SUPERVISOR']), 
+            AjusteInventarioController.obtenerTodosLosAjustes
+        );
+
+        // Estadísticas de ajustes
+        this.router.get('/estadisticas', 
+            requireRole(['ADMIN', 'SUPERVISOR']), 
+            AjusteInventarioController.obtenerEstadisticas
+        );
+
+        // Ajustes por producto específico
+        this.router.get('/producto/:idProducto', 
+            AjusteInventarioController.obtenerAjustesPorProducto
+        );
+
+        // No se usa
+        //this.router.get('/producto-info/:idProducto', AjusteInventarioController.obtenerProducto);
     }
 
     getRouter() {
