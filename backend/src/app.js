@@ -64,6 +64,7 @@ class App {
           AjustesInventario: "/api/ajustes-inventario",
           Caja: "/api/caja",
           Productos: "/api/productos",
+          Categorias: "/api/categorias",
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
           MotivosCancelacion: "/api/motivos-cancelacion",
@@ -88,6 +89,10 @@ class App {
     // Montar rutas de ventas
     const ventasRoutesInstance = new VentasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+    
+    // Montar rutas de categorías
+    const categoriaRoutes = new CategoriaRoutes();
+    this.app.use('/api/categorias', categoriaRoutes.getRouter());
 
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
@@ -144,6 +149,7 @@ class App {
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     });
+
   }
 
   getApp() {

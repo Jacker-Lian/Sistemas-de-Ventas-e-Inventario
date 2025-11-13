@@ -1,4 +1,10 @@
 const database = require("../config/database");
+const UsuarioModel = require("./usuarioModel");
+const ProductoModel = require("./productoModel");
+const motivoCancelacionModel = require("./motivoCancelacionModel");
+const CarritoVentaModel = require("./carritoVentaModel");
+const DetalleVentaModel = require("./detalleVentaModel");
+const cajaModel = require("./cajaModel");
 
 class VentasModel {
   constructor() {
@@ -120,7 +126,7 @@ class VentasModel {
         });
       }
 
-      totalVenta = parseFloat(totalVenta.toFixed(2));
+      totalVenta = parseFloat(totalVenta.toFixed(2)); // Asegurar dos decimales
 
       // Insertar la venta
       const [resultVenta] = await connection.query(
@@ -169,10 +175,16 @@ class VentasModel {
         );
 
         // Actualizar stock del producto
-        await connection.query(
-          "UPDATE producto SET stock = stock - ? WHERE id_producto = ?",
-          [producto.cantidad, producto.id_producto]
+        const stockActualizado = await this.productoModel.updateStock(
+          producto.id_producto,
+          producto.cantidad
         );
+
+        if (!stockActualizado) {
+          throw new Error(
+            `No se pudo actualizar el stock del producto ID ${producto.id_producto}. Stock insuficiente o producto inactivo.`
+          );
+        }
       }
 
       // Actualizar ingresos de la caja
@@ -321,6 +333,9 @@ class VentasModel {
       throw new Error("Error al obtener venta por ID: " + error.message);
     }
   }
+
+
+  
 }
 
 module.exports = VentasModel;
