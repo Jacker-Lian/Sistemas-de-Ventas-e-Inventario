@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AlertasInventario from "./AlertasInventario"; // <-- Importación agregada
 
 interface Producto {
   id: number;
@@ -19,51 +20,51 @@ export default function CrudProductos() {
 
   // Buscar productos por similitud
   const buscarProductos = async () => {
-  const action = busqueda.trim() ? "search" : undefined;
+    const action = busqueda.trim() ? "search" : undefined;
 
-  try {
-    // Construir la cadena de consulta si hay búsqueda
-    const queryString = action
-      ? `?action=search&query=${encodeURIComponent(busqueda.trim())}`
-      : "";
+    try {
+      // Construir la cadena de consulta si hay búsqueda
+      const queryString = action
+        ? `?action=search&query=${encodeURIComponent(busqueda.trim())}`
+        : "";
 
-    // Realizar la solicitud con fetch hacia la ruta correcta
-    const res = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`
-    );
+      // Realizar la solicitud con fetch hacia la ruta correcta
+      const res = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`
+      );
 
-    if (!res.ok) {
-      throw new Error(`Error HTTP: ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`Error HTTP: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Validar y extraer los productos del backend
+      const productosRaw = Array.isArray(data?.productos) ? data.productos : [];
+
+      // Normalizar los datos recibidos
+      const productosNormalizados: Producto[] = productosRaw.map((p: any) => ({
+        id: Number(p.id),
+        nombre: p.nombre ?? "",
+        precio: Number(p.precio) || 0,
+        stock: Number(p.stock) || 0,
+        estado:
+          p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
+        descripcion: p.descripcion ?? null,
+        id_categoria: p.id_categoria ? Number(p.id_categoria) : undefined,
+        id_proveedor: p.id_proveedor ? Number(p.id_proveedor) : undefined,
+      }));
+
+      // Actualizar estado
+      setProductos(productosNormalizados);
+      setMensaje(
+        productosNormalizados.length ? "" : "No se encontraron coincidencias"
+      );
+    } catch (err) {
+      console.error(err);
+      setMensaje("Error al buscar productos");
     }
-
-    const data = await res.json();
-
-    // Validar y extraer los productos del backend
-    const productosRaw = Array.isArray(data?.productos) ? data.productos : [];
-
-    // Normalizar los datos recibidos
-    const productosNormalizados: Producto[] = productosRaw.map((p: any) => ({
-      id: Number(p.id),
-      nombre: p.nombre ?? "",
-      precio: Number(p.precio) || 0,
-      stock: Number(p.stock) || 0,
-      estado:
-        p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
-      descripcion: p.descripcion ?? null,
-      id_categoria: p.id_categoria ? Number(p.id_categoria) : undefined,
-      id_proveedor: p.id_proveedor ? Number(p.id_proveedor) : undefined,
-    }));
-
-    // Actualizar estado
-    setProductos(productosNormalizados);
-    setMensaje(
-      productosNormalizados.length ? "" : "No se encontraron coincidencias"
-    );
-  } catch (err) {
-    console.error(err);
-    setMensaje("Error al buscar productos");
-  }
-};
+  };
 
   // Guardar cambios de edición
   const guardarCambios = async () => {
@@ -74,7 +75,7 @@ export default function CrudProductos() {
     }
 
     try {
-  // Validar datos antes de enviar
+      // Validar datos antes de enviar
       const payload = {
         id: Number(editando.id),
         nombre: String(editando.nombre).trim(),
@@ -110,7 +111,6 @@ export default function CrudProductos() {
       console.error(err);
       setMensaje("Error al actualizar el producto");
     }
-
   };
 
   // Handlers tipados para inputs
@@ -161,7 +161,6 @@ export default function CrudProductos() {
       setMensaje("Error al cambiar el estado del producto");
     }
   };
-
 
   return (
     <div
@@ -262,159 +261,166 @@ export default function CrudProductos() {
             <th style={{ padding: "10px", border: "1px solid #000" }}>Acciones</th>
           </tr>
         </thead>
+
         <tbody>
           {productos.length > 0 ? (
             productos.map((p) => {
               const isInactive = Number(p.estado) === 0;
+
               return (
-                <tr
-                  key={p.id}
-                  style={{
-                    opacity: isInactive ? 0.6 : 1,
-                    textDecoration: isInactive ? "line-through" : "none",
-                  }}
-                >
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>{p.id}</td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
-                    {editando?.id === p.id ? (
-                      <input
-                        type="text"
-                        value={editando.nombre}
-                        onChange={handleEditNombre}
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          width: "100%",
-                        }}
-                      />
-                    ) : (
-                      p.nombre
-                    )}
-                  </td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
-                    {editando?.id === p.id ? (
-                      <input
-                        type="number"
-                        value={editando.precio}
-                        onChange={handleEditPrecio}
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          width: "80px",
-                        }}
-                      />
-                    ) : (
-                      p.precio.toFixed(2)
-                    )}
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px",
-                      border: "1px solid #000",
-                      color: p.stock <= 5 ? "#c0392b" : "#000",
-                      fontWeight: p.stock <= 5 ? "bold" : "normal",
-                    }}
-                  >
-                    {editando?.id === p.id ? (
-                      <input
-                        type="number"
-                        value={editando.stock}
-                        onChange={handleEditStock}
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          width: "60px",
-                        }}
-                      />
-                    ) : (
-                      p.stock
-                    )}
-                  </td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
-                    {isInactive ? "Inactivo" : "Activo"}
-                  </td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
-                    {!isInactive && (
-                      <>
-                        {editando?.id === p.id ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "6px",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <button
-                              onClick={guardarCambios}
+                <AlertasInventario stock={p.stock} key={p.id}>
+                  <>
+                    <td style={{ padding: "10px", border: "1px solid #000" }}>
+                      {p.id}
+                    </td>
+
+                    <td style={{ padding: "10px", border: "1px solid #000" }}>
+                      {editando?.id === p.id ? (
+                        <input
+                          type="text"
+                          value={editando.nombre}
+                          onChange={handleEditNombre}
+                          style={{
+                            border: "1px solid #000",
+                            padding: "4px",
+                            width: "100%",
+                          }}
+                        />
+                      ) : (
+                        p.nombre
+                      )}
+                    </td>
+
+                    <td style={{ padding: "10px", border: "1px solid #000" }}>
+                      {editando?.id === p.id ? (
+                        <input
+                          type="number"
+                          value={editando.precio}
+                          onChange={handleEditPrecio}
+                          style={{
+                            border: "1px solid #000",
+                            padding: "4px",
+                            width: "80px",
+                          }}
+                        />
+                      ) : (
+                        p.precio.toFixed(2)
+                      )}
+                    </td>
+
+                    <td
+                      style={{
+                        padding: "10px",
+                        border: "1px solid #000",
+                        color: p.stock <= 5 ? "#c0392b" : "#000",
+                        fontWeight: p.stock <= 5 ? "bold" : "normal",
+                      }}
+                    >
+                      {editando?.id === p.id ? (
+                        <input
+                          type="number"
+                          value={editando.stock}
+                          onChange={handleEditStock}
+                          style={{
+                            border: "1px solid #000",
+                            padding: "4px",
+                            width: "60px",
+                          }}
+                        />
+                      ) : (
+                        p.stock
+                      )}
+                    </td>
+
+                    <td style={{ padding: "10px", border: "1px solid #000" }}>
+                      {isInactive ? "Inactivo" : "Activo"}
+                    </td>
+
+                    <td style={{ padding: "10px", border: "1px solid #000" }}>
+                      {!isInactive && (
+                        <>
+                          {editando?.id === p.id ? (
+                            <div
                               style={{
-                                border: "2px solid #000",
-                                background: "#000",
-                                color: "#fff",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
+                                display: "flex",
+                                gap: "6px",
+                                justifyContent: "center",
                               }}
                             >
-                              Guardar
-                            </button>
-                            <button
-                              onClick={() => setEditando(null)}
+                              <button
+                                onClick={guardarCambios}
+                                style={{
+                                  border: "2px solid #000",
+                                  background: "#000",
+                                  color: "#fff",
+                                  fontWeight: "bold",
+                                  padding: "6px 10px",
+                                  borderRadius: "5px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Guardar
+                              </button>
+
+                              <button
+                                onClick={() => setEditando(null)}
+                                style={{
+                                  border: "2px solid #000",
+                                  background: "#fff",
+                                  color: "#000",
+                                  fontWeight: "bold",
+                                  padding: "6px 10px",
+                                  borderRadius: "5px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <div
                               style={{
-                                border: "2px solid #000",
-                                background: "#fff",
-                                color: "#000",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
+                                display: "flex",
+                                gap: "6px",
+                                justifyContent: "center",
                               }}
                             >
-                              Cancelar
-                            </button>
-                          </div>
-                        ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "6px",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <button
-                              onClick={() => setEditando(p)}
-                              style={{
-                                border: "2px solid #000",
-                                background: "transparent",
-                                color: "#000",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => desactivarProducto(p.id)}
-                              style={{
-                                border: "2px solid #000",
-                                background: "#fff",
-                                color: "#000",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                              }}
-                            >
-                              Inactivar
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </td>
-                </tr>
+                              <button
+                                onClick={() => setEditando(p)}
+                                style={{
+                                  border: "2px solid #000",
+                                  background: "transparent",
+                                  color: "#000",
+                                  fontWeight: "bold",
+                                  padding: "6px 10px",
+                                  borderRadius: "5px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Editar
+                              </button>
+
+                              <button
+                                onClick={() => desactivarProducto(p.id)}
+                                style={{
+                                  border: "2px solid #000",
+                                  background: "#fff",
+                                  color: "#000",
+                                  fontWeight: "bold",
+                                  padding: "6px 10px",
+                                  borderRadius: "5px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Inactivar
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </td>
+                  </>
+                </AlertasInventario>
               );
             })
           ) : (
