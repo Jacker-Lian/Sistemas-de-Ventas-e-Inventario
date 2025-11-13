@@ -1,11 +1,15 @@
-const db = require('../config/database'); // AJUSTA ESTA RUTA A TU ARCHIVO DE CONEXIÓN REAL
+// Importamos la función 'getPool' en lugar de todo el objeto 'db'
+const { getPool } = require('../config/database'); 
+
+// Obtenemos la instancia del Pool de Conexiones una vez al inicio del módulo
+const pool = getPool(); 
 
 const AjusteInventarioModel = {
-    // 1. Ejecuta la transacción de ajuste (POST) - ¡CÓDIGO CORRECTO!
+    // 1. Ejecuta la transacción de ajuste (POST)
     crear: async (datos) => {
         const {
             id_producto,
-            cantidad_ajustada, // Viene como magnitud (valor absoluto)
+            cantidad_ajustada, 
             tipo_ajuste,      
             id_usuario,
             observaciones,
@@ -14,11 +18,10 @@ const AjusteInventarioModel = {
 
         let connection;
         try {
-            // ... (Toda la lógica de Transacción, Cálculo de Stock, y ROLLBACK está correcta) ...
-            connection = await db.getConnection(); 
+            connection = await pool.getConnection(); 
             await connection.beginTransaction();
 
-            // 1. Obtener Stock Actual
+            // 1. Obtener Stock Actual y Validar Producto
             const [productRows] = await connection.query(
                 'SELECT stock FROM producto WHERE id_producto = ?',
                 [id_producto]
@@ -59,18 +62,16 @@ const AjusteInventarioModel = {
             };
 
         } catch (error) {
-            // ROLLBACK: Si algo falla, deshace todos los cambios
             if (connection) await connection.rollback(); 
-            throw error; // Propaga el error al Controlador
+            throw error; 
         } finally {
-            if (connection) connection.release(); // Libera la conexión
+            if (connection) connection.release(); 
         }
     },
 
-    // 2. Obtener todos los ajustes de inventario (GET /api/inventario/historial)
+    // 2. Obtener todos los ajustes de inventario 
     obtenerTodos: async () => {
         try {
-            // Query con JOINs a producto, usuarios y sucursal
             const query = `
                 SELECT 
                     ai.id_ajuste, ai.cantidad_ajustada, ai.tipo_ajuste, ai.stock_nuevo, ai.observaciones, ai.fecha_creacion,
@@ -81,17 +82,16 @@ const AjusteInventarioModel = {
                 INNER JOIN sucursal s ON ai.id_sucursal = s.id_sucursal
                 ORDER BY ai.fecha_creacion DESC
             `;
-            const [ajustes] = await db.query(query);
+            const [ajustes] = await pool.query(query);
             return ajustes;
         } catch (error) {
             throw error;
         }
     },
 
-    // 3. Obtener ajustes por producto (GET /api/inventario/ajustes-producto/:idProducto)
+    // 3. Obtener ajustes por producto 
     obtenerPorProducto: async (idProducto) => {
         try {
-            // Query con JOINs y filtro por id_producto
             const query = `
                 SELECT 
                     ai.id_ajuste, ai.cantidad_ajustada, ai.tipo_ajuste, ai.stock_nuevo, ai.observaciones, ai.fecha_creacion,
@@ -103,18 +103,18 @@ const AjusteInventarioModel = {
                 WHERE ai.id_producto = ?
                 ORDER BY ai.fecha_creacion DESC
             `;
-            const [ajustes] = await db.query(query, [idProducto]);
+            const [ajustes] = await pool.query(query, [idProducto]);
             return ajustes;
         } catch (error) {
             throw error;
         }
     },
     
-    // 4. NUEVA FUNCIÓN: Obtener la lista de productos (GET /productos) - ¡NECESARIO PARA EL FRONTEND!
+    // 4. Obtener la lista de productos (GET /productos)
     obtenerListaProductos: async () => {
         try {
             const query = 'SELECT id_producto, nombre, stock FROM producto WHERE estado = 1 ORDER BY nombre ASC'; 
-            const [productos] = await db.query(query);
+            const [productos] = await pool.query(query);
             return productos;
         } catch (error) {
             throw error;

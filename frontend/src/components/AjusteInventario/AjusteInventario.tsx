@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { type Producto, type AjusteFormData, type AjusteRegistro } from '../../types/ajusteInventario'; 
-import './AjusteInventario.css'; // Asegúrate de que el CSS esté aquí
+import './AjusteInventario.css'; 
 
 // URL Base del Backend (debe coincidir con tu app.js)
 const API_URL = 'http://localhost:3000/api'; 
@@ -33,7 +33,6 @@ const AjusteInventario: React.FC = () => {
             const prodData: Producto[] = await prodResp.json();
             setProductos(prodData);
         } catch (error: any) {
-            // Este error es el que estabas viendo ("Failed to fetch")
             setMensaje({ texto: `Error al cargar datos iniciales: ${error.message}`, tipo: 'error' });
         }
     };
@@ -256,7 +255,7 @@ const AjusteInventario: React.FC = () => {
     // --- Renderizado de Tabs ---
     return (
         <div className="container-ajuste">
-            <h2>⚙️ Ajuste Manual de Inventario</h2>
+            <h2>Ajuste Manual de Inventario</h2>
             
             {/* Mensajes de Retroalimentación */}
             {mensaje.texto && (
