@@ -65,6 +65,17 @@ class ProductoModel {
     return rows;
   }
 
+  // By: WillianJC->
+  async updateStock(id_producto, discount) {
+    // Resta el stock de un producto: verifica que haya suficiente stock antes de restar y que el producto esté activo
+    const query = 'UPDATE producto SET stock = stock - ? WHERE id_producto = ? AND stock >= ? AND estado = 1';
+    const [result] = await this.pool.query(query, [discount, id_producto, discount]);
+    return result.affectedRows > 0;
+  }
+
+  // <-By: WillianJC
+
+
 }
 
 module.exports = ProductoModel;
