@@ -1,4 +1,4 @@
-const ProveedorModel = require("../models/proveedorModel");
+const ProveedorModel = require("../models/proveedorModel"); 
 const proveedorModelInstance = new ProveedorModel();
 
 const proveedorController = {
@@ -17,16 +17,12 @@ const proveedorController = {
   obtenerProveedorPorId: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
-
-      // ✅ Validar ID
       if (isNaN(id) || id <= 0) {
         return res.status(400).json({ message: "ID de proveedor inválido" });
       }
 
       const proveedor = await proveedorModelInstance.obtenerProveedorPorId(id);
-      if (!proveedor) {
-        return res.status(404).json({ message: "Proveedor no encontrado" });
-      }
+      if (!proveedor) return res.status(404).json({ message: "Proveedor no encontrado" });
 
       return res.status(200).json(proveedor);
     } catch (error) {
@@ -40,10 +36,24 @@ const proveedorController = {
     try {
       const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // ✅ Validar todos los campos requeridos
-      if (!nombre || !ruc || !telefono || !direccion || !correo || !producto_principal) {
-        return res.status(400).json({ message: "Todos los campos son obligatorios" });
-      }
+      // ✅ Validación completa
+      if (!nombre || typeof nombre !== "string" || nombre.trim() === "")
+        return res.status(400).json({ message: "Nombre inválido" });
+
+      if (!ruc || !/^\d{11}$/.test(ruc))
+        return res.status(400).json({ message: "RUC inválido. Debe tener 11 dígitos numéricos" });
+
+      if (!telefono || !/^\d+$/.test(telefono))
+        return res.status(400).json({ message: "Teléfono inválido. Debe contener solo números" });
+
+      if (!direccion || typeof direccion !== "string" || direccion.trim() === "")
+        return res.status(400).json({ message: "Dirección inválida" });
+
+      if (!correo || !/^[\w.-]+@[\w.-]+\.\w{2,}$/.test(correo))
+        return res.status(400).json({ message: "Correo electrónico inválido" });
+
+      if (!producto_principal || typeof producto_principal !== "string" || producto_principal.trim() === "")
+        return res.status(400).json({ message: "Producto principal inválido" });
 
       const nuevoId = await proveedorModelInstance.crearProveedor({
         nombre,
@@ -68,18 +78,28 @@ const proveedorController = {
   actualizarProveedor: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
-
-      // ✅ Validar ID
-      if (isNaN(id) || id <= 0) {
-        return res.status(400).json({ message: "ID de proveedor inválido" });
-      }
+      if (isNaN(id) || id <= 0) return res.status(400).json({ message: "ID de proveedor inválido" });
 
       const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // ✅ Validar todos los campos requeridos
-      if (!nombre || !ruc || !telefono || !direccion || !correo || !producto_principal) {
-        return res.status(400).json({ message: "Todos los campos son obligatorios" });
-      }
+      // ✅ Validación completa
+      if (!nombre || typeof nombre !== "string" || nombre.trim() === "")
+        return res.status(400).json({ message: "Nombre inválido" });
+
+      if (!ruc || !/^\d{11}$/.test(ruc))
+        return res.status(400).json({ message: "RUC inválido. Debe tener 11 dígitos numéricos" });
+
+      if (!telefono || !/^\d+$/.test(telefono))
+        return res.status(400).json({ message: "Teléfono inválido. Debe contener solo números" });
+
+      if (!direccion || typeof direccion !== "string" || direccion.trim() === "")
+        return res.status(400).json({ message: "Dirección inválida" });
+
+      if (!correo || !/^[\w.-]+@[\w.-]+\.\w{2,}$/.test(correo))
+        return res.status(400).json({ message: "Correo electrónico inválido" });
+
+      if (!producto_principal || typeof producto_principal !== "string" || producto_principal.trim() === "")
+        return res.status(400).json({ message: "Producto principal inválido" });
 
       const actualizado = await proveedorModelInstance.actualizarProveedor(id, {
         nombre,
@@ -90,9 +110,7 @@ const proveedorController = {
         producto_principal
       });
 
-      if (!actualizado) {
-        return res.status(404).json({ message: "Proveedor no encontrado" });
-      }
+      if (!actualizado) return res.status(404).json({ message: "Proveedor no encontrado" });
 
       return res.status(200).json({ message: "Proveedor actualizado exitosamente" });
     } catch (error) {
@@ -105,17 +123,10 @@ const proveedorController = {
   desactivarProveedor: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
-
-      // ✅ Validar ID
-      if (isNaN(id) || id <= 0) {
-        return res.status(400).json({ message: "ID de proveedor inválido" });
-      }
+      if (isNaN(id) || id <= 0) return res.status(400).json({ message: "ID de proveedor inválido" });
 
       const desactivado = await proveedorModelInstance.desactivarProveedor(id);
-
-      if (!desactivado) {
-        return res.status(404).json({ message: "Proveedor no encontrado" });
-      }
+      if (!desactivado) return res.status(404).json({ message: "Proveedor no encontrado" });
 
       return res.status(200).json({ message: "Proveedor desactivado exitosamente" });
     } catch (error) {

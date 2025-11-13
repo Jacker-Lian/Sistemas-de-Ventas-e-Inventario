@@ -89,7 +89,7 @@ class ProveedorModel {
       id
     ]);
 
-    return result.affectedRows > 0; // ✅ Devuelve true si se actualizó correctamente
+    return result.affectedRows > 0; // Devuelve true si se actualizó correctamente
   }
 
   // Desactivar proveedor (borrado lógico)
@@ -100,7 +100,7 @@ class ProveedorModel {
       WHERE id_proveedor = ?
     `;
     const [result] = await this.pool.query(query, [id]);
-    return result.affectedRows > 0; // ✅ Devuelve true si se desactivó correctamente
+    return result.affectedRows > 0; //  Devuelve true si se desactivó correctamente
   }
 }
 
