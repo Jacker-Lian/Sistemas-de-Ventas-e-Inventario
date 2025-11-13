@@ -66,7 +66,7 @@ function RegistrarVenta() {
       setLoadingCategorias(true);
       try {
 
-        const res= await fetch(`${BASE_URL}/api/ventas/categorias/`,{
+        const res= await fetch(`${BASE_URL}/api/categorias/`,{
           method: 'GET',
           credentials: 'include'
         });
