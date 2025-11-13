@@ -81,9 +81,8 @@ function Caja() {
     }
   };
 
-  /**
-   * Manejador para el formulario de registrar movimiento
-   */
+  //Manejador para el formulario de registrar movimiento
+  
   const handleRegistrarMovimiento = async (values: Omit<MovimientoCaja, 'id_caja'>) => {
     if (!cajaAbierta) return;
 
