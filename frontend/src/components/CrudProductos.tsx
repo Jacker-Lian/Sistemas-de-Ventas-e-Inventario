@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AlertaStock from "./Alertas_Inventario";
 
 interface Producto {
   id: number;
@@ -254,6 +255,7 @@ export default function CrudProductos() {
               textTransform: "uppercase",
             }}
           >
+            <th style={{ padding: "10px", border: "1px solid #000", width: "40px" }}></th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>ID</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Precio</th>
@@ -267,13 +269,7 @@ export default function CrudProductos() {
             productos.map((p) => {
               const isInactive = Number(p.estado) === 0;
               return (
-                <tr
-                  key={p.id}
-                  style={{
-                    opacity: isInactive ? 0.6 : 1,
-                    textDecoration: isInactive ? "line-through" : "none",
-                  }}
-                >
+                <AlertaStock stock={p.stock} key={p.id}>
                   <td style={{ padding: "10px", border: "1px solid #000" }}>{p.id}</td>
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
                     {editando?.id === p.id ? (
@@ -313,6 +309,8 @@ export default function CrudProductos() {
                       border: "1px solid #000",
                       color: p.stock <= 5 ? "#c0392b" : "#000",
                       fontWeight: p.stock <= 5 ? "bold" : "normal",
+                      opacity: isInactive ? 0.6 : 1,
+                      textDecoration: isInactive ? "line-through" : "none",
                     }}
                   >
                     {editando?.id === p.id ? (
@@ -330,10 +328,10 @@ export default function CrudProductos() {
                       p.stock
                     )}
                   </td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                  <td style={{ padding: "10px", border: "1px solid #000", opacity: isInactive ? 0.6 : 1, textDecoration: isInactive ? "line-through" : "none" }}>
                     {isInactive ? "Inactivo" : "Activo"}
                   </td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                  <td style={{ padding: "10px", border: "1px solid #000", opacity: isInactive ? 0.6 : 1, textDecoration: isInactive ? "line-through" : "none" }}>
                     {!isInactive && (
                       <>
                         {editando?.id === p.id ? (
@@ -414,7 +412,7 @@ export default function CrudProductos() {
                       </>
                     )}
                   </td>
-                </tr>
+                </AlertaStock>
               );
             })
           ) : (
