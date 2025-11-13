@@ -1,9 +1,25 @@
 {
-  "dependencies": {
-    "@ant-design/icons": "^6.1.0",
-    "antd": "^5.28.0",
-    "axios": "^1.13.2",
-    "dayjs": "^1.11.19",
-    "react-router-dom": "^6.30.1"
-  }
+  "name": "sistemas-de-ventas-e-inventario",
+  "version": "1.0.0",
+  "description": "Sistema de Ventas e Inventario",
+  "private": true,
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build:all": "npm run build:backend && npm run build:frontend",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jacker-Lian/Sistemas-de-Ventas-e-Inventario"
+  },
+  "author": ""
 }

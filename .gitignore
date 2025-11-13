@@ -1,1 +1,6 @@
+gestion-proveedor
 node_modules
+node_modules/
+dist/
+logs/
+main

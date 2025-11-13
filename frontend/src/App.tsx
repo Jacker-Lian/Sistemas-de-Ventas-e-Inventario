@@ -4,9 +4,13 @@ import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
 import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
+import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
 import PrivateRoute from "./components/PrivateRoute";
-import Proveedor from "./components/Proveedor/Proveedor";
+import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
+import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+
+
 
 function App() {
   return (
@@ -32,7 +36,6 @@ function App() {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/inventario/ajuste"
             element={
@@ -41,14 +44,21 @@ function App() {
               </PrivateRoute>
             }
           />
-
           <Route
-            path="/proveedores"
+            path="/registrarVenta"
             element={
-              <PrivateRoute roles={["ADMIN"]}>
-                <Proveedor />
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
+                <RegistrarVenta />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/categorias" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudCategorias />
+              </PrivateRoute>
+            } 
           />
 
           <Route
@@ -58,6 +68,14 @@ function App() {
                 <HistorialVentas />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/inventario/ReporteVentas" 
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <ReporteVentas />
+              </PrivateRoute>
+            } 
           />
         </Routes>
       </AuthProvider>
