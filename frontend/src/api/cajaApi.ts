@@ -8,7 +8,7 @@ const cajaApi = axios.create({
   baseURL: API_URL,
 });
 
-// IMPORTANTE: Replicamos el interceptor de 'axios.ts' para asegurar la autenticación
+// Replicamos el interceptor de 'axios.ts' para asegurar la autenticación
 // en todas las peticiones de este módulo.
 cajaApi.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

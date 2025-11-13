@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button, message, Spin, Form, InputNumber, Select } from 'antd';
-import { CheckOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, PlusOutlined } from '@ant-design/icons';
-import Navbar from '../Navbar'; // Mantenemos el Navbar
-import { useAuth } from '../../context/AuthContext'; // Para obtener el user.id_usuario
+// Se eliminó 'CheckOutlined' por no ser usada.
+import { LoadingOutlined, LoginOutlined, LogoutOutlined, PlusOutlined } from '@ant-design/icons';
+import Navbar from '../Navbar';
+import { useAuth } from '../../context/AuthContext';
 import type { Caja as CajaType, MovimientoCaja } from '../../types/caja';
 import * as cajaApi from '../../api/cajaApi';
 import dayjs from 'dayjs';
 import './Caja.css';
-
-const { Option } = Select;
 
 function Caja() {
   const { user } = useAuth();
@@ -35,7 +34,6 @@ function Caja() {
       const { data: cajasAbiertas } = await cajaApi.fetchCajasPorEstado('ABIERTA');
       
       // 2. Filtramos en el frontend para encontrar la de este usuario
-      // (Esta lógica es más robusta si el backend asegura una sola caja abierta por usuario)
       const miCaja = cajasAbiertas.find(c => c.id_usuario === user.id_usuario);
 
       if (miCaja) {
@@ -60,8 +58,6 @@ function Caja() {
       return;
     }
     
-    // Asumimos que la sucursal está en el objeto user.
-    // Si 'id_sucursal' puede ser null, asegúrate que el backend lo maneje.
     if (user.id_sucursal === undefined) {
        console.warn("ID de sucursal no encontrado en el objeto de usuario. Enviando null.");
     }
@@ -70,7 +66,6 @@ function Caja() {
     try {
       const { data } = await cajaApi.abrirCaja(user.id_usuario, user.id_sucursal ?? null);
       message.success(`Caja #${data.id_caja} abierta exitosamente.`);
-      // Volvemos a buscar la caja para actualizar el estado
       await buscarCajaAbierta();
     } catch (error: any) {
       console.error("Error al abrir caja:", error);
@@ -96,7 +91,6 @@ function Caja() {
       await cajaApi.registrarMovimiento(movimientoData);
       message.success('Movimiento registrado correctamente.');
       formMovimiento.resetFields();
-      // Recargamos los datos de la caja para ver saldos actualizados
       await buscarCajaAbierta(); 
     } catch (error: any) {
       console.error("Error al registrar movimiento:", error);
@@ -154,8 +148,9 @@ function Caja() {
   const renderCajaAbierta = () => {
     if (!cajaAbierta) return null;
     
-    const ingresos = parseFloat(String(cajaAbierta.total_ingresos));
-    const egresos = parseFloat(String(cajaAbierta.total_egresos));
+    // Aseguramos que los valores sean números antes de operar
+    const ingresos = parseFloat(String(cajaAbierta.total_ingresos)) || 0;
+    const egresos = parseFloat(String(cajaAbierta.total_egresos)) || 0;
     const neto = ingresos - egresos;
 
     return (
@@ -209,10 +204,14 @@ function Caja() {
               name="tipo"
               rules={[{ required: true, message: 'Seleccione el tipo' }]}
             >
-              <Select placeholder="Seleccione Ingreso o Egreso">
-                <Option value="INGRESO">INGRESO (Entrada de dinero)</Option>
-                <Option value="EGRESO">EGRESO (Salida de dinero)</Option>
-              </Select>
+              {/* CORREGIDO: Usando el prop 'options' en lugar de <Option> */}
+              <Select
+                placeholder="Seleccione Ingreso o Egreso"
+                options={[
+                  { value: 'INGRESO', label: 'INGRESO (Entrada de dinero)' },
+                  { value: 'EGRESO', label: 'EGRESO (Salida de dinero)' },
+                ]}
+              />
             </Form.Item>
 
             <Form.Item
