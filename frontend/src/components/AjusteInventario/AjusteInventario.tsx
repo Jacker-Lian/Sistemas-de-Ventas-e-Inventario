@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
-import AlertaStock from '../AlertasInventario';
+import AlertaStock from '../AlertasInventario/AlertasInventario';
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
 const API_URL = 'http://localhost:3000/api'; 

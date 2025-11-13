@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AlertasInventario from "./AlertasInventario"; // <-- Importación agregada
+import AlertaStock from "./AlertasInventario/AlertasInventario"; // <-- Importación corregida
 
 interface Producto {
   id: number;
@@ -268,7 +268,7 @@ export default function CrudProductos() {
               const isInactive = Number(p.estado) === 0;
 
               return (
-                <AlertasInventario stock={p.stock} key={p.id}>
+                <AlertaStock stock={p.stock} key={p.id}>
                   <>
                     <td style={{ padding: "10px", border: "1px solid #000" }}>
                       {p.id}
@@ -420,7 +420,7 @@ export default function CrudProductos() {
                       )}
                     </td>
                   </>
-                </AlertasInventario>
+                </AlertaStock>
               );
             })
           ) : (
