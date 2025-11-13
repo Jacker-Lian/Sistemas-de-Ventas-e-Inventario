@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
+import AlertaStock from '../AlertasInventario';
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
 const API_URL = 'http://localhost:3000/api'; 
@@ -194,8 +195,59 @@ const AjusteInventario: React.FC = () => {
                     Registrar Ajuste
                 </button>
             </form>
+            {/* Tabla de Productos con Alertas de Stock */}
+            <div style={{ marginTop: "40px" }}>
+                <h3>Estado de Stock de Productos</h3>
+                <table style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    marginTop: "20px",
+                    border: "1px solid #000",
+                }}>
+                    <thead>
+                        <tr style={{
+                            background: "#000",
+                            color: "#fff",
+                            textTransform: "uppercase",
+                        }}>
+                            <th style={{ padding: "10px", border: "1px solid #000", width: "40px" }}></th>
+                            <th style={{ padding: "10px", border: "1px solid #000" }}>ID</th>
+                            <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
+                            <th style={{ padding: "10px", border: "1px solid #000" }}>Stock Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {productos.length > 0 ? (
+                            productos.map((p) => (
+                                <AlertaStock stock={p.stock} key={p.id_producto}>
+                                    <td style={{ padding: "10px", border: "1px solid #000" }}>{p.id_producto}</td>
+                                    <td style={{ padding: "10px", border: "1px solid #000" }}>{p.nombre}</td>
+                                    <td style={{
+                                        padding: "10px",
+                                        border: "1px solid #000",
+                                        color: p.stock <= 5 ? "#c0392b" : "#000",
+                                        fontWeight: p.stock <= 5 ? "bold" : "normal",
+                                    }}>
+                                        {p.stock}
+                                    </td>
+                                </AlertaStock>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={4} style={{
+                                    textAlign: "center",
+                                    color: "#999",
+                                    padding: "12px",
+                                }}>
+                                    Sin productos
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
 
-export default AjusteInventario;
+export default AjusteInventario;      
