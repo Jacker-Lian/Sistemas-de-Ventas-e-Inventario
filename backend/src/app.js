@@ -72,6 +72,10 @@ this.app.use(cors({
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+    
+    // Montar rutas de categorías
+    const categoriaRoutes = new CategoriaRoutes();
+    this.app.use('/api/categorias', categoriaRoutes.getRouter());
 
     // Montar rutas de categorías
     const categoriaRoutes = new CategoriaRoutes();
@@ -104,6 +108,7 @@ this.app.use(cors({
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
     });
+
   }
 
   getApp() {
