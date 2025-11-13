@@ -2,7 +2,7 @@ import axios from "axios";
 import type { Caja, MovimientoCaja, AbrirCajaResponse } from "../types/caja";
 
 // Usamos VITE_SERVER_URL que apunta a la raíz del backend (http://38.250.161.15:3000)
-const API_URL = `http://localhost:3000/api/caja`; 
+const API_URL = `${import.meta.env.VITE_SERVER_URL}/api/caja`; 
 
 const cajaApi = axios.create({
   baseURL: API_URL,

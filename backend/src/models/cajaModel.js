@@ -126,4 +126,4 @@ class CajaModel {
   }
 }
 
-module.exports = new CajaModel();
+module.exports = new CajaModel(); //
