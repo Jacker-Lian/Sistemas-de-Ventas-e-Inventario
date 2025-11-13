@@ -5,6 +5,9 @@ class VentasModel {
     this.table = "ventas";
   }
 
+
+  // REPORTE DE VENTAS
+
   async reporteVentaProducto(fechaInicio, fechaFin) {
     try {
       const pool = database.getPool();
@@ -26,54 +29,24 @@ class VentasModel {
           p.id_producto, p.nombre
         ORDER BY 
           cantidad_vendida DESC
-    `;
+      `;
 
       const [rows] = await pool.query(query, [fechaInicio, fechaFin]);
       return rows;
     } catch (error) {
-      throw new Error(
-        "Error al generar reporte de ventas por producto: " + error.message
-      );
+      throw new Error("Error al generar reporte de ventas por producto: " + error.message);
     }
   }
 
-  // Registrar una nueva venta
-  async registrarVenta(ventaData) {
-    /*
-    Estructura esperada de ventaData:
-      {
-        // DATOS DE LA VENTA (Encabezado)
-        "id_usuario": 2,                    // ID del cajero (REQUERIDO)
-        "id_caja": 1,                       // ID de la caja abierta (REQUERIDO)
-        "id_sucursal": 1,                   // ID de la sucursal (OPCIONAL)
-        "tipo_cliente": "ALUMNO",           // DOCENTE | ALUMNO | OTRO (REQUERIDO)
-        "metodo_pago": "EFECTIVO",          // EFECTIVO | YAPE | PLIN | OTROS (REQUERIDO)
-        "estado_venta": "COMPLETADA",       // COMPLETADA | PENDIENTE | CANCELADA (REQUERIDO)
-        
-        // PRODUCTOS VENDIDOS (Detalles)
-        "productos": [                      // Array de productos (REQUERIDO, mínimo 1)
-          {
-            "id_producto": 101,             // ID del producto (REQUERIDO)
-            "cantidad": 2,                  // Cantidad vendida (REQUERIDO, > 0)
-            "precio_unitario": 5.00         // Precio por unidad (REQUERIDO)
-          },
-          {
-            "id_producto": 102,
-            "cantidad": 3,
-            "precio_unitario": 5.17
-          }
-        ]
-      }
-    
-    */
+  // REGISTRAR VENTA
 
+  async registrarVenta(ventaData = {}, estado_venta = "PENDIENTE") {
     const connection = await database.getPool().getConnection();
 
     try {
-      // Iniciar transacción
       await connection.beginTransaction();
 
-      // 1. Validaciones de datos requeridos
+      // Validar estructura mínima
       if (
         !ventaData.id_usuario ||
         !ventaData.id_caja ||
@@ -85,85 +58,71 @@ class VentasModel {
         throw new Error("Faltan datos requeridos para registrar la venta.");
       }
 
-      // 2. Verificar que id_usuario exista y esté activo
+      // Validar estado_venta
+      estado_venta = estado_venta.toUpperCase().trim();
+      const estadosPermitidos = ["PENDIENTE", "COMPLETADA"];
+      if (!estadosPermitidos.includes(estado_venta)) {
+        throw new Error("El estado_venta debe ser 'PENDIENTE' o 'COMPLETADA'.");
+      }
+
+      // Verificar usuario
       const [usuarioRows] = await connection.query(
         "SELECT id_usuario FROM usuarios WHERE id_usuario = ? AND estado = 1",
         [ventaData.id_usuario]
       );
-      if (usuarioRows.length === 0) {
-        throw new Error("El usuario no existe o está inactivo.");
-      }
+      if (usuarioRows.length === 0) throw new Error("El usuario no existe o está inactivo.");
 
-      // 3. Verificar que id_caja exista y esté abierta
+      // Verificar caja
       const [cajaRows] = await connection.query(
         "SELECT id_caja, id_sucursal FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
         [ventaData.id_caja]
       );
-      if (cajaRows.length === 0) {
-        throw new Error("La caja no existe, está cerrada o inactiva.");
-      }
+      if (cajaRows.length === 0) throw new Error("La caja no existe, está cerrada o inactiva.");
 
-      // 4. Obtener id_sucursal de la caja si no se proporciona
       const id_sucursal = ventaData.id_sucursal || cajaRows[0].id_sucursal;
 
-      // 5. Validar productos y calcular total
+      // Validar productos y calcular total
       let totalVenta = 0;
       const productosValidados = [];
 
       for (const producto of ventaData.productos) {
-        if (
-          !producto.id_producto ||
-          !producto.cantidad ||
-          producto.cantidad <= 0 ||
-          !producto.precio_unitario ||
-          producto.precio_unitario <= 0
-        ) {
+        if (!producto.id_producto || !producto.cantidad || producto.cantidad <= 0) {
           throw new Error("Datos de producto inválidos.");
         }
 
-        // Verificar que el producto exista y tenga stock suficiente
         const [productoRows] = await connection.query(
-          "SELECT id_producto, stock, nombre FROM producto WHERE id_producto = ? AND estado = 1",
+          "SELECT id_producto, stock, nombre, precio FROM producto WHERE id_producto = ? AND estado = 1",
           [producto.id_producto]
         );
 
-        if (productoRows.length === 0) {
-          throw new Error(
-            `El producto con ID ${producto.id_producto} no existe o está inactivo.`
-          );
-        }
+        if (productoRows.length === 0)
+          throw new Error(`El producto con ID ${producto.id_producto} no existe o está inactivo.`);
 
-        if (productoRows[0].stock < producto.cantidad) {
-          throw new Error(
-            `Stock insuficiente para el producto "${productoRows[0].nombre}". Stock disponible: ${productoRows[0].stock}`
-          );
-        }
+        const productoDB = productoRows[0];
 
-        const subtotal = parseFloat(
-          (producto.cantidad * producto.precio_unitario).toFixed(2)
-        );
+        if (productoDB.stock < producto.cantidad)
+          throw new Error(
+            `Stock insuficiente para "${productoDB.nombre}". Disponible: ${productoDB.stock}, Solicitado: ${producto.cantidad}`
+          );
+
+        const precioUnitario = parseFloat(producto.precio_unitario || productoDB.precio);
+        const subtotal = parseFloat((producto.cantidad * precioUnitario).toFixed(2));
         totalVenta += subtotal;
 
         productosValidados.push({
           id_producto: producto.id_producto,
           cantidad: producto.cantidad,
-          precio_unitario: producto.precio_unitario,
+          precio_unitario: precioUnitario,
           subtotal: subtotal,
         });
       }
 
       totalVenta = parseFloat(totalVenta.toFixed(2));
 
-      // 6. Insertar la venta
+      // Insertar venta
       const [resultVenta] = await connection.query(
         `INSERT INTO ${this.table} (
-          id_usuario,
-          id_caja,
-          id_sucursal,
-          tipo_cliente,
-          metodo_pago,
-          total,
-          estado_venta
+          id_usuario, id_caja, id_sucursal, tipo_cliente, metodo_pago, total, estado_venta
         ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           ventaData.id_usuario,
@@ -172,101 +131,99 @@ class VentasModel {
           ventaData.tipo_cliente,
           ventaData.metodo_pago,
           totalVenta,
-          ventaData.estado_venta || "COMPLETADA",
+          estado_venta,
         ]
       );
 
       const id_venta = resultVenta.insertId;
 
-      // 7. Insertar detalles de venta y actualizar stock
+      // Si es PENDIENTE, solo guardar en carrito_venta
+      if (estado_venta === "PENDIENTE") {
+        for (const producto of productosValidados) {
+          await connection.query(
+            `INSERT INTO carrito_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal)
+             VALUES (?, ?, ?, ?, ?)`,
+            [id_venta, producto.id_producto, producto.cantidad, producto.precio_unitario, producto.subtotal]
+          );
+        }
+
+        await connection.commit();
+        return {
+          id_venta,
+          total: totalVenta,
+          estado: "PENDIENTE",
+          productos_en_carrito: productosValidados.length,
+        };
+      }
+
+      // Si es COMPLETADA: registrar en detalle_venta y actualizar stock
       for (const producto of productosValidados) {
-        // Insertar detalle de venta
         await connection.query(
-          `INSERT INTO detalle_venta (
-            id_venta,
-            id_producto,
-            cantidad,
-            precio_unitario,
-            subtotal
-          ) VALUES (?, ?, ?, ?, ?)`,
-          [
-            id_venta,
-            producto.id_producto,
-            producto.cantidad,
-            producto.precio_unitario,
-            producto.subtotal,
-          ]
+          `INSERT INTO detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal)
+           VALUES (?, ?, ?, ?, ?)`,
+          [id_venta, producto.id_producto, producto.cantidad, producto.precio_unitario, producto.subtotal]
         );
 
-        // Actualizar stock del producto
         await connection.query(
           "UPDATE producto SET stock = stock - ? WHERE id_producto = ?",
           [producto.cantidad, producto.id_producto]
         );
       }
 
-      // 8. Actualizar ingresos de la caja
+      // Actualizar caja (ingreso)
       await connection.query(
         "UPDATE caja SET total_ingresos = total_ingresos + ? WHERE id_caja = ?",
         [totalVenta, ventaData.id_caja]
       );
 
-      // Confirmar transacción
       await connection.commit();
 
       return {
-        id_venta: id_venta,
+        id_venta,
         total: totalVenta,
         productos_registrados: productosValidados.length,
       };
     } catch (error) {
-      // Revertir transacción en caso de error
       await connection.rollback();
       throw new Error("Error al registrar venta: " + error.message);
     } finally {
-      // Liberar conexión
       connection.release();
     }
   }
 
-  // Cancelar una venta
-  async cancelarVenta(id_venta, id_motivo) {
+
+  // CANCELAR VENTA
+
+  async cancelarVenta(id_venta, id_motivo_cancelacion) {
     const connection = await database.getPool().getConnection();
-    
+
     try {
       await connection.beginTransaction();
 
-      // Verificar que la venta exista y no esté ya cancelada
       const [ventaRows] = await connection.query(
         `SELECT id_venta, estado_venta FROM ${this.table} WHERE id_venta = ?`,
         [id_venta]
       );
-      
-      if (ventaRows.length === 0) {
+
+      if (ventaRows.length === 0)
         throw new Error("La venta con el id proporcionado no existe.");
-      }
-
-      if (ventaRows[0].estado_venta === 'CANCELADA') {
+      if (ventaRows[0].estado_venta === "CANCELADA")
         throw new Error("La venta ya está cancelada.");
-      }
 
-      // Verificar que el motivo de cancelación exista
       const [motivoRows] = await connection.query(
-        "SELECT id_motivo FROM motivos_cancelacion WHERE id_motivo = ? AND estado = 1",
-        [id_motivo]
+        "SELECT id_motivo_cancelacion FROM motivos_cancelacion WHERE id_motivo_cancelacion = ? AND estado = 1",
+        [id_motivo_cancelacion]
       );
-      
-      if (motivoRows.length === 0) {
-        throw new Error("El motivo de cancelación no existe o está inactivo.");
-      }
 
-      // Obtener detalles de la venta para restaurar stock
+      if (motivoRows.length === 0)
+        throw new Error("El motivo de cancelación no existe o está inactivo.");
+
+      // Restaurar stock
       const [detallesVenta] = await connection.query(
         "SELECT id_producto, cantidad FROM detalle_venta WHERE id_venta = ?",
         [id_venta]
       );
 
-      // Restaurar stock de productos
       for (const detalle of detallesVenta) {
         await connection.query(
           "UPDATE producto SET stock = stock + ? WHERE id_producto = ?",
@@ -274,10 +231,12 @@ class VentasModel {
         );
       }
 
-      // Actualizar la venta con estado "CANCELADA" y el motivo
+      // Actualizar estado de venta
       await connection.query(
-        `UPDATE ${this.table} SET estado_venta = 'CANCELADA', id_motivo = ? WHERE id_venta = ?`,
-        [id_motivo, id_venta]
+        `UPDATE ${this.table} 
+         SET estado_venta = 'CANCELADA', id_motivo_cancelacion = ? 
+         WHERE id_venta = ?`,
+        [id_motivo_cancelacion, id_venta]
       );
 
       await connection.commit();
@@ -290,32 +249,29 @@ class VentasModel {
     }
   }
 
-  // Obtener venta por ID
+
+  // OBTENER VENTA POR ID
   async obtenerVentaPorId(id_venta) {
     try {
       const pool = database.getPool();
-      
-      // Obtener venta principal
+
       const [ventaRows] = await pool.query(
         `SELECT * FROM ${this.table} WHERE id_venta = ?`,
         [id_venta]
       );
-      
-      if (ventaRows.length === 0) {
-        return null;
-      }
-      
+
+      if (ventaRows.length === 0) return null;
+
       const venta = ventaRows[0];
-      
-      // Obtener detalles
+
       const [detalleRows] = await pool.query(
-        `SELECT dv.*, p.nombre as nombre_producto 
-         FROM detalle_venta dv 
-         INNER JOIN producto p ON dv.id_producto = p.id_producto 
+        `SELECT dv.*, p.nombre AS nombre_producto
+         FROM detalle_venta dv
+         INNER JOIN producto p ON dv.id_producto = p.id_producto
          WHERE dv.id_venta = ?`,
         [id_venta]
       );
-      
+
       venta.detalles = detalleRows;
       return venta;
     } catch (error) {
@@ -323,7 +279,7 @@ class VentasModel {
     }
   }
 
-  // Registrar un nuevo motivo de cancelación
+  // MOTIVOS DE CANCELACIÓN
   async registrarMotivoCancelacion(descripcion) {
     try {
       const pool = database.getPool();
@@ -338,46 +294,39 @@ class VentasModel {
 
       return result.insertId;
     } catch (error) {
-      throw new Error(
-        "Error al registrar motivo de cancelación: " + error.message
-      );
+      throw new Error("Error al registrar motivo de cancelación: " + error.message);
     }
   }
 
-  // Obtener motivos de cancelación activos
   async obtenerMotivosCancelacion() {
     try {
       const pool = database.getPool();
       const [rows] = await pool.query(
-        `SELECT id_motivo, descripcion FROM motivos_cancelacion WHERE estado = 1`
+        `SELECT id_motivo_cancelacion, descripcion 
+         FROM motivos_cancelacion 
+         WHERE estado = 1`
       );
       return rows;
     } catch (error) {
-      throw new Error(
-        "Error al obtener motivos de cancelación: " + error.message
-      );
+      throw new Error("Error al obtener motivos de cancelación: " + error.message);
     }
   }
 
-  // Desactivar un motivo de cancelación
-  async desactivarMotivoCancelacion(id_motivo) {
+  async desactivarMotivoCancelacion(id_motivo_cancelacion) {
     try {
       const pool = database.getPool();
 
-      if (!id_motivo || !Number.isInteger(id_motivo) || id_motivo <= 0)
-        throw new Error(
-          "El id_motivo es requerido y debe ser un número entero positivo."
-        );
+      if (!id_motivo_cancelacion || !Number.isInteger(id_motivo_cancelacion) || id_motivo_cancelacion <= 0)
+        throw new Error("El id_motivo_cancelacion debe ser un número entero positivo.");
 
       const [result] = await pool.query(
-        `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo = ?`,
-        [id_motivo]
+        `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo_cancelacion = ?`,
+        [id_motivo_cancelacion]
       );
+
       return result.affectedRows > 0;
     } catch (error) {
-      throw new Error(
-        "Error al desactivar motivo de cancelación: " + error.message
-      );
+      throw new Error("Error al desactivar motivo de cancelación: " + error.message);
     }
   }
 }

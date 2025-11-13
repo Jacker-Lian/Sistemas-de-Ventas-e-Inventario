@@ -9,7 +9,17 @@ class VentasRoutes {
   }
 
   configurarRutas() {
-    // Todas las rutas requieren autenticación
+
+    // 🔹 Reporte de ventas por producto (pública o protegida según necesidad)
+    // Si quieres mantenerla pública como antes, quita el middleware:
+    // this.router.get('/reporte/producto', ventasController.reporteVentasPorProducto);
+    this.router.get('/reporte/producto', 
+        verificarToken, 
+        requireRole(['ADMIN']), 
+        ventasController.reporteVentasPorProducto
+    );
+
+    // 🔸 A partir de aquí, todas requieren autenticación
     this.router.use(verificarToken);
 
     // Registrar venta - ADMIN y CAJA
@@ -24,23 +34,23 @@ class VentasRoutes {
         ventasController.cancelarVenta
     );
 
-    // Obtener motivos de cancelación - ADMIN y CAJA
+    // Desactivar venta - Solo ADMIN
+    this.router.put('/desactivar', 
+        requireRole(['ADMIN']), 
+        ventasController.desactivarVentas
+    );
+
+    // Obtener motivos de cancelación (si aún lo manejas desde ventasController)
     this.router.get('/motivos-cancelacion', 
         requireRole(['ADMIN', 'CAJA']), 
         ventasController.obtenerMotivosCancelacion
     );
 
     // Obtener venta por ID
-this.router.get('/:id', 
-    requireRole(['ADMIN', 'CAJA']), 
-    ventasController.obtenerVentaPorId
-);
-
-// Reporte de ventas por producto
-this.router.get('/reporte/producto', 
-    requireRole(['ADMIN']), 
-    ventasController.reporteVentasPorProducto
-);
+    this.router.get('/:id', 
+        requireRole(['ADMIN', 'CAJA']), 
+        ventasController.obtenerVentaPorId
+    );
   }
 
   getRouter() {
