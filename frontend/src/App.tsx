@@ -4,10 +4,14 @@ import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja/Caja";
 import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import Caja from "./components/Caja";
+import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
+import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
 import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+
 
 
 
@@ -21,7 +25,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <PrivateRoute roles={['ADMIN']}>
+              <PrivateRoute roles={["ADMIN"]}>
                 <Admin />
               </PrivateRoute>
             }
@@ -29,18 +33,26 @@ function App() {
           <Route
             path="/caja"
             element={
-              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
                 <Caja />
               </PrivateRoute>
             }
           />
-          <Route 
-            path="/inventario/ajuste" 
+          <Route
+            path="/inventario/ajuste"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <AjusteInventario />
               </PrivateRoute>
-            } 
+            }
+          />
+          <Route
+            path="/registrarVenta"
+            element={
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
+                <RegistrarVenta />
+              </PrivateRoute>
+            }
           />
           <Route 
             path="/categorias" 
@@ -53,7 +65,7 @@ function App() {
           <Route
             path="/ventas/historial"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <HistorialVentas />
               </PrivateRoute>
             }
@@ -73,4 +85,3 @@ function App() {
 }
 
 export default App;
-
