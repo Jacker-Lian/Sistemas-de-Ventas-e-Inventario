@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Login, Admin, Caja, AjusteInventario, PrivateRoute, 
-  CrudCategorias, HistorialVentas, ReporteVentas, Gastos  } from './components';
+  CrudCategorias, RegistrarVenta, HistorialVentas, ReporteVentas, Gastos  } from './components';
 
 function App() {
   return (
