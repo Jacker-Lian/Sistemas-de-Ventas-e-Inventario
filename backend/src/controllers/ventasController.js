@@ -222,20 +222,8 @@ const ventasController = {
         message: "Error al desactivar las ventas: " + error.message,
       });
     }
-  },
+  }
 
-  // Controladores extra para probar funcionalidades de gestion de categorias
-
-  obtenerCategorias: async (req, res) => {
-    try {
-      const categorias = await ventasModelInstance.obtenerCategorias();
-      return res.status(200).json(categorias);
-    } catch (error) {
-      return res.status(500).json({
-        message: "Error al obtener las categorías: " + error.message,
-      });
-    }
-  },
 };
 
 module.exports = ventasController;

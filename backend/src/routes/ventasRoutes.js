@@ -27,11 +27,6 @@ class VentasRoutes {
     this.router.get('/Obtener-motivo-cancelacion-por-id', motivoCancelacionController.getById);
     this.router.put('/Actualizar-motivo-cancelacion', motivoCancelacionController.update);
 
-
-
-    // Ruta extra para probar funcionalidad inexistente en PR
-    // Borrar cuando se integre PR de gestion de categorias
-    this.router.get('/Obtener-categorias', ventasController.obtenerCategorias);
   }
 
   getRouter() {
