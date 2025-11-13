@@ -3,7 +3,7 @@ import { Button, message, Spin, Form, InputNumber, Select } from 'antd';
 import { CheckOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, PlusOutlined } from '@ant-design/icons';
 import Navbar from '../Navbar'; // Mantenemos el Navbar
 import { useAuth } from '../../context/AuthContext'; // Para obtener el user.id_usuario
-import { Caja as CajaType, MovimientoCaja } from '../../types/caja';
+import type { Caja as CajaType, MovimientoCaja } from '../../types/caja';
 import * as cajaApi from '../../api/cajaApi';
 import dayjs from 'dayjs';
 import './Caja.css';
