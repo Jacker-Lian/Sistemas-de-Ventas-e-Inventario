@@ -35,6 +35,13 @@ export default function GastoCreateCard({ tiposGasto, onClose, onCreated }: Prop
   }, [formData.precio_unitario, formData.cantidad, formData.impuesto]);
 
   const handleChange = (field: string, value: any) => {
+    // Validar que no se permitan valores negativos
+    if (["precio_unitario", "cantidad", "impuesto"].includes(field)) {
+      const numValue = Number(value);
+      if (numValue < 0) {
+        return;
+      }
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

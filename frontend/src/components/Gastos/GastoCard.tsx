@@ -29,6 +29,13 @@ export default function GastoCard({ gasto, tiposGasto, onClose, onUpdated, onDel
   }, [gasto]);
 
   const handleChange = (field: string, value: any) => {
+    // Validar que no se permitan valores negativos
+    if (field === "monto") {
+      const numValue = Number(value);
+      if (numValue < 0) {
+        return;
+      }
+    }
     setEditData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -76,6 +83,8 @@ export default function GastoCard({ gasto, tiposGasto, onClose, onUpdated, onDel
         <label>Monto</label>
         <input
           type="number"
+          min="0"
+          step="0.01"
           value={editData.monto}
           onChange={(e) => handleChange("monto", Number(e.target.value))}
         />
