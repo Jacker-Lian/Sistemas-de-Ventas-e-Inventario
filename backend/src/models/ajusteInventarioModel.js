@@ -1,10 +1,11 @@
 const db = require('../config/database');
 
 const AjusteInventarioModel = {
+    // Crear un nuevo ajuste de inventario
     crear: async (datos) => {
         const {
             id_producto,
-            tipo_ajuste,
+            tipo_ajuste,      // 'AUMENTO' o 'DISMINUCION'
             id_usuario,
             observaciones,
             id_sucursal
@@ -15,7 +16,7 @@ const AjusteInventarioModel = {
             connection = await db.getPool().getConnection();
             await connection.beginTransaction();
 
-            // Obtener stock actual
+            // 1. Obtener stock actual y validar que el producto existe
             const [productRows] = await connection.query(
                 'SELECT stock, nombre FROM producto WHERE id_producto = ? AND estado = 1',
                 [id_producto]
@@ -28,25 +29,23 @@ const AjusteInventarioModel = {
             const stock_actual = productRows[0].stock;
             const nombre_producto = productRows[0].nombre;
 
-            // El nuevo stock dependerá del tipo de ajuste
-            const stock_nuevo =
-                tipo_ajuste === 'AUMENTO'
-                    ? stock_actual + 1
-                    : tipo_ajuste === 'DISMINUCION'
-                    ? stock_actual - 1
-                    : stock_actual;
+            // 2. Calcular nuevo stock según el tipo de ajuste
+            // AUMENTO: +1, DISMINUCION: -1
+            const stock_nuevo = tipo_ajuste === 'AUMENTO' 
+                ? stock_actual + 1 
+                : stock_actual - 1;
 
             if (stock_nuevo < 0) {
                 throw new Error('El ajuste no puede dejar el stock con valor negativo.');
             }
 
-            // Actualizar producto
+            // 3. Actualizar el stock en la tabla producto
             await connection.query(
                 'UPDATE producto SET stock = ? WHERE id_producto = ?',
                 [stock_nuevo, id_producto]
             );
 
-            // Registrar ajuste
+            // 4. Registrar el ajuste en la tabla ajustes_inventario
             const [resultado] = await connection.query(
                 `INSERT INTO ajustes_inventario 
                  (id_producto, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal)
@@ -71,6 +70,7 @@ const AjusteInventarioModel = {
         }
     },
 
+    // Obtener todos los ajustes con filtros y paginación
     obtenerTodos: async (filtros = {}) => {
         try {
             const pool = db.getPool();
@@ -111,6 +111,11 @@ const AjusteInventarioModel = {
                 params.push(filtros.id_sucursal);
             }
 
+            if (filtros.id_usuario) {
+                whereClauses.push("ai.id_usuario = ?");
+                params.push(filtros.id_usuario);
+            }
+
             if (filtros.fecha_inicio) {
                 whereClauses.push("DATE(ai.fecha_creacion) >= ?");
                 params.push(filtros.fecha_inicio);
@@ -127,6 +132,7 @@ const AjusteInventarioModel = {
 
             query += ` ORDER BY ai.fecha_creacion DESC`;
 
+            // Paginación
             if (filtros.limit) {
                 const limit = parseInt(filtros.limit) || 50;
                 const offset = filtros.page ? (parseInt(filtros.page) - 1) * limit : 0;
@@ -149,6 +155,7 @@ const AjusteInventarioModel = {
         }
     },
 
+    // Obtener ajustes de un producto específico
     obtenerPorProducto: async (idProducto, filtros = {}) => {
         try {
             const pool = db.getPool();
@@ -184,6 +191,11 @@ const AjusteInventarioModel = {
 
             query += ` ORDER BY ai.fecha_creacion DESC`;
 
+            if (filtros.limit) {
+                query += ` LIMIT ?`;
+                params.push(parseInt(filtros.limit));
+            }
+
             const [ajustes] = await pool.query(query, params);
             return ajustes;
         } catch (error) {
@@ -191,17 +203,21 @@ const AjusteInventarioModel = {
         }
     },
 
+    // Obtener estadísticas de ajustes
     obtenerEstadisticas: async (filtros = {}) => {
         try {
             const pool = db.getPool();
 
             let query = `
                 SELECT 
-                    COUNT(*) AS total_ajustes, 
-                    COUNT(DISTINCT id_producto) AS productos_afectados 
-                FROM ajustes_inventario 
+                    COUNT(*) AS total_ajustes,
+                    SUM(CASE WHEN tipo_ajuste = 'AUMENTO' THEN 1 ELSE 0 END) AS total_aumentos,
+                    SUM(CASE WHEN tipo_ajuste = 'DISMINUCION' THEN 1 ELSE 0 END) AS total_disminuciones,
+                    COUNT(DISTINCT id_producto) AS productos_afectados
+                FROM ajustes_inventario
                 WHERE 1=1
             `;
+            
             const params = [];
 
             if (filtros.fecha_inicio) {
