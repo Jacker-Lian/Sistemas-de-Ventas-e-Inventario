@@ -15,6 +15,7 @@ function Admin() {
   }
 
   const cards = [
+<<<<<<< HEAD
     {
       title: "Dashboard General",
       desc: "Vistas con totales, productos más vendidos y alertas de stock.",
@@ -65,6 +66,17 @@ function Admin() {
       desc: "Gestionar información de proveedores.",
       to: "/admin/proveedores",
     },
+=======
+    { title: "Usuarios", desc: "Gestionar usuarios del sistema", to: "/admin/usuarios" },
+    { title: "Productos", desc: "Gestionar productos e inventario", to: "/admin/productos" },
+    { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
+    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
+    { title: "Registrar Venta", desc: "Registro de Ventas", to: "/registrarVenta" },
+    { title: "categorías", desc: "Gestionar categorías de productos", to: "/categorias" },
+    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },
+    { title: "Reporte de Ventas", desc: "Ver reportes y estadísticas de ventas", to: "/inventario/ReporteVentas" },
+    { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
+>>>>>>> origin/Dashboard/General
   ];
 
   return (
@@ -107,5 +119,9 @@ function Admin() {
     </>
   );
 }
+<<<<<<< HEAD
 
 export default Admin;
+=======
+export default Admin;
+>>>>>>> origin/Dashboard/General
