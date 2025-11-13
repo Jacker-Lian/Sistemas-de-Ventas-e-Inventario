@@ -1,5 +1,4 @@
 const ProveedorModel = require("../models/proveedorModel");
-
 const proveedorModelInstance = new ProveedorModel();
 
 const proveedorController = {
@@ -17,13 +16,18 @@ const proveedorController = {
   // Obtener proveedor por ID
   obtenerProveedorPorId: async (req, res) => {
     try {
-      const { id } = req.params;
+      const id = parseInt(req.params.id, 10);
+
+      // ✅ Validar ID
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ message: "ID de proveedor inválido" });
+      }
+
       const proveedor = await proveedorModelInstance.obtenerProveedorPorId(id);
-      
       if (!proveedor) {
         return res.status(404).json({ message: "Proveedor no encontrado" });
       }
-      
+
       return res.status(200).json(proveedor);
     } catch (error) {
       console.error('Error al obtener proveedor:', error);
@@ -34,17 +38,25 @@ const proveedorController = {
   // Crear nuevo proveedor
   crearProveedor: async (req, res) => {
     try {
-      const proveedorData = req.body;
+      const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // Validar datos requeridos
-      if (!proveedorData.nombre) {
-        return res.status(400).json({ message: "El nombre del proveedor es requerido" });
+      // ✅ Validar todos los campos requeridos
+      if (!nombre || !ruc || !telefono || !direccion || !correo || !producto_principal) {
+        return res.status(400).json({ message: "Todos los campos son obligatorios" });
       }
 
-      const nuevoId = await proveedorModelInstance.crearProveedor(proveedorData);
-      return res.status(201).json({ 
+      const nuevoId = await proveedorModelInstance.crearProveedor({
+        nombre,
+        ruc,
+        telefono,
+        direccion,
+        correo,
+        producto_principal
+      });
+
+      return res.status(201).json({
         message: "Proveedor creado exitosamente",
-        id_proveedor: nuevoId 
+        id_proveedor: nuevoId
       });
     } catch (error) {
       console.error('Error al crear proveedor:', error);
@@ -55,16 +67,29 @@ const proveedorController = {
   // Actualizar proveedor
   actualizarProveedor: async (req, res) => {
     try {
-      const { id } = req.params;
-      const proveedorData = req.body;
+      const id = parseInt(req.params.id, 10);
 
-      // Validar datos requeridos
-      if (!proveedorData.nombre) {
-        return res.status(400).json({ message: "El nombre del proveedor es requerido" });
+      // ✅ Validar ID
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ message: "ID de proveedor inválido" });
       }
 
-      const actualizado = await proveedorModelInstance.actualizarProveedor(id, proveedorData);
-      
+      const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
+
+      // ✅ Validar todos los campos requeridos
+      if (!nombre || !ruc || !telefono || !direccion || !correo || !producto_principal) {
+        return res.status(400).json({ message: "Todos los campos son obligatorios" });
+      }
+
+      const actualizado = await proveedorModelInstance.actualizarProveedor(id, {
+        nombre,
+        ruc,
+        telefono,
+        direccion,
+        correo,
+        producto_principal
+      });
+
       if (!actualizado) {
         return res.status(404).json({ message: "Proveedor no encontrado" });
       }
@@ -79,9 +104,15 @@ const proveedorController = {
   // Desactivar proveedor
   desactivarProveedor: async (req, res) => {
     try {
-      const { id } = req.params;
+      const id = parseInt(req.params.id, 10);
+
+      // ✅ Validar ID
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ message: "ID de proveedor inválido" });
+      }
+
       const desactivado = await proveedorModelInstance.desactivarProveedor(id);
-      
+
       if (!desactivado) {
         return res.status(404).json({ message: "Proveedor no encontrado" });
       }

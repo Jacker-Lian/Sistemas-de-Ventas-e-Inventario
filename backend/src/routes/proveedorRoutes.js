@@ -8,21 +8,22 @@ class ProveedorRoutes {
   }
 
   configurarRutas() {
-    // Obtener todos los proveedores
-    this.router.get('/', proveedorController.obtenerProveedores);
+  // Obtener todos los proveedores
+  this.router.get('/ObtenerProveedores', proveedorController.obtenerProveedores);
 
-    // Obtener proveedor por ID
-    this.router.get('/:id', proveedorController.obtenerProveedorPorId);
+  // Obtener proveedor por ID
+  this.router.get('/ObtenerProveedorPorId/:id', proveedorController.obtenerProveedorPorId);
 
-    // Crear nuevo proveedor
-    this.router.post('/', proveedorController.crearProveedor);
+  // Crear nuevo proveedor
+  this.router.post('/CrearProveedor', proveedorController.crearProveedor);
 
-    // Actualizar proveedor
-    this.router.put('/:id', proveedorController.actualizarProveedor);
+  // Actualizar proveedor
+  this.router.put('/ActualizarProveedor/:id', proveedorController.actualizarProveedor);
 
-    // Desactivar proveedor
-    this.router.delete('/:id', proveedorController.desactivarProveedor);
-  }
+  // Desactivar proveedor
+  this.router.delete('/DesactivarProveedor/:id', proveedorController.desactivarProveedor);
+}
+
 
   getRouter() {
     return this.router;

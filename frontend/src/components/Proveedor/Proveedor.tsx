@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, message, Popconfirm } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  message,
+  Popconfirm,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import axios from 'axios';
 
 interface Proveedor {
@@ -18,8 +31,13 @@ const Proveedor = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editando, setEditando] = useState(false);
-  const [proveedorActual, setProveedorActual] = useState<Proveedor | null>(null);
+  const [proveedorActual, setProveedorActual] = useState<Proveedor | null>(
+    null
+  );
   const [form] = Form.useForm();
+
+  // ✅ URL base configurable desde .env
+  const baseURL = import.meta.env.VITE_SERVER_URL;
 
   const columns = [
     {
@@ -66,7 +84,12 @@ const Proveedor = () => {
             okText="Sí"
             cancelText="No"
           >
-            <Button type="primary" danger icon={<DeleteOutlined />} size="small">
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+            >
               Eliminar
             </Button>
           </Popconfirm>
@@ -75,6 +98,7 @@ const Proveedor = () => {
     },
   ];
 
+  // ✅ Cargar proveedores al montar el componente
   useEffect(() => {
     cargarProveedores();
   }, []);
@@ -82,7 +106,7 @@ const Proveedor = () => {
   const cargarProveedores = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/proveedores');
+      const response = await axios.get(`${baseURL}/api/proveedores`);
       setProveedores(response.data);
     } catch (error) {
       message.error('Error al cargar proveedores');
@@ -108,7 +132,7 @@ const Proveedor = () => {
 
   const handleEliminar = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3000/api/proveedores/${id}`);
+      await axios.delete(`${baseURL}/api/proveedores/${id}`);
       message.success('Proveedor eliminado exitosamente');
       cargarProveedores();
     } catch (error) {
@@ -121,12 +145,12 @@ const Proveedor = () => {
     try {
       if (editando && proveedorActual) {
         await axios.put(
-          `http://localhost:3000/api/proveedores/${proveedorActual.id_proveedor}`,
+          `${baseURL}/api/proveedores/${proveedorActual.id_proveedor}`,
           values
         );
         message.success('Proveedor actualizado exitosamente');
       } else {
-        await axios.post('http://localhost:3000/api/proveedores', values);
+        await axios.post(`${baseURL}/api/proveedores`, values);
         message.success('Proveedor creado exitosamente');
       }
       setModalVisible(false);
@@ -205,7 +229,10 @@ const Proveedor = () => {
           </Form.Item>
 
           <Form.Item label="Producto Principal" name="producto_principal">
-            <Input placeholder="Producto principal que suministra" maxLength={100} />
+            <Input
+              placeholder="Producto principal que suministra"
+              maxLength={100}
+            />
           </Form.Item>
 
           <Form.Item>

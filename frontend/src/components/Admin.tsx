@@ -20,6 +20,7 @@ function Admin() {
     { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
     { title: "Proveedores", desc: "Gestionar proveedores y contactos", to: "/proveedores" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
+    { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
   ];
 
   return (

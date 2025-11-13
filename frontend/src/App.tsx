@@ -3,9 +3,10 @@ import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
-import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
+import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
 import PrivateRoute from "./components/PrivateRoute";
-import Proveedor from './components/Proveedor/Proveedor';              
+import Proveedor from "./components/Proveedor/Proveedor";
+import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 
 function App() {
   return (
@@ -17,34 +18,46 @@ function App() {
           <Route
             path="/admin"
             element={
-              <PrivateRoute roles={['ADMIN']}>
+              <PrivateRoute roles={["ADMIN"]}>
                 <Admin />
               </PrivateRoute>
             }
           />
+
           <Route
             path="/caja"
             element={
-              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
                 <Caja />
               </PrivateRoute>
             }
           />
-          <Route 
-            path="/inventario/ajuste" 
+
+          <Route
+            path="/inventario/ajuste"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <AjusteInventario />
               </PrivateRoute>
-            } 
+            }
           />
-          <Route 
-            path="/proveedores" 
+
+          <Route
+            path="/proveedores"
             element={
-              <PrivateRoute roles={['ADMIN']}>
+              <PrivateRoute roles={["ADMIN"]}>
                 <Proveedor />
               </PrivateRoute>
-            } 
+            }
+          />
+
+          <Route
+            path="/ventas/historial"
+            element={
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
+                <HistorialVentas />
+              </PrivateRoute>
+            }
           />
         </Routes>
       </AuthProvider>
@@ -53,4 +66,3 @@ function App() {
 }
 
 export default App;
-
