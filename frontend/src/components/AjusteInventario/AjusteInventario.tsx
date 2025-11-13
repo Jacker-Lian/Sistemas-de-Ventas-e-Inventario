@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
-const API_URL = 'http://localhost:3000/api'; 
+const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
@@ -18,21 +18,28 @@ const AjusteInventario: React.FC = () => {
     const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'success' | 'error' | '' }>({ texto: '', tipo: '' });
 
     // --- EFECTO: Cargar Productos ---
-    useEffect(() => {
-        const fetchProductos = async () => {
-            try {
-                // Llama al GET /api/productos
-                const response = await fetch(`${API_URL}/productos`);
-                if (!response.ok) throw new Error('No se pudo cargar la lista de productos.');
-                const data: Producto[] = await response.json();
-                setProductos(data);
-            } catch (error: any) {
-                console.error("Error al cargar productos:", error);
-                setMensaje({ texto: `Error al cargar los productos: ${error.message}`, tipo: 'error' });
-            }
-        };
-        fetchProductos();
-    }, []);
+     useEffect(() => {
+  const fetchProductos = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/productos/obtenerProductos`);
+      if (!response.ok) throw new Error('No se pudo cargar la lista de productos.');
+
+      const data = await response.json();
+
+      // data.productos debe ser un arreglo
+      const productosArray: Producto[] = Array.isArray(data.productos) ? data.productos : [];
+      
+      // Filtrar productos inválidos
+      const productosValidos = productosArray.filter(p => p && p.id_producto != null);
+
+      setProductos(productosValidos);
+    } catch (error: any) {
+      console.error("Error al cargar productos:", error);
+      setMensaje({ texto: `Error al cargar los productos: ${error.message}`, tipo: 'error' });
+    }
+  };
+  fetchProductos();
+}, []);
 
     // --- MANEJADORES DE CAMBIO ---
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -41,11 +48,15 @@ const AjusteInventario: React.FC = () => {
     };
 
     const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const id = parseInt(e.target.value);
-        setFormData(prev => ({ ...prev, id_producto: id }));
-        
-        // Muestra el stock del producto seleccionado
-        const selectedProduct = productos.find(p => p.id_producto === id);
+        const value = e.target.value;
+        const idProducto = value === "" ? "" : parseInt(value); // si es vacío, asignamos "", sino número
+        setFormData(prev => ({
+            ...prev,
+            id_producto: idProducto
+        }));
+
+        // Mostrar stock del producto seleccionado
+        const selectedProduct = productos.find(p => p.id_producto === idProducto);
         setStockActual(selectedProduct ? selectedProduct.stock : null);
     };
 
@@ -137,15 +148,15 @@ const AjusteInventario: React.FC = () => {
                     <label htmlFor="id_producto">Producto a Ajustar:</label>
                     <select 
                         name="id_producto" 
-                        value={formData.id_producto} 
+                        value={formData.id_producto !== '' ? formData.id_producto.toString() : ''}
                         onChange={handleProductChange}
                         required
                     >
                         <option value="">-- Seleccione un producto --</option>
                         {productos.map(p => (
-                            <option key={p.id_producto} value={p.id_producto}>
-                                {p.nombre} (Stock: {p.stock})
-                            </option>
+                        <option key={p.id_producto} value={p.id_producto?.toString() ?? ''}>
+                            {p.nombre} (Stock: {p.stock})
+                        </option>
                         ))}
                     </select>
                 </div>

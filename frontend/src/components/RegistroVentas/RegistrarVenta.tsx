@@ -19,7 +19,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 // Obtener la URL base desde variables de entorno
-const BASE_URL = import.meta.env.SERVER_URL || "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 function RegistrarVenta() {
   const { user } = useAuth();

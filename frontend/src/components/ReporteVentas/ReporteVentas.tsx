@@ -4,7 +4,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-const Base_url = import.meta.env.Server || 'http://localhost:3000' ;
+const Base_url = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 interface VentaProducto {
   id_producto: number;

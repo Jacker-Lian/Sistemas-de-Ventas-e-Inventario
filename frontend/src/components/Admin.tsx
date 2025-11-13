@@ -17,8 +17,6 @@ function Admin() {
   const cards = [
     { title: "Usuarios", desc: "Gestionar usuarios del sistema", to: "/admin/usuarios" },
     { title: "Productos", desc: "Gestionar productos e inventario", to: "/admin/productos" },
-    { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
-    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
     { title: "Registrar Venta", desc: "Registro de Ventas", to: "/registrarVenta" },
     { title: "categorías", desc: "Gestionar categorías de productos", to: "/categorias" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },

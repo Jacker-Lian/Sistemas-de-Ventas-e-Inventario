@@ -9,12 +9,13 @@ class ProductoRouters {
   }
 
   configurarRutas() {
-    // Aplicar middleware de autenticación a todas las rutas
-    this.router.use(verificarToken);
-
-    // Ruta para obtener/buscar productos
+        // Ruta para obtener/buscar productos
+        
     this.router.route('/obtenerProductos')
       .get(productoController.obtenerProductos);
+
+    // Aplicar middleware de autenticación a todas las rutas
+    this.router.use(verificarToken);
 
     // Ruta para obtener productos por categoría
     this.router.route('/obtenerProductosPorCategoria/:id_categoria')
