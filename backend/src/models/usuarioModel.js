@@ -22,7 +22,7 @@ class UsuarioModel {
     }
   }
 
-  async crearUsuario({ nombre_usuario, email_usuario, password_hash, rol_usuario = 'USER', estado = 1 }) {
+  async crearUsuario({ nombre_usuario, email_usuario, password_hash, rol_usuario = 'CAJA', estado = 1 }) {
     try {
       const pool = database.getPool();
       const [result] = await pool.query(

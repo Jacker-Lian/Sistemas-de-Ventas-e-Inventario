@@ -6,7 +6,7 @@ const Register: React.FC = () => {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rol, setRol] = useState('USER');
+  const [rol, setRol] = useState('CAJA');
   const [mensaje, setMensaje] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -96,8 +96,8 @@ const Register: React.FC = () => {
 
           <label>
             Rol
-            <select name="rol_usuario" value={rol} onChange={(e) => setRol(e.target.value)}>
-              <option value="USER">Usuario</option>
+              <select name="rol_usuario" value={rol} onChange={(e) => setRol(e.target.value)}>
+              <option value="CAJA">Caja</option>
               <option value="ADMIN">Administrador</option>
             </select>
           </label>

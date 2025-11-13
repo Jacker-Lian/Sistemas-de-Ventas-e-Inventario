@@ -90,7 +90,7 @@ authController.register = async (req, res) => {
     if (existing) return res.status(409).json({ message: 'El email ya está registrado' });
 
     const hashed = await bcrypt.hash(password, 10);
-    const role = (rol_usuario && String(rol_usuario).toUpperCase() === 'ADMIN') ? 'ADMIN' : 'USER';
+  const role = (rol_usuario && String(rol_usuario).toUpperCase() === 'ADMIN') ? 'ADMIN' : 'CAJA';
 
     const user = await usuarioModel.crearUsuario({ nombre_usuario, email_usuario, password_hash: hashed, rol_usuario: role, estado: 1 });
 
@@ -149,7 +149,7 @@ authController.updateUser = async (req, res) => {
     if (nombre_usuario) fields.nombre_usuario = nombre_usuario;
     if (email_usuario) fields.email_usuario = email_usuario;
     if (typeof estado !== 'undefined') fields.estado = estado ? 1 : 0;
-    if (rol_usuario) fields.rol_usuario = String(rol_usuario).toUpperCase() === 'ADMIN' ? 'ADMIN' : 'USER';
+  if (rol_usuario) fields.rol_usuario = String(rol_usuario).toUpperCase() === 'ADMIN' ? 'ADMIN' : 'CAJA';
     if (password) {
       fields.password_hash = await bcrypt.hash(password, 10);
     }

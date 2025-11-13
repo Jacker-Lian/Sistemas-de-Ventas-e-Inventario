@@ -39,7 +39,7 @@ function Admin() {
 
           <div className="admin-user">
             <div className="admin-user-name">{user.nombre_usuario}</div>
-            <div className="admin-user-role">{user.rol_usuario ?? "Usuario"}</div>
+            <div className="admin-user-role">{user.rol_usuario ?? "Caja"}</div>
           </div>
         </div>
 
