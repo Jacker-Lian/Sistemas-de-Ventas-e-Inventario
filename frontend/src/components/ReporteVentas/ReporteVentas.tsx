@@ -107,7 +107,7 @@ const ReporteVentas = () => {
           loading={loading}
           pagination={{ pageSize: 10 }}
           bordered
-          summary={pageData => {
+          summary={(pageData: VentaProducto[]) => {
             let totalVentas = 0;
             let totalUnidades = 0;
 
