@@ -6,7 +6,7 @@ class CajaRoutes {
     this.router = express.Router();
     this.configurarRutas();
   }
-
+// enpoints para gestionar caja
   configurarRutas() {
     this.router.post("/abrir", cajaController.abrirCaja);
     this.router.post("/movimiento", cajaController.registrarMovimiento);

@@ -1,4 +1,5 @@
-const cajaModel = require("../models/cajaModel");
+const CajaModel = require("../models/cajaModel");
+const cajaModel = new CajaModel();
 
 const cajaController = {
   abrirCaja: async (req, res) => {
