@@ -77,9 +77,6 @@ this.app.use(cors({
     const categoriaRoutes = new CategoriaRoutes();
     this.app.use('/api/categorias', categoriaRoutes.getRouter());
 
-    // Montar rutas de categorías
-    const categoriaRoutes = new CategoriaRoutes();
-    this.app.use('/api/categorias', categoriaRoutes.getRouter());
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
