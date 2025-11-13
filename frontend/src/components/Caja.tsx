@@ -1,4 +1,5 @@
 import Navbar from "./Navbar";
+import Dashboard from "./Dashboard"; // 👈 Importamos el Dashboard
 
 function Caja() {
   return (
@@ -8,6 +9,8 @@ function Caja() {
         <h2>Bienvenido al Módulo de Caja</h2>
         <p>Registra ventas, imprime boletas y consulta inventario.</p>
       </div>
+
+      <Dashboard />
     </>
   );
 }

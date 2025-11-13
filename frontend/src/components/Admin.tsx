@@ -15,10 +15,56 @@ function Admin() {
   }
 
   const cards = [
-    { title: "Usuarios", desc: "Gestionar usuarios del sistema", to: "/admin/usuarios" },
-    { title: "Productos", desc: "Gestionar productos e inventario", to: "/admin/productos" },
-    { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
-    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
+    {
+      title: "Dashboard General",
+      desc: "Vistas con totales, productos más vendidos y alertas de stock.",
+      to: "/admin/dashboard",
+    },
+    {
+      title: "Usuarios",
+      desc: "Gestionar usuarios del sistema.",
+      to: "/admin/usuarios",
+    },
+    {
+      title: "Productos",
+      desc: "Gestionar productos e inventario.",
+      to: "/admin/productos",
+    },
+    {
+      title: "Ventas",
+      desc: "Revisar y gestionar ventas.",
+      to: "/admin/ventas",
+    },
+    {
+      title: "Registrar Venta",
+      desc: "Registrar ventas nuevas y emitir comprobantes.",
+      to: "/registrarVenta",
+    },
+    {
+      title: "Categorías",
+      desc: "Gestionar categorías de productos.",
+      to: "/categorias",
+    },
+    {
+      title: "Ajustes de Inventario",
+      desc: "Ajustes y movimientos de inventario.",
+      to: "/inventario/ajuste",
+    },
+    {
+      title: "Historial de Ventas",
+      desc: "Consulta todas las ventas realizadas.",
+      to: "/ventas/historial",
+    },
+    {
+      title: "Reportes de Ventas",
+      desc: "Ver reportes y estadísticas de ventas.",
+      to: "/inventario/ReporteVentas",
+    },
+    {
+      title: "Proveedores",
+      desc: "Gestionar información de proveedores.",
+      to: "/admin/proveedores",
+    },
   ];
 
   return (
@@ -29,7 +75,9 @@ function Admin() {
           <div className="admin-welcome">
             <h2 className="muted-small">Bienvenido al</h2>
             <h1 className="title">Panel de Administración</h1>
-            <p className="lead muted">Accesos rápidos y herramientas administrativas para gestionar el sistema.</p>
+            <p className="lead muted">
+              Accesos rápidos y herramientas administrativas para gestionar el sistema.
+            </p>
           </div>
 
           <div className="admin-user">
@@ -42,7 +90,9 @@ function Admin() {
           {cards.map((c) => (
             <article key={c.title} className="admin-card" aria-labelledby={`card-${c.title}`}>
               <div>
-                <h3 id={`card-${c.title}`} className="admin-card-title">{c.title}</h3>
+                <h3 id={`card-${c.title}`} className="admin-card-title">
+                  {c.title}
+                </h3>
                 <p className="admin-card-desc">{c.desc}</p>
               </div>
               <div className="admin-card-actions">
@@ -57,5 +107,5 @@ function Admin() {
     </>
   );
 }
+
 export default Admin;
-// ...existing code...
