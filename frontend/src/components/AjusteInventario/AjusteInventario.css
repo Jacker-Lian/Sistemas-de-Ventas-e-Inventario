@@ -83,6 +83,29 @@
     transform: translateY(-1px);
 }
 
+/* Contenedor para acciones adicionales */
+.acciones-ajuste {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.btn-crud {
+    display: inline-block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.08s;
+}
+
+.btn-crud:hover {
+    background-color: #0069d9;
+    transform: translateY(-1px);
+}
+
 /* Estilos de Alerta */
 .alerta {
     padding: 15px;
