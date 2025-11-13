@@ -22,6 +22,7 @@ class App {
 
 const ALLOWED_ORIGINS = [
   "http://localhost:5173",       // para desarrollo local
+  "http://127.0.0.1:5173",       // para desarrollo local (codespaces?)
   "http://38.250.161.15"         // para producción
 ];
 
