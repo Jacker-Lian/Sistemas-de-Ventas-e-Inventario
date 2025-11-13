@@ -20,6 +20,7 @@ function Admin() {
     { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/admin/ajustes" },
     { title: "Control de Stock", desc: "Monitorear y gestionar el inventario en tiempo real", to: "/admin/control-stock" },
+    { title: "Registrar Venta", desc: "Registro de Ventas", to: "/registrarVenta" },
     { title: "categorías", desc: "Gestionar categorías de productos", to: "/categorias" },
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },
     { title: "Reporte de Ventas", desc: "Ver reportes y estadísticas de ventas", to: "/inventario/ReporteVentas" },

@@ -38,6 +38,22 @@ class App {
       },
       credentials: true
     }));
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",       // para desarrollo local
+  "http://127.0.0.1:5173",       // para desarrollo local (codespaces?)
+  "http://38.250.161.15"         // para producción
+];
+
+this.app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS no permitido para este origen: " + origin));
+    }
+  },
+  credentials: true
+}));
 
     this.app.use(cookieParser());
     this.app.use(express.json());

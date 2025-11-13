@@ -4,6 +4,8 @@ import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
 import AjusteInventario from './components/AjusteInventario/AjusteInventario';
+import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
+import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
 import PrivateRoute from "./components/PrivateRoute";
 import ControlStock from './components/control-stock';
 import CrudCategorias from "./components/CategoriaTable";
@@ -22,7 +24,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <PrivateRoute roles={['ADMIN']}>
+              <PrivateRoute roles={["ADMIN"]}>
                 <Admin />
               </PrivateRoute>
             }
@@ -30,7 +32,7 @@ function App() {
           <Route
             path="/caja"
             element={
-              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
                 <Caja />
               </PrivateRoute>
             }
@@ -38,7 +40,7 @@ function App() {
           <Route
             path="/inventario/ajuste"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <AjusteInventario />
               </PrivateRoute>
             }
@@ -50,6 +52,11 @@ function App() {
             element={
               <PrivateRoute roles={['ADMIN']}>
                 <ControlStock /> {/* <-- Usa el componente importado */}
+          <Route
+            path="/registrarVenta"
+            element={
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
+                <RegistrarVenta />
               </PrivateRoute>
             }
           />
@@ -64,7 +71,7 @@ function App() {
           <Route
             path="/ventas/historial"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <HistorialVentas />
               </PrivateRoute>
             }
@@ -84,4 +91,3 @@ function App() {
 }
 
 export default App;
-
