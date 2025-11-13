@@ -9,6 +9,7 @@ const CajaRoutes = require("./routes/cajaRoutes");
 const ProductoRouters = require("./routes/productoRouters");
 const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
 const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
+const SucursalRoutes = require("./routes/sucursalRoutes");
 
 class App {
   constructor() {
@@ -60,6 +61,7 @@ this.app.use(cors({
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
           Proveedores: "/api/proveedores",
+          Sucursales: "/api/sucursales",
         },
       });
     });
@@ -97,6 +99,8 @@ this.app.use(cors({
         "/api/detalle-venta", 
         detalleVentaRoutesInstance.getRouter()
     );
+    const sucursalRoutesInstance = new SucursalRoutes();
+    this.app.use("/api/sucursales", sucursalRoutesInstance.getRouter());
 
     // Ruta 404
     this.app.use((req, res) => {
