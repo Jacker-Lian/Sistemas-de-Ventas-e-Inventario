@@ -92,5 +92,5 @@ class ProductoModel {
 
 }
 
-}
+
 module.exports = ProductoModel;

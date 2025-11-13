@@ -24,8 +24,9 @@ class App {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
     const ALLOWED_ORIGINS = [
-      "http://localhost:5173",      // para desarrollo local
-      "http://38.250.161.15"         // para producción
+      "http://localhost:5173",       // para desarrollo local
+      "http://127.0.0.1:5173",       // para desarrollo local (codespaces?)
+      "http://38.250.161.15"         // para producción
     ];
 
     this.app.use(cors({
@@ -38,22 +39,6 @@ class App {
       },
       credentials: true
     }));
-const ALLOWED_ORIGINS = [
-  "http://localhost:5173",       // para desarrollo local
-  "http://127.0.0.1:5173",       // para desarrollo local (codespaces?)
-  "http://38.250.161.15"         // para producción
-];
-
-this.app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS no permitido para este origen: " + origin));
-    }
-  },
-  credentials: true
-}));
 
     this.app.use(cookieParser());
     this.app.use(express.json());
@@ -78,9 +63,9 @@ this.app.use(cors({
           Categorias: "/api/categorias",
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
-      
+
           Alertas: "/api/alertas",
-          Stock: "/api/stock", 
+          Stock: "/api/stock",
           Proveedores: "/api/proveedores"
         },
       });
@@ -94,7 +79,7 @@ this.app.use(cors({
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
-    
+
     // Montar rutas de categorías
     const categoriaRoutes = new CategoriaRoutes();
     this.app.use('/api/categorias', categoriaRoutes.getRouter());
