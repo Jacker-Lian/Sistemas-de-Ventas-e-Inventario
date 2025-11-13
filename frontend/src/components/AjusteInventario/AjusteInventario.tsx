@@ -3,7 +3,7 @@ import { type Producto, type AjusteFormData, type AjusteRegistro } from '../../t
 import './AjusteInventario.css'; 
 
 // URL Base del Backend (debe coincidir con tu app.js)
-const API_URL = 'http://localhost:3000/api'; 
+const API_URL = 'http://localhost:3000';
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
@@ -28,7 +28,7 @@ const AjusteInventario: React.FC = () => {
     const fetchProductos = async () => {
         // Llama al GET /api/ajustes-inventario/productos que añadimos al Modelo
         try {
-            const prodResp = await fetch(`${API_URL}/ajustes-inventario/productos`); 
+            const prodResp = await fetch(`${API_URL}/api/ajustes-inventario/productos`); 
             if (!prodResp.ok) throw new Error('No se pudo cargar la lista de productos.');
             const prodData: Producto[] = await prodResp.json();
             setProductos(prodData);
@@ -40,7 +40,7 @@ const AjusteInventario: React.FC = () => {
     const fetchHistorial = async () => {
         // Llama al GET /api/ajustes-inventario para el historial (obtenerTodos)
         try {
-            const histResp = await fetch(`${API_URL}/ajustes-inventario`); 
+            const histResp = await fetch(`${API_URL}/api/ajustes-inventario`); 
             if (!histResp.ok) throw new Error('Error al cargar el historial de ajustes.');
             const histData: AjusteRegistro[] = await histResp.json();
             setHistorial(histData);
@@ -95,7 +95,7 @@ const AjusteInventario: React.FC = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/ajustes-inventario`, {
+            const response = await fetch(`${API_URL}/api/ajustes-inventario`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -110,7 +110,7 @@ const AjusteInventario: React.FC = () => {
                 throw new Error(result.error || result.message || 'Error desconocido al registrar el ajuste.');
             }
             
-            setMensaje({ texto: `✅ Ajuste creado. Nuevo Stock: ${result.data.stock_nuevo}`, tipo: 'success' });
+            setMensaje({ texto: `Ajuste creado. Nuevo Stock: ${result.data.stock_nuevo}`, tipo: 'success' });
             
             // Limpiar formulario y recargar datos
             setFormData(prev => ({ ...prev, id_producto: '', cantidad_ajustada: 0, observaciones: '' }));
@@ -120,7 +120,7 @@ const AjusteInventario: React.FC = () => {
             if (tabActiva === 'historial') fetchHistorial();
 
         } catch (error: any) {
-            setMensaje({ texto: `❌ Fallo al registrar el ajuste: ${error.message}`, tipo: 'error' });
+            setMensaje({ texto: `Fallo al registrar el ajuste: ${error.message}`, tipo: 'error' });
         }
     };
     

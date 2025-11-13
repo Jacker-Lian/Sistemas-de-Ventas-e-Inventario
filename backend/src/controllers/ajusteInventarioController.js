@@ -12,7 +12,8 @@ const AjusteInventarioController = {
             id_sucursal
         } = req.body;
 
-        // (Validación de campos obligatorios, cantidad numérica, y lógica de signo)
+        //VALIDACIÓN DE ENTRADA (Controlador)
+        // 1. Verificar campos obligatorios
         if (!id_producto || !cantidad_ajustada || !tipo_ajuste || !id_usuario || !observaciones || !id_sucursal) {
             return res.status(400).json({ 
                 success: false, 
@@ -20,6 +21,7 @@ const AjusteInventarioController = {
             });
         }
         
+        // 2. Validar que la cantidad sea un número válido y diferente de cero
         const cantidadNumerica = parseInt(cantidad_ajustada);
         if (isNaN(cantidadNumerica) || cantidadNumerica === 0) {
             return res.status(400).json({ 
@@ -28,12 +30,16 @@ const AjusteInventarioController = {
             });
         }
 
+        // BLOQUE DE CÓDIGO ELIMINADO/CORREGIDO: 
+        // El frontend envía la magnitud y el tipo por separado.
+        /*
         if ((cantidadNumerica > 0 && tipo_ajuste !== 'AUMENTO') || (cantidadNumerica < 0 && tipo_ajuste !== 'DISMINUCION')) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'Error de lógica: El tipo de ajuste no coincide con el signo de la cantidad.' 
             });
         }
+        */        
         // --- FIN DE VALIDACIÓN DE ENTRADA ---
         try {
             const datosParaModelo = {
@@ -94,9 +100,7 @@ const AjusteInventarioController = {
     // 4. Obtener la lista de productos (GET /api/ajustes-inventario/productos)
     obtenerListaProductos: async (req, res) => {
         try {
-            // Llama a la función del Modelo que solo hace un SELECT de productos
             const productos = await AjusteInventarioModel.obtenerListaProductos();
-            // Retorna el array de productos sin estructura de mensaje
             res.json(productos); 
         } catch (error) {
             res.status(500).json({
