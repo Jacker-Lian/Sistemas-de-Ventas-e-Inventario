@@ -197,16 +197,16 @@ const ventasController = {
 
   desactivarVentas: async (req, res) => {
     try {
-      const { id_caja } = req.body;
+      const { id_venta } = req.body;
 
       // Validar que id_caja sea un número entero positivo
-      if (!Number.isInteger(id_caja) || id_caja <= 0) {
+      if (!Number.isInteger(id_venta) || id_venta <= 0) {
         return res.status(400).json({
           message: "El id_caja debe ser un número entero positivo.",
         });
       }
 
-      const desactivado = await ventasModelInstance.desactivarVentas(id_caja);
+      const desactivado = await ventasModelInstance.desactivarVentas(id_venta);
 
       if (desactivado) {
         return res.status(200).json({
