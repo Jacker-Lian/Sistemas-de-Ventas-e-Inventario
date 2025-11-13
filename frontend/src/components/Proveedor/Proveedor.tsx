@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 
-interface Proveedor {
+type Proveedor = {
   id_proveedor: number;
   nombre: string;
   ruc?: string;
@@ -24,7 +24,7 @@ interface Proveedor {
   direccion?: string;
   correo?: string;
   producto_principal?: string;
-}
+};
 
 const Proveedor = () => {
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
@@ -209,7 +209,7 @@ const Proveedor = () => {
           </Form.Item>
 
           <Form.Item label="RUC" name="ruc">
-            <Input placeholder="RUC del proveedor" maxLength={20} />
+            <Input type="number" placeholder="RUC del proveedor" maxLength={11} />
           </Form.Item>
 
           <Form.Item label="Teléfono" name="telefono">

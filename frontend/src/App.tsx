@@ -9,6 +9,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+import Proveedor from "./components/Proveedor/Proveedor";
 
 
 
@@ -68,6 +69,14 @@ function App() {
                 <HistorialVentas />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/proveedores" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Proveedor />
+              </PrivateRoute>
+            } 
           />
           <Route 
             path="/inventario/ReporteVentas" 
