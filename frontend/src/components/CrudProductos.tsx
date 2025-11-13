@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AlertaStock from "./AlertasInventario";
 
 interface Producto {
   id: number;
@@ -254,6 +255,8 @@ export default function CrudProductos() {
               textTransform: "uppercase",
             }}
           >
+            {/* Columna extra para el icono de alerta */}
+            <th style={{ padding: "10px", border: "1px solid #000", width: "40px" }} />
             <th style={{ padding: "10px", border: "1px solid #000" }}>ID</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Precio</th>
@@ -267,13 +270,7 @@ export default function CrudProductos() {
             productos.map((p) => {
               const isInactive = Number(p.estado) === 0;
               return (
-                <tr
-                  key={p.id}
-                  style={{
-                    opacity: isInactive ? 0.6 : 1,
-                    textDecoration: isInactive ? "line-through" : "none",
-                  }}
-                >
+                <AlertaStock key={p.id} stock={p.stock}>
                   <td style={{ padding: "10px", border: "1px solid #000" }}>{p.id}</td>
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
                     {editando?.id === p.id ? (
@@ -414,13 +411,13 @@ export default function CrudProductos() {
                       </>
                     )}
                   </td>
-                </tr>
+                </AlertaStock>
               );
             })
           ) : (
             <tr>
               <td
-                colSpan={6}
+                colSpan={7}
                 style={{
                   textAlign: "center",
                   color: "#999",
