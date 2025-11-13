@@ -46,7 +46,7 @@ const AjusteInventarioModel = {
                 [stock_nuevo, id_producto]
             );
 
-            // Registrar ajuste (sin cantidad_ajustada)
+            // Registrar ajuste
             const [resultado] = await connection.query(
                 `INSERT INTO ajustes_inventario 
                  (id_producto, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal)

@@ -5,9 +5,7 @@ class VentasModel {
     this.table = "ventas";
   }
 
-
   // REPORTE DE VENTAS
-
   async reporteVentaProducto(fechaInicio, fechaFin) {
     try {
       const pool = database.getPool();
@@ -25,6 +23,7 @@ class VentasModel {
         WHERE 
           DATE(v.fecha_venta) BETWEEN ? AND ?
           AND v.estado_venta = 'COMPLETADA'
+          AND v.estado = 1
         GROUP BY 
           p.id_producto, p.nombre
         ORDER BY 
@@ -39,8 +38,7 @@ class VentasModel {
   }
 
   // REGISTRAR VENTA
-
-  async registrarVenta(ventaData = {}, estado_venta = "PENDIENTE") {
+  async registrarVenta(ventaData = {}, estado_venta = "COMPLETADA") {
     const connection = await database.getPool().getConnection();
 
     try {
@@ -91,7 +89,7 @@ class VentasModel {
         }
 
         const [productoRows] = await connection.query(
-          "SELECT id_producto, stock, nombre, precio FROM producto WHERE id_producto = ? AND estado = 1",
+          "SELECT id_producto, stock, nombre, precio_venta FROM producto WHERE id_producto = ? AND estado = 1",
           [producto.id_producto]
         );
 
@@ -105,7 +103,7 @@ class VentasModel {
             `Stock insuficiente para "${productoDB.nombre}". Disponible: ${productoDB.stock}, Solicitado: ${producto.cantidad}`
           );
 
-        const precioUnitario = parseFloat(producto.precio_unitario || productoDB.precio);
+        const precioUnitario = parseFloat(producto.precio_unitario || productoDB.precio_venta);
         const subtotal = parseFloat((producto.cantidad * precioUnitario).toFixed(2));
         totalVenta += subtotal;
 
@@ -122,8 +120,8 @@ class VentasModel {
       // Insertar venta
       const [resultVenta] = await connection.query(
         `INSERT INTO ${this.table} (
-          id_usuario, id_caja, id_sucursal, tipo_cliente, metodo_pago, total, estado_venta
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          fecha_venta, id_usuario, id_caja, id_sucursal, tipo_cliente, metodo_pago, total, estado_venta
+        ) VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?)`,
         [
           ventaData.id_usuario,
           ventaData.id_caja,
@@ -191,17 +189,15 @@ class VentasModel {
     }
   }
 
-
   // CANCELAR VENTA
-
-  async cancelarVenta(id_venta, id_motivo_cancelacion) {
+  async cancelarVenta(id_venta, id_motivo) {
     const connection = await database.getPool().getConnection();
 
     try {
       await connection.beginTransaction();
 
       const [ventaRows] = await connection.query(
-        `SELECT id_venta, estado_venta FROM ${this.table} WHERE id_venta = ?`,
+        `SELECT id_venta, estado_venta FROM ${this.table} WHERE id_venta = ? AND estado = 1`,
         [id_venta]
       );
 
@@ -211,32 +207,34 @@ class VentasModel {
         throw new Error("La venta ya está cancelada.");
 
       const [motivoRows] = await connection.query(
-        "SELECT id_motivo_cancelacion FROM motivos_cancelacion WHERE id_motivo_cancelacion = ? AND estado = 1",
-        [id_motivo_cancelacion]
+        "SELECT id_motivo FROM motivos_cancelacion WHERE id_motivo = ? AND estado = 1",
+        [id_motivo]
       );
 
       if (motivoRows.length === 0)
         throw new Error("El motivo de cancelación no existe o está inactivo.");
 
-      // Restaurar stock
-      const [detallesVenta] = await connection.query(
-        "SELECT id_producto, cantidad FROM detalle_venta WHERE id_venta = ?",
-        [id_venta]
-      );
-
-      for (const detalle of detallesVenta) {
-        await connection.query(
-          "UPDATE producto SET stock = stock + ? WHERE id_producto = ?",
-          [detalle.cantidad, detalle.id_producto]
+      // Restaurar stock solo si la venta estaba COMPLETADA
+      if (ventaRows[0].estado_venta === "COMPLETADA") {
+        const [detallesVenta] = await connection.query(
+          "SELECT id_producto, cantidad FROM detalle_venta WHERE id_venta = ?",
+          [id_venta]
         );
+
+        for (const detalle of detallesVenta) {
+          await connection.query(
+            "UPDATE producto SET stock = stock + ? WHERE id_producto = ?",
+            [detalle.cantidad, detalle.id_producto]
+          );
+        }
       }
 
       // Actualizar estado de venta
       await connection.query(
         `UPDATE ${this.table} 
-         SET estado_venta = 'CANCELADA', id_motivo_cancelacion = ? 
+         SET estado_venta = 'CANCELADA', id_motivo = ? 
          WHERE id_venta = ?`,
-        [id_motivo_cancelacion, id_venta]
+        [id_motivo, id_venta]
       );
 
       await connection.commit();
@@ -249,14 +247,13 @@ class VentasModel {
     }
   }
 
-
   // OBTENER VENTA POR ID
   async obtenerVentaPorId(id_venta) {
     try {
       const pool = database.getPool();
 
       const [ventaRows] = await pool.query(
-        `SELECT * FROM ${this.table} WHERE id_venta = ?`,
+        `SELECT * FROM ${this.table} WHERE id_venta = ? AND estado = 1`,
         [id_venta]
       );
 
@@ -268,7 +265,7 @@ class VentasModel {
         `SELECT dv.*, p.nombre AS nombre_producto
          FROM detalle_venta dv
          INNER JOIN producto p ON dv.id_producto = p.id_producto
-         WHERE dv.id_venta = ?`,
+         WHERE dv.id_venta = ? AND dv.estado = 1`,
         [id_venta]
       );
 
@@ -276,57 +273,6 @@ class VentasModel {
       return venta;
     } catch (error) {
       throw new Error("Error al obtener venta por ID: " + error.message);
-    }
-  }
-
-  // MOTIVOS DE CANCELACIÓN
-  async registrarMotivoCancelacion(descripcion) {
-    try {
-      const pool = database.getPool();
-
-      if (!descripcion || descripcion.length === 0)
-        throw new Error("La descripción de cancelación no puede estar vacía.");
-
-      const [result] = await pool.query(
-        `INSERT INTO motivos_cancelacion (descripcion) VALUES (?)`,
-        [descripcion]
-      );
-
-      return result.insertId;
-    } catch (error) {
-      throw new Error("Error al registrar motivo de cancelación: " + error.message);
-    }
-  }
-
-  async obtenerMotivosCancelacion() {
-    try {
-      const pool = database.getPool();
-      const [rows] = await pool.query(
-        `SELECT id_motivo_cancelacion, descripcion 
-         FROM motivos_cancelacion 
-         WHERE estado = 1`
-      );
-      return rows;
-    } catch (error) {
-      throw new Error("Error al obtener motivos de cancelación: " + error.message);
-    }
-  }
-
-  async desactivarMotivoCancelacion(id_motivo_cancelacion) {
-    try {
-      const pool = database.getPool();
-
-      if (!id_motivo_cancelacion || !Number.isInteger(id_motivo_cancelacion) || id_motivo_cancelacion <= 0)
-        throw new Error("El id_motivo_cancelacion debe ser un número entero positivo.");
-
-      const [result] = await pool.query(
-        `UPDATE motivos_cancelacion SET estado = 0 WHERE id_motivo_cancelacion = ?`,
-        [id_motivo_cancelacion]
-      );
-
-      return result.affectedRows > 0;
-    } catch (error) {
-      throw new Error("Error al desactivar motivo de cancelación: " + error.message);
     }
   }
 }

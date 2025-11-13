@@ -10,16 +10,14 @@ class VentasRoutes {
 
   configurarRutas() {
 
-    // 🔹 Reporte de ventas por producto (pública o protegida según necesidad)
-    // Si quieres mantenerla pública como antes, quita el middleware:
-    // this.router.get('/reporte/producto', ventasController.reporteVentasPorProducto);
+    // Reporte de ventas por producto
     this.router.get('/reporte/producto', 
         verificarToken, 
         requireRole(['ADMIN']), 
         ventasController.reporteVentasPorProducto
     );
 
-    // 🔸 A partir de aquí, todas requieren autenticación
+    // A partir de aquí, todas requieren autenticación
     this.router.use(verificarToken);
 
     // Registrar venta - ADMIN y CAJA

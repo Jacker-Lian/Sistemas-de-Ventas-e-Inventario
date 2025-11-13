@@ -90,23 +90,23 @@ const ventasController = {
   // Cancelar venta
   cancelarVenta: async (req, res) => {
     try {
-      const { id_venta, id_motivo_cancelacion } = req.body;
-      if (!id_venta || !id_motivo_cancelacion) {
+      const { id_venta, id_motivo } = req.body;
+      if (!id_venta || !id_motivo) {
         return res.status(400).json({
           success: false,
-          message: "Se requieren id_venta e id_motivo_cancelacion."
+          message: "Se requieren id_venta e id_motivo."
         });
       }
 
       if (!Number.isInteger(id_venta) || id_venta <= 0 ||
-          !Number.isInteger(id_motivo_cancelacion) || id_motivo_cancelacion <= 0) {
+          !Number.isInteger(id_motivo) || id_motivo <= 0) {
         return res.status(400).json({
           success: false,
           message: "Los IDs deben ser números enteros positivos."
         });
       }
 
-      const cancelado = await ventasModelInstance.cancelarVenta(id_venta, id_motivo_cancelacion);
+      const cancelado = await ventasModelInstance.cancelarVenta(id_venta, id_motivo);
       if (cancelado) {
         return res.status(200).json({ success: true, message: "Venta cancelada exitosamente." });
       } else {
@@ -114,40 +114,6 @@ const ventasController = {
       }
     } catch (error) {
       console.error("Error al cancelar venta:", error);
-      return res.status(500).json({ success: false, message: error.message });
-    }
-  },
-
-  // Desactivar ventas (por caja)
-  desactivarVentas: async (req, res) => {
-    try {
-      const { id_caja } = req.body;
-      if (!Number.isInteger(id_caja) || id_caja <= 0) {
-        return res.status(400).json({
-          success: false,
-          message: "El id_caja debe ser un número entero positivo."
-        });
-      }
-
-      const desactivado = await ventasModelInstance.desactivarVentas(id_caja);
-      if (desactivado) {
-        return res.status(200).json({ success: true, message: "Ventas desactivadas exitosamente." });
-      } else {
-        return res.status(404).json({ success: false, message: "Caja no encontrada o ya desactivada." });
-      }
-    } catch (error) {
-      console.error("Error al desactivar ventas:", error);
-      return res.status(500).json({ success: false, message: error.message });
-    }
-  },
-
-  // Obtener motivos de cancelación
-  obtenerMotivosCancelacion: async (req, res) => {
-    try {
-      const motivos = await ventasModelInstance.obtenerMotivosCancelacion();
-      return res.status(200).json({ success: true, data: motivos });
-    } catch (error) {
-      console.error("Error al obtener motivos de cancelación:", error);
       return res.status(500).json({ success: false, message: error.message });
     }
   },
