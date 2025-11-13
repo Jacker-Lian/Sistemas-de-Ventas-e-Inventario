@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
+import Register from "./components/Register";
 import Caja from "./components/Caja";
 import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
 import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
@@ -24,6 +25,14 @@ function App() {
             element={
               <PrivateRoute roles={["ADMIN"]}>
                 <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/usuarios"
+            element={
+              <PrivateRoute roles={["ADMIN"]}>
+                <Register />
               </PrivateRoute>
             }
           />
