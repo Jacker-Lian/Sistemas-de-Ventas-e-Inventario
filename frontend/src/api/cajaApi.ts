@@ -2,7 +2,7 @@ import axios from "axios";
 import type { Caja, MovimientoCaja, AbrirCajaResponse } from "../types/caja";
 
 // Usamos VITE_SERVER_URL que apunta a la raíz del backend (http://38.250.161.15:3000)
-const API_URL = `http://localhost:3000/api/caja`;
+const API_URL = `http://localhost:3000/api/caja`; 
 
 const cajaApi = axios.create({
   baseURL: API_URL,
@@ -18,18 +18,16 @@ cajaApi.interceptors.request.use((config) => {
   return config;
 });
 
-/**
- * Busca las cajas que coincidan con el estado.
- * @param estado 'ABIERTA' o 'CERRADA'
- */
+
+ //* Busca las cajas que coincidan con el estado.
+ 
 export const fetchCajasPorEstado = (estado: 'ABIERTA' | 'CERRADA') => {
   return cajaApi.get<Caja[]>(`/listar?estado=${estado}`);
 };
 
-/**
- * Obtiene los datos de una caja abierta específica por su ID.
- * @param idCaja ID de la caja
- */
+
+ // Obtiene los datos de una caja abierta específica por su ID.
+ 
 export const fetchCajaAbiertaPorId = (idCaja: number) => {
   // Este es el endpoint que acabamos de crear en el backend
   return cajaApi.get<Caja>(`/${idCaja}`);
