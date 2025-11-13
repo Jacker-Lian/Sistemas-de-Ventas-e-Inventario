@@ -68,8 +68,7 @@ this.app.use(cors({
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
-  // Nota: `ApisRoutes` eliminado para evitar duplicar endpoints de autenticación.
-  // Usar `/api/usuario` para login/register/logout (definidos en usuarioRoutes.js).
+
 
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();

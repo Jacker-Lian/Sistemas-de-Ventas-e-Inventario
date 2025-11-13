@@ -8,8 +8,9 @@ class UsuarioRoutes {
   }
 
   configurarRutas() {
+    // Autenticación
     this.router.post('/login', authController.login);
-
+    this.router.post('/register', authController.register);
     this.router.post('/logout', (req, res) => {
       res.clearCookie('token', {
         httpOnly: true,
@@ -18,6 +19,12 @@ class UsuarioRoutes {
       });
       res.json({ message: 'Sesión cerrada correctamente' });
     });
+
+    // CRUD de usuarios
+    this.router.get('/', authController.listUsers);
+    this.router.get('/:id', authController.getUser);
+    this.router.put('/:id', authController.updateUser);
+    this.router.delete('/:id', authController.deleteUser);
   }
 
   getRouter() {
