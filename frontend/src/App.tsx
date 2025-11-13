@@ -13,7 +13,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <PrivateRoute roles={['ADMIN']}>
+              <PrivateRoute roles={["ADMIN"]}>
                 <Admin />
               </PrivateRoute>
             }
@@ -21,18 +21,26 @@ function App() {
           <Route
             path="/caja"
             element={
-              <PrivateRoute roles={['CAJA', 'ADMIN']}>
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
                 <Caja />
               </PrivateRoute>
             }
           />
-          <Route 
-            path="/inventario/ajuste" 
+          <Route
+            path="/inventario/ajuste"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <AjusteInventario />
               </PrivateRoute>
-            } 
+            }
+          />
+          <Route
+            path="/registrarVenta"
+            element={
+              <PrivateRoute roles={["CAJA", "ADMIN"]}>
+                <RegistrarVenta />
+              </PrivateRoute>
+            }
           />
           <Route 
             path="/categorias" 
@@ -45,7 +53,7 @@ function App() {
           <Route
             path="/ventas/historial"
             element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+              <PrivateRoute roles={["ADMIN", "CAJA"]}>
                 <HistorialVentas />
               </PrivateRoute>
             }
@@ -81,4 +89,3 @@ function App() {
 }
 
 export default App;
-
