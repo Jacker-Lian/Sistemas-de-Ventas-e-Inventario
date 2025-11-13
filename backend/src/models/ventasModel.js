@@ -318,22 +318,8 @@ class VentasModel {
     }
   }
 
-  async obtenerCategorias() {
-    try {
-      const pool = database.getPool();
-      // Obtener todas las categorías activas
-      // En espera a PR para usasr el model de categoria
-      const [rows] = await pool.query(
-        `SELECT id_categoria, nombre, descripcion FROM categoria WHERE estado = 1`
-      );
-      if (rows.length === 0) {
-        throw new Error("No hay categorías activas disponibles.");
-      }
-      return rows;
-    } catch (error) {
-      throw new Error("Error al obtener categorías: " + error.message);
-    }
-  }
+
+  
 }
 
 module.exports = VentasModel;
