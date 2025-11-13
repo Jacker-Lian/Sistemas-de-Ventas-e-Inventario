@@ -9,20 +9,19 @@ const AjusteInventarioController = {
             return res.status(401).json({ success: false, message: 'Usuario no autenticado' });
         }
 
-        const { id_producto, cantidad_ajustada, tipo_ajuste, observaciones, id_sucursal } = req.body;
+        const { id_producto, tipo_ajuste, observaciones, id_sucursal } = req.body;
 
         // Validación básica de campos obligatorios
-        if (!id_producto || !cantidad_ajustada || !tipo_ajuste || !id_sucursal) {
+        if (!id_producto || !tipo_ajuste || !id_sucursal) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Faltan campos obligatorios: id_producto, cantidad_ajustada, tipo_ajuste, id_sucursal' 
+                message: 'Faltan campos obligatorios: id_producto, tipo_ajuste, id_sucursal' 
             });
         }
 
         try {
             const datosParaModelo = { 
                 id_producto, 
-                cantidad_ajustada, 
                 tipo_ajuste, 
                 id_usuario, 
                 observaciones: observaciones || '', 
@@ -39,7 +38,6 @@ const AjusteInventarioController = {
         } catch (error) {
             console.error('Error al crear ajuste:', error);
             
-            // Manejo de errores específicos del model
             if (error.message.includes('negativo') || error.message.includes('no fue encontrado')) {
                 return res.status(400).json({ 
                     success: false, 
@@ -59,7 +57,6 @@ const AjusteInventarioController = {
         try {
             const filtros = {};
             
-            // Aplicar filtros desde query params
             if (req.query.id_producto) filtros.id_producto = parseInt(req.query.id_producto);
             if (req.query.tipo_ajuste) filtros.tipo_ajuste = req.query.tipo_ajuste;
             if (req.query.id_sucursal) filtros.id_sucursal = parseInt(req.query.id_sucursal);

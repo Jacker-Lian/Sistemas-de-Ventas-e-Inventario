@@ -4,7 +4,6 @@ const AjusteInventarioModel = {
     crear: async (datos) => {
         const {
             id_producto,
-            cantidad_ajustada,
             tipo_ajuste,
             id_usuario,
             observaciones,
@@ -16,7 +15,7 @@ const AjusteInventarioModel = {
             connection = await db.getPool().getConnection();
             await connection.beginTransaction();
 
-            // Obtener stock actual (versión original mejorada)
+            // Obtener stock actual
             const [productRows] = await connection.query(
                 'SELECT stock, nombre FROM producto WHERE id_producto = ? AND estado = 1',
                 [id_producto]
@@ -28,8 +27,14 @@ const AjusteInventarioModel = {
 
             const stock_actual = productRows[0].stock;
             const nombre_producto = productRows[0].nombre;
-            const cantidad_neta = tipo_ajuste === 'AUMENTO' ? cantidad_ajustada : -cantidad_ajustada;
-            const stock_nuevo = stock_actual + cantidad_neta;
+
+            // El nuevo stock dependerá del tipo de ajuste
+            const stock_nuevo =
+                tipo_ajuste === 'AUMENTO'
+                    ? stock_actual + 1
+                    : tipo_ajuste === 'DISMINUCION'
+                    ? stock_actual - 1
+                    : stock_actual;
 
             if (stock_nuevo < 0) {
                 throw new Error('El ajuste no puede dejar el stock con valor negativo.');
@@ -41,22 +46,21 @@ const AjusteInventarioModel = {
                 [stock_nuevo, id_producto]
             );
 
-            // Registrar ajuste (manteniendo estructura original)
+            // Registrar ajuste (sin cantidad_ajustada)
             const [resultado] = await connection.query(
                 `INSERT INTO ajustes_inventario 
-                 (id_producto, cantidad_ajustada, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [id_producto, cantidad_ajustada, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal]
+                 (id_producto, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [id_producto, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal]
             );
 
             await connection.commit();
-            
-            return { 
+
+            return {
                 id_ajuste: resultado.insertId,
                 stock_anterior: stock_actual,
                 stock_nuevo: stock_nuevo,
-                nombre_producto: nombre_producto,
-                diferencia: cantidad_neta
+                nombre_producto: nombre_producto
             };
 
         } catch (error) {
@@ -67,23 +71,21 @@ const AjusteInventarioModel = {
         }
     },
 
-    // Obtener todos los ajustes (versión simplificada)
     obtenerTodos: async (filtros = {}) => {
         try {
             const pool = db.getPool();
-            
+
             let query = `
                 SELECT 
                     ai.id_ajuste,
                     ai.id_producto,
-                    p.nombre as nombre_producto,
-                    ai.cantidad_ajustada,
+                    p.nombre AS nombre_producto,
                     ai.tipo_ajuste,
                     ai.stock_nuevo,
                     ai.observaciones,
                     ai.fecha_creacion,
                     u.nombre_usuario,
-                    s.nombre as nombre_sucursal
+                    s.nombre AS nombre_sucursal
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
@@ -125,7 +127,6 @@ const AjusteInventarioModel = {
 
             query += ` ORDER BY ai.fecha_creacion DESC`;
 
-            // Paginación (mejora de tu versión)
             if (filtros.limit) {
                 const limit = parseInt(filtros.limit) || 50;
                 const offset = filtros.page ? (parseInt(filtros.page) - 1) * limit : 0;
@@ -134,7 +135,7 @@ const AjusteInventarioModel = {
             }
 
             const [ajustes] = await pool.query(query, params);
-            
+
             return {
                 ajustes,
                 paginacion: {
@@ -151,18 +152,17 @@ const AjusteInventarioModel = {
     obtenerPorProducto: async (idProducto, filtros = {}) => {
         try {
             const pool = db.getPool();
-            
+
             let query = `
                 SELECT 
                     ai.id_ajuste,
-                    ai.cantidad_ajustada,
                     ai.tipo_ajuste,
                     ai.stock_nuevo,
                     ai.observaciones,
                     ai.fecha_creacion,
-                    p.nombre as nombre_producto,
+                    p.nombre AS nombre_producto,
                     u.nombre_usuario,
-                    s.nombre as nombre_sucursal
+                    s.nombre AS nombre_sucursal
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
@@ -191,12 +191,17 @@ const AjusteInventarioModel = {
         }
     },
 
-    // Mantener método de estadísticas si es útil
     obtenerEstadisticas: async (filtros = {}) => {
         try {
             const pool = db.getPool();
-            
-            let query = `SELECT COUNT(*) as total_ajustes, COUNT(DISTINCT id_producto) as productos_afectados FROM ajustes_inventario WHERE 1=1`;
+
+            let query = `
+                SELECT 
+                    COUNT(*) AS total_ajustes, 
+                    COUNT(DISTINCT id_producto) AS productos_afectados 
+                FROM ajustes_inventario 
+                WHERE 1=1
+            `;
             const params = [];
 
             if (filtros.fecha_inicio) {
