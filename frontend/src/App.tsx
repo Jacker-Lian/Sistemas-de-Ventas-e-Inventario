@@ -47,7 +47,7 @@ function App() {
 
 
           <Route
-            path="/admin/control-stock" // Debe coincidir con el 'to' de tu botón
+            path="/admin/control-stock"
             element={
               <PrivateRoute roles={['ADMIN']}>
                 <ControlStock /> {/* <-- Usa el componente importado */}
