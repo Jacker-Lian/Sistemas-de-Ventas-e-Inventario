@@ -1,8 +1,8 @@
 .gastos-table-container {
   position: relative;
-  padding: 20px;
-  max-width: 1000px;
-  height: 880px;
+  padding: 12px;
+  max-width: 900px;
+  height: 700px;
   margin: 0 auto;
   background-color: #ffffff;
   border-radius: 10px;
@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 12px;
   color: #111;
 }
 
@@ -40,7 +40,7 @@
   background-color: #fff;
   color: black;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   height: 32px;
 }
 
@@ -53,7 +53,7 @@
   border-radius: 6px;
   color: white;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   transition: 0.2s;
   white-space: nowrap;
@@ -73,7 +73,7 @@
 
 /* SCROLL WRAPPER */
 .gastos-table-wrapper {
-  max-height: 740px;
+  max-height: 580px;
   overflow-y: auto;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
@@ -94,12 +94,12 @@
 /* TABLA */
 .gastos-table {
   width: 100%;
-  height: 740px;
+  height: 580px;
   border-collapse: collapse;
   table-layout: fixed;
   background-color: #fff;
   color: #111;
-  font-size: 15.2px;
+  font-size: 12px;
 }
 
 /* THEAD */
@@ -107,8 +107,8 @@
   background-color: #f3f4f6;
   border-bottom: 2px solid #e5e7eb;
   font-weight: 600;
-  padding: 12px;
-  font-size: 16.8px;
+  padding: 6px 10px;
+  font-size: 14.8px;
   text-align: left;
 }
 
@@ -210,7 +210,8 @@
   color: white;
   cursor: pointer;
   transition: 0.2s;
-  font-size: 15.2px;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .gastos-pagination button:hover:not(:disabled) {
@@ -224,12 +225,11 @@
 
 .gastos-pagination span {
   font-weight: 600;
-  font-size: medium;
-  width: 50px;
+  width: 60px;
   height: 25px;
   color: #111;
-  margin-top: 12px;
-  font-size: 15.2px;
+  margin-top: 8px;
+  font-size: 12px;
 }
 
 .gastos-pagination button:active:not(:disabled) {
