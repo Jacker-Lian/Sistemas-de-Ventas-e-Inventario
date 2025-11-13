@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import Navbar from "../Navbar";
+import ModalConfirmacionVenta from "./ModalConfirmacionVenta";
 import "../../styles/admin.css";
 import "../../styles/registrarVenta.css";
+
+
 import type {
   Categoria,
   ProductoBackend,
@@ -40,6 +43,13 @@ function RegistrarVenta() {
   const [metodoPago, setMetodoPago] = useState<
     "EFECTIVO" | "YAPE" | "PLIN" | "OTROS"
   >("EFECTIVO");
+  // Estado del modal de confirmación
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [tituloModal, setTituloModal] = useState<string>("");
+  const [mensajeModal, setMensajeModal] = useState<string>("");
+  const [accionConfirm, setAccionConfirm] = useState<() => void>(() => {});
+  const [ventaExitosa, setVentaExitosa] = useState(false);
+  const [detallesVenta, setDetallesVenta] = useState<{ id: string; total: string } | null>(null);
 
   // Datos de ejemplo para caja (se cambiarán después)
   // EN ESPERA DE INTEGRAR CON EL MODELO DE CAJA
@@ -119,9 +129,10 @@ function RegistrarVenta() {
           )
         );
       } else {
-        alert(
-          `No hay suficiente stock disponible. Stock actual: ${producto.stock}`
-        );
+        setTituloModal("Stock Insuficiente");
+        setMensajeModal(`No hay suficiente stock disponible. Stock actual: ${producto.stock}`);
+        setAccionConfirm(() => () => setModalAbierto(false));
+        setModalAbierto(true);
       }
     } else {
       // Si no existe, agregarlo con cantidad 1
@@ -135,7 +146,10 @@ function RegistrarVenta() {
         };
         setCarrito([...carrito, nuevoProducto]);
       } else {
-        alert("Este producto no tiene stock disponible");
+        setTituloModal("Sin Stock");
+        setMensajeModal("Este producto no tiene stock disponible");
+        setAccionConfirm(() => () => setModalAbierto(false));
+        setModalAbierto(true);
       }
     }
   };
@@ -148,9 +162,10 @@ function RegistrarVenta() {
           if (p.cantidad < p.stock) {
             return { ...p, cantidad: p.cantidad + 1 };
           } else {
-            alert(
-              `No hay suficiente stock disponible. Stock actual: ${p.stock}`
-            );
+            setTituloModal("Stock Insuficiente");
+            setMensajeModal(`No hay suficiente stock disponible. Stock actual: ${p.stock}`);
+            setAccionConfirm(() => () => setModalAbierto(false));
+            setModalAbierto(true);
             return p;
           }
         }
@@ -176,12 +191,23 @@ function RegistrarVenta() {
   };
 
   // Aceptar venta
-  const handleAceptar = async () => {
+  const handleAceptar = () => {
     if (carrito.length === 0) {
-      alert("No hay productos en el carrito");
+      setTituloModal("Carrito Vacío");
+      setMensajeModal("No hay productos en el carrito");
+      setAccionConfirm(() => () => setModalAbierto(false));
+      setModalAbierto(true);
       return;
     }
+    //abrir modal de confirmacion
+    setTituloModal("¿Seguro que quieres ingresar esta venta?");
+    setMensajeModal(`Total a cobrar: S/. ${calcularTotal().toFixed(2)}`);
+    setAccionConfirm(() => confirmarAceptar);
+    setModalAbierto(true);
+  };
 
+  // Confirmar aceptar venta
+  const confirmarAceptar = async () => {
     try {
       // Preparar datos según el formato esperado por la API
       const ventaData = {
@@ -211,45 +237,60 @@ function RegistrarVenta() {
       const data = await res.json();
       if(!res.ok) throw new Error(data.message || 'Error al registrar venta');
       console.log("Respuesta del servidor:", data);
-
-      alert(
-        `Venta registrada exitosamente. ID Venta: ${data.data.id_venta}, Total: S/. ${data.data.total}`
-      );
-
-      // Limpiar carrito después de venta exitosa
-      setCarrito([]);
-      setProductosDisponibles([]);
-      setCategoriaSeleccionada(null);
+      // Mostrar tarjeta de éxito flotante
+      setVentaExitosa(true);
+      setDetallesVenta({
+        id: data.data.id_venta,
+        total: data.data.total
+      });
+      
+      // Limpiar carrito después de 3 segundos
+      setTimeout(() => {
+        setCarrito([]);
+        setProductosDisponibles([]);
+        setCategoriaSeleccionada(null);
+        setVentaExitosa(false);
+        setDetallesVenta(null);
+      }, 3000);
     } catch (error: any) {
       console.error("Error al registrar venta:", error);
-      alert(
-        `Error al registrar venta: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+      setTituloModal("Error");
+      setMensajeModal(`Error al registrar venta: ${error.response?.data?.message || error.message}`);
+      setAccionConfirm(() => () => setModalAbierto(false));
     }
   };
 
   // Cancelar venta
   const handleCancelar = () => {
     if (carrito.length === 0) {
-      alert("El carrito ya está vacío");
+      setTituloModal("Carrito Vacío");
+      setMensajeModal("El carrito ya está vacío");
+      setAccionConfirm(() => () => setModalAbierto(false));
+      setModalAbierto(true);
       return;
     }
 
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas cancelar la venta? Se perderán todos los productos seleccionados."
-    );
-    if (confirmar) {
-      setCarrito([]);
-      alert("Venta cancelada. El carrito ha sido vaciado.");
-    }
+    setTituloModal("¿Estás seguro de que deseas cancelar la venta?");
+    setMensajeModal("Se perderán todos los productos seleccionados");
+    setAccionConfirm(() => confirmarCancelar);
+    setModalAbierto(true);
+  };
+
+  // Confirmar cancelación
+  const confirmarCancelar = () => {
+    setCarrito([]);
+    setTituloModal("Venta Cancelada");
+    setMensajeModal("Venta cancelada. El carrito ha sido vaciado.");
+    setAccionConfirm(() => () => setModalAbierto(false));
   };
 
   // Guardar en pendiente
   const handleGuardarPendiente = async () => {
     if (carrito.length === 0) {
-      alert("No hay productos en el carrito");
+      setTituloModal("Carrito Vacío");
+      setMensajeModal("No hay productos en el carrito");
+      setAccionConfirm(() => () => setModalAbierto(false));
+      setModalAbierto(true);
       return;
     }
 
@@ -282,21 +323,26 @@ function RegistrarVenta() {
       if(!res.ok) throw new Error(data.message || 'Error al registrar venta');
       console.log("Respuesta del servidor:", data);
       
-      alert(
-        `Venta guardada como pendiente. ID Venta: ${data.data.id_venta}`
-      );
-
-      // Limpiar carrito después de guardar
-      setCarrito([]);
-      setProductosDisponibles([]);
-      setCategoriaSeleccionada(null);
+      // Mostrar tarjeta de éxito flotante
+      setVentaExitosa(true);
+      setDetallesVenta({
+        id: data.data.id_venta,
+        total: "Pendiente"
+      });
+      
+      // Limpiar carrito después de 3 segundos
+      setTimeout(() => {
+        setCarrito([]);
+        setProductosDisponibles([]);
+        setCategoriaSeleccionada(null);
+        setVentaExitosa(false);
+        setDetallesVenta(null);
+      }, 3000);
     } catch (error: any) {
       console.error("Error al guardar venta pendiente:", error);
-      alert(
-        `Error al guardar venta pendiente: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+      setTituloModal("Error");
+      setMensajeModal(`Error al guardar venta pendiente: ${error.response?.data?.message || error.message}`);
+      setAccionConfirm(() => () => setModalAbierto(false));
     }
   };
 
@@ -542,6 +588,38 @@ function RegistrarVenta() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Confirmación */}
+      <ModalConfirmacionVenta
+        isOpen={modalAbierto}
+        titulo={tituloModal}
+        mensaje={mensajeModal}
+        onConfirm={accionConfirm}
+        onCancel={() => setModalAbierto(false)}
+      />
+
+      {/* Tarjeta de Éxito Flotante */}
+      {ventaExitosa && detallesVenta && (
+        <div className="success-card-overlay" onClick={() => setVentaExitosa(false)}>
+          <div className="success-card" onClick={(e) => e.stopPropagation()}>
+            <div className="success-icon">✓</div>
+            <h2 className="success-title">¡Venta Registrada!</h2>
+            <p className="success-message">La venta se ha completado exitosamente</p>
+            <div className="success-details">
+              <p><strong>ID Venta:</strong> {detallesVenta.id}</p>
+              <p><strong>Total:</strong> S/. {detallesVenta.total}</p>
+            </div>
+            <div className="success-actions">
+              <button 
+                className="success-btn success-btn-primary"
+                onClick={() => setVentaExitosa(false)}
+              >
+                Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
