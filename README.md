@@ -44,7 +44,7 @@
         "id_venta": 1234,
         "id_motivo_cancelacion": 1234
     }
-
+    ```
 # **POST    api/ventas/Insertar-motivo-cancelacion**
 - Registro de un nuevo motivo de cancelacion
 -   Body(JSON)
@@ -83,4 +83,35 @@
         "id_motivo_cancelacion": 1234
     }
     
+```
+# **PUT api/ventas/Desactivar_ventana**
+-   desactiva la venta 
+-   Body(JSON)
+``` json
+    {
+        "id_venta": 1
+    }
+```
+-   Respuestas
+    -   Éxito
+```json
+    {
+        "message": "Ventana desactivada exitosamente."
+    }
+```
+**Código:** 200 OK
+
+#### Errores
+- **400 Bad Request**
+```json
+    {
+        "message": "El id_ventana debe ser un número entero positivo."
+    }
+```
+
+- **404 Not Found**
+```json
+    {
+        "message": "Ventana no encontrada."
+    }
 ```
