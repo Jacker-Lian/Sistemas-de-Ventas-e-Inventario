@@ -4,6 +4,7 @@ interface Producto {
   id: number;
   nombre: string;
   precio: number;
+  precio_compra: number;
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
@@ -52,6 +53,7 @@ export default function CrudProductos() {
       id: Number(p.id),
       nombre: p.nombre ?? "",
       precio: Number(p.precio) || 0,
+      precio_compra: Number(p.precio_compra) || 0,
       stock: Number(p.stock) || 0,
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
@@ -88,7 +90,7 @@ export default function CrudProductos() {
         id: Number(editando.id),
         nombre: String(editando.nombre).trim(),
         precio_venta: Number(editando.precio),
-        precio_compra: 0, // Valor por defecto ya que no se edita en UI
+        precio_compra: Number(editando.precio_compra),
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
         id_categoria: Number(editando.id_categoria) || 1,
@@ -139,6 +141,11 @@ export default function CrudProductos() {
   const handleEditStock = (e: React.ChangeEvent<HTMLInputElement>) =>
     setEditando((prev) =>
       prev ? { ...prev, stock: parseInt(e.target.value) || 0 } : prev
+    );
+
+  const handleEditPrecioCompra = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEditando((prev) =>
+      prev ? { ...prev, precio_compra: parseFloat(e.target.value) || 0 } : prev
     );
 
   // Cambiar estado del producto a inactivo
@@ -266,6 +273,7 @@ export default function CrudProductos() {
             <th style={{ padding: "10px", border: "1px solid #000" }}>ID</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Precio</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Precio Compra</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Stock</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Estado</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Acciones</th>
@@ -314,6 +322,22 @@ export default function CrudProductos() {
                       />
                     ) : (
                       p.precio.toFixed(2)
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="number"
+                        value={editando.precio_compra}
+                        onChange={handleEditPrecioCompra}
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "80px",
+                        }}
+                      />
+                    ) : (
+                      p.precio_compra.toFixed(2)
                     )}
                   </td>
                   <td
@@ -429,7 +453,7 @@ export default function CrudProductos() {
           ) : (
             <tr>
               <td
-                colSpan={6}
+                colSpan={7}
                 style={{
                   textAlign: "center",
                   color: "#999",

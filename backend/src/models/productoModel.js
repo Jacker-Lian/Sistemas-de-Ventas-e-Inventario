@@ -6,19 +6,19 @@ class ProductoModel {
   }
 
   async obtenerProductoPorId(id) {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_producto = ? AND estado = 1';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, precio_compra, stock, descripcion, estado, id_categoria, id_proveedor FROM producto WHERE id_producto = ? AND estado = 1';
     const [rows] = await this.pool.query(query, [id]);
     return rows[0]; // Devuelve el primer producto encontrado
   }
 
   async obtenerProductos() {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE estado = 1';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, precio_compra, stock, descripcion, estado, id_categoria, id_proveedor FROM producto WHERE estado = 1';
     const [rows] = await this.pool.query(query);
     return rows;
   }
 
   async buscarProductos(query) {
-    const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE nombre LIKE ? AND estado = 1`;
+    const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, precio_compra, stock, descripcion, estado, id_categoria, id_proveedor FROM producto WHERE nombre LIKE ? AND estado = 1`;
     const [rows] = await this.pool.query(searchQuery, [`%${query}%`]);
     return rows;
   }
@@ -60,7 +60,7 @@ class ProductoModel {
   }
 
   async obtenerProductosPorCategoria(id_categoria) {
-    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ? AND estado = 1';
+    const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, precio_compra, stock, descripcion, estado, id_categoria, id_proveedor FROM producto WHERE id_categoria = ? AND estado = 1';
     const [rows] = await this.pool.query(query, [id_categoria]);
     return rows;
   }
