@@ -1,0 +1,144 @@
+/* Contenedor principal del módulo de caja */
+.caja-module-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fdfdfd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilo para el estado de "Caja Cerrada" */
+.caja-cerrada-container {
+  text-align: center;
+  padding: 3rem;
+}
+
+.caja-cerrada-container h2 {
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.caja-cerrada-container p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Contenedor del loader */
+.caja-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* Dashboard de "Caja Abierta" */
+.caja-abierta-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.caja-info-card,
+.caja-movimiento-card {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: #fff;
+}
+
+.caja-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.caja-info-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #2c3e50;
+}
+
+.caja-info-saldos {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.saldo-item {
+  text-align: center;
+}
+
+.saldo-item span {
+  display: block;
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.25rem;
+}
+
+.saldo-item strong {
+  font-size: 1.4rem;
+}
+
+.saldo-item.ingresos strong {
+  color: #27ae60;
+}
+
+.saldo-item.egresos strong {
+  color: #c0392b;
+}
+
+.saldo-item.neto strong {
+  color: #2980b9;
+}
+
+/* Formulario de Movimiento */
+.caja-movimiento-card h3 {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.movimiento-form .ant-form-item {
+  margin-bottom: 1rem;
+}
+
+/* Para antd oscuro (si lo usas) */
+@media (prefers-color-scheme: dark) {
+  .caja-module-container {
+    background-color: #2d2d2d;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .caja-cerrada-container h2,
+  .caja-abierta-dashboard h3,
+  .caja-info-card,
+  .caja-movimiento-card {
+    color: #f1f1f1;
+    background: #333;
+    border-color: #444;
+  }
+   
+  .caja-cerrada-container p {
+     color: #aaa;
+  }
+
+  .caja-info-header,
+  .caja-movimiento-card h3 {
+    border-color: #444;
+  }
+   
+  .caja-info-saldos {
+    background-color: #2a2a2a;
+  }
+}

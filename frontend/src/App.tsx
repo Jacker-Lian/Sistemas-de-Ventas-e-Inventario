@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
+import Caja from "./components/Caja/Caja";
+import AjusteInventario from './components/AjusteInventario/AjusteInventario'; 
 import Caja from "./components/Caja";
 import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
 import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
