@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Producto {
   id: number;
   nombre: string;
-  precio: number;
+  precio_venta: number;
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
@@ -27,9 +27,15 @@ export default function CrudProductos() {
       ? `?action=search&query=${encodeURIComponent(busqueda.trim())}`
       : "";
 
-    // Realizar la solicitud con fetch hacia la ruta correcta
     const res = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`
+      `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`,
+       {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
 
     if (!res.ok) {
@@ -45,7 +51,7 @@ export default function CrudProductos() {
     const productosNormalizados: Producto[] = productosRaw.map((p: any) => ({
       id: Number(p.id),
       nombre: p.nombre ?? "",
-      precio: Number(p.precio) || 0,
+      precio_venta: Number(p.precio_venta) || 0,
       stock: Number(p.stock) || 0,
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
@@ -64,7 +70,10 @@ export default function CrudProductos() {
     setMensaje("Error al buscar productos");
   }
 };
-
+  useEffect(() => {
+    buscarProductos();
+  }, []);
+  
   // Guardar cambios de edición
   const guardarCambios = async () => {
     if (!editando) return;
@@ -78,8 +87,8 @@ export default function CrudProductos() {
       const payload = {
         id: Number(editando.id),
         nombre: String(editando.nombre).trim(),
-        precio_venta: Number(editando.precio),
-        precio_compra: Number(editando.precio),
+        precio_venta: Number(editando.precio_venta),
+        // precio_compra: Number(editando.precio), (no esta en la base de datos ??)
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
         id_categoria: Number(editando.id_categoria) || 1,
@@ -138,7 +147,7 @@ export default function CrudProductos() {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/productos/desactivarProducto`,
+        `${import.meta.env.VITE_SERVER_URL}/api/productos/desactivarProducto`,
         {
           method: "PUT",
           headers: {
@@ -295,7 +304,7 @@ export default function CrudProductos() {
                     {editando?.id === p.id ? (
                       <input
                         type="number"
-                        value={editando.precio}
+                        value={editando.precio_venta}
                         onChange={handleEditPrecio}
                         style={{
                           border: "1px solid #000",
@@ -304,7 +313,7 @@ export default function CrudProductos() {
                         }}
                       />
                     ) : (
-                      p.precio.toFixed(2)
+                      p.precio_venta.toFixed(2)
                     )}
                   </td>
                   <td

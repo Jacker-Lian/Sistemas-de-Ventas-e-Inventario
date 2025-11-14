@@ -83,6 +83,23 @@
     transform: translateY(-1px);
 }
 
+.btn-crud-inventario {
+    display: inline-block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 16px;
+    transition: background-color 0.2s, transform 0.08s;
+}
+
+.btn-crud-inventario:hover {
+    background-color: #0069d9;
+    transform: translateY(-1px);
+}
+
 /* Estilos de Alerta */
 .alerta {
     padding: 15px;
