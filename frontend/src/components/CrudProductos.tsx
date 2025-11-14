@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface Producto {
   id: number;
   nombre: string;
   precio: number;
-<<<<<<< HEAD
-  precio_compra: number;
-=======
-  precio_compra?: number;
->>>>>>> 6f6e32c49418de895ab40b7dffefa697616e7df3
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
@@ -32,15 +27,9 @@ export default function CrudProductos() {
       ? `?action=search&query=${encodeURIComponent(busqueda.trim())}`
       : "";
 
+    // Realizar la solicitud con fetch hacia la ruta correcta
     const res = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`,
-      {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`
     );
 
     if (!res.ok) {
@@ -49,15 +38,14 @@ export default function CrudProductos() {
 
     const data = await res.json();
 
-        // Validar y extraer los productos del backend
-        const productosRaw = Array.isArray(data?.productos) ? data.productos : [];
+    // Validar y extraer los productos del backend
+    const productosRaw = Array.isArray(data?.productos) ? data.productos : [];
 
     // Normalizar los datos recibidos
     const productosNormalizados: Producto[] = productosRaw.map((p: any) => ({
       id: Number(p.id),
       nombre: p.nombre ?? "",
       precio: Number(p.precio) || 0,
-      precio_compra: Number(p.precio_compra) || 0,
       stock: Number(p.stock) || 0,
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
@@ -77,38 +65,6 @@ export default function CrudProductos() {
   }
 };
 
-    // Obtener producto completo desde backend antes de editar
-    const obtenerYEditar = async (id: number) => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProducto/${id}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) throw new Error(`Error al obtener producto (${res.status})`);
-        const data = await res.json();
-        const p: Producto = {
-          id: Number(data.id),
-          nombre: data.nombre ?? '',
-          precio: Number(data.precio) || 0,
-          precio_compra: typeof data.precio_compra !== 'undefined' ? Number(data.precio_compra) : undefined,
-          stock: Number(data.stock) || 0,
-          estado: data.estado,
-          descripcion: data.descripcion ?? null,
-          id_categoria: data.id_categoria ? Number(data.id_categoria) : undefined,
-          id_proveedor: data.id_proveedor ? Number(data.id_proveedor) : undefined,
-        };
-        setEditando(p);
-        setMensaje('');
-      } catch (err) {
-        console.error(err);
-        setMensaje('Error al obtener datos completos del producto');
-      }
-    };
-  useEffect(() => {
-    buscarProductos();
-  }, []);
-  
   // Guardar cambios de edición
   const guardarCambios = async () => {
     if (!editando) return;
@@ -123,16 +79,11 @@ export default function CrudProductos() {
         id: Number(editando.id),
         nombre: String(editando.nombre).trim(),
         precio_venta: Number(editando.precio),
-<<<<<<< HEAD
-        precio_compra: Number(editando.precio_compra),
-=======
-        // Usar precio_compra si está disponible, si no tomar precio_venta
-        precio_compra: typeof editando.precio_compra !== 'undefined' ? Number(editando.precio_compra) : Number(editando.precio) || 0,
->>>>>>> 6f6e32c49418de895ab40b7dffefa697616e7df3
+        precio_compra: Number(editando.precio),
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
-        id_categoria: Number(editando.id_categoria ?? 1),
-        id_proveedor: Number(editando.id_proveedor ?? 1),
+        id_categoria: Number(editando.id_categoria) || 1,
+        id_proveedor: Number(editando.id_proveedor) || 1,
       };
 
       const res = await fetch(
@@ -142,8 +93,6 @@ export default function CrudProductos() {
           headers: {
             "Content-Type": "application/json",
           },
-          // Incluir credenciales para rutas protegidas
-          credentials: 'include',
           body: JSON.stringify(payload),
         }
       );
@@ -183,11 +132,6 @@ export default function CrudProductos() {
       prev ? { ...prev, stock: parseInt(e.target.value) || 0 } : prev
     );
 
-  const handleEditPrecioCompra = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setEditando((prev) =>
-      prev ? { ...prev, precio_compra: parseFloat(e.target.value) || 0 } : prev
-    );
-
   // Cambiar estado del producto a inactivo
   const desactivarProducto = async (id: number) => {
     if (!confirm("¿Deseas marcar este producto como inactivo?")) return;
@@ -200,7 +144,6 @@ export default function CrudProductos() {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: 'include',
           body: JSON.stringify({ id }),
         }
       );
@@ -314,7 +257,6 @@ export default function CrudProductos() {
             <th style={{ padding: "10px", border: "1px solid #000" }}>ID</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Precio</th>
-            <th style={{ padding: "10px", border: "1px solid #000" }}>Precio Compra</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Stock</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Estado</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Acciones</th>
@@ -363,22 +305,6 @@ export default function CrudProductos() {
                       />
                     ) : (
                       p.precio.toFixed(2)
-                    )}
-                  </td>
-                  <td style={{ padding: "10px", border: "1px solid #000" }}>
-                    {editando?.id === p.id ? (
-                      <input
-                        type="number"
-                        value={editando.precio_compra}
-                        onChange={handleEditPrecioCompra}
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          width: "80px",
-                        }}
-                      />
-                    ) : (
-                      p.precio_compra.toFixed(2)
                     )}
                   </td>
                   <td
@@ -456,7 +382,7 @@ export default function CrudProductos() {
                             }}
                           >
                             <button
-                              onClick={() => obtenerYEditar(p.id)}
+                              onClick={() => setEditando(p)}
                               style={{
                                 border: "2px solid #000",
                                 background: "transparent",
@@ -494,7 +420,7 @@ export default function CrudProductos() {
           ) : (
             <tr>
               <td
-                colSpan={7}
+                colSpan={6}
                 style={{
                   textAlign: "center",
                   color: "#999",
