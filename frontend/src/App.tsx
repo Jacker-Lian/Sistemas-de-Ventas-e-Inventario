@@ -85,6 +85,7 @@ function App() {
               </PrivateRoute>
             } 
           />
+          <Route
             path="/categorias" 
             element={
               <PrivateRoute roles={['ADMIN']}>
