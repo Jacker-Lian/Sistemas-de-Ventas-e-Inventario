@@ -7,15 +7,23 @@ class ProductoModel {
 
   async obtenerProductoPorId(id) {
     const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_producto = ? AND estado = 1';
+    
     const [rows] = await this.pool.query(query, [id]);
     return rows[0]; // Devuelve el primer producto encontrado
   }
-
+//metodo usadoo por gandy mas y un compañero
   async obtenerProductos() {
     const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE estado = 1';
     const [rows] = await this.pool.query(query);
     return rows;
   }
+
+async obtenerSoloVentas() {
+    const query = ` SELECT id_producto, SUM(cantidad) AS total_vendido FROM  detalle_venta GROUP BY   id_producto;  `;
+           
+    const [rows] = await this.pool.query(query);
+    return rows;
+}
 
   async buscarProductos(query) {
     const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE nombre LIKE ? AND estado = 1`;
@@ -59,14 +67,34 @@ class ProductoModel {
     return result.affectedRows > 0;
   }
 
-  //gandy correcion
-  async obtenerProductosParaAlertas() {
-    const query = `SELECT id_producto, nombre, stock 
-                  FROM producto 
-                  WHERE estado = 1`;
-    const [productos] = await this.pool.query(query);
-    return productos;
-  }
+
+
+  async obtenerStockConVentas() {
+    const query = `
+        SELECT 
+            p.id_producto AS id, 
+            p.nombre, 
+            p.stock,
+            p.stock_minimo, 
+            IFNULL(SUM(v.cantidad), 0) AS vendidos,
+            (p.stock <= p.stock_minimo) AS alerta_stock,
+            p.precio_venta AS precio, 
+            p.descripcion, 
+            p.estado 
+        FROM producto p
+        LEFT JOIN detalle_venta v ON v.id_producto = p.id_producto
+        WHERE p.estado = 1
+        GROUP BY p.id_producto, p.nombre, p.stock, p.stock_minimo, p.precio_venta, p.descripcion, p.estado
+        ORDER BY p.nombre;
+    `;
+    const [rows] = await this.pool.query(query);
+    return rows;
+}
+
+
+
+  
+  
 
   async obtenerProductosPorCategoria(id_categoria) {
     const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_categoria = ? AND estado = 1';
