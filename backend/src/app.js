@@ -129,11 +129,7 @@ class App {
 
 
     // Ruta 404
-    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
-    this.app.use(
-        "/api/detalle-venta", 
-        detalleVentaRoutesInstance.getRouter()
-    );
+    
     const sucursalRoutesInstance = new SucursalRoutes();
     this.app.use("/api/sucursales", sucursalRoutesInstance.getRouter());
     
