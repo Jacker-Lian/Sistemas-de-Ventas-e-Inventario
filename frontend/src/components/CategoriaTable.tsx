@@ -8,90 +8,184 @@ interface Categoria {
   estado: boolean; // TRUE = Activa, FALSE = Inactiva
 }
 
-// Interfaz para los datos que se pueden editar
 interface EditCategoriaState {
   id_categoria: number;
   nombre: string;
   descripcion: string;
 }
 
-// INTERFAZ AGREGADA para tipificar los datos tal como vienen de la API (RAW)
+interface NuevaCategoriaState {
+  nombre: string;
+  descripcion: string;
+}
+
 interface CategoriaRaw {
   id_categoria: number;
   nombre: string;
   descripcion: string;
   estado: number | boolean | string | null | undefined; 
 }
+// Define los valores posibles para el filtro
+type FilterState = 'ALL' | 'ACTIVE' | 'INACTIVE'; 
+// --- Fin Interfaces ---
+
+// Función auxiliar para obtener el mensaje de error de forma segura
+const getErrorMessage = (error: unknown): string => {
+    if (error instanceof Error) {
+        return error.message;
+    }
+    // Para manejar errores que no son instancias de Error (como objetos JSON del backend)
+    if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message: unknown }).message === 'string') {
+        return (error as { message: string }).message;
+    }
+    return "Error desconocido del servidor.";
+};
+
 
 export default function CrudCategorias() {
   const [busqueda, setBusqueda] = useState("");
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [mensaje, setMensaje] = useState("");
   const [editando, setEditando] = useState<EditCategoriaState | null>(null);
+  
+  const [nuevaCategoria, setNuevaCategoria] = useState<NuevaCategoriaState>({
+    nombre: "",
+    descripcion: "",
+  });
+  
+  // ESTADO DEL FILTRO: Por defecto, mostrar solo Activas
+  const [filter, setFilter] = useState<FilterState>('ACTIVE'); 
 
-  // 🎯 DEFINICIÓN CONSISTENTE DE LA URL BASE (Usaremos esto en todas las llamadas)
-  //const BASE_URL = "http://localhost:3000"; // Ajusta según tu configuración
-  // 2. Función para Cargar/Recargar Datos (Estabilizada con useCallback)
+  // 2. Función para Cargar/Recargar Datos (GET)
   const buscarCategorias = useCallback(async () => {
     const trimmedBusqueda = busqueda.trim();
     setMensaje("Cargando...");
 
     try {
-      // ✅ Usa Server: Construir la URL: /api/categorias o /api/categorias/buscar/:nombre
-      const url = trimmedBusqueda
-        ? `${Server}/api/categorias/buscar/${encodeURIComponent(trimmedBusqueda)}`
-        : `${Server}/api/categorias`;
+      let url = `${Server}/api/categorias`; // URL por defecto (Activas, sin búsqueda)
 
-      const res = await fetch(url);
-
-      // ✅ Manejar 404: Si el backend envía 404 (lista vacía o no encontrada)
-      if (res.status === 404) {
-        setCategorias([]);
-        setMensaje(trimmedBusqueda 
-            ? `No se encontraron coincidencias para "${trimmedBusqueda}"` 
-            : "No hay categorías disponibles."); 
-        return;
+      // 🛑 LÓGICA CLAVE: Determinar la URL basada en la Búsqueda y el Filtro
+      
+      // 1. Si hay TÉRMINO DE BÚSQUEDA por nombre
+      if (trimmedBusqueda) {
+        const encodedBusqueda = encodeURIComponent(trimmedBusqueda);
+        
+        if (filter === 'ACTIVE') {
+          // Ruta para buscar en ACTIVAS: /buscar/:nombre
+          url = `${Server}/api/categorias/buscar/${encodedBusqueda}`;
+        } else if (filter === 'INACTIVE') {
+          // Ruta para buscar en INACTIVAS: /buscar/inactivas/:nombre
+          url = `${Server}/api/categorias/buscar/inactivas/${encodedBusqueda}`;
+        } else { // filter === 'ALL'
+          // Ruta para buscar en TODAS: /buscar/all/:nombre
+          url = `${Server}/api/categorias/buscar/all/${encodedBusqueda}`;
+        }
+      } 
+      // 2. Si NO hay BÚSQUEDA por nombre (Solo Listado Filtrado por estado)
+      else {
+        if (filter === 'INACTIVE') {
+          // Ruta para Listar SOLO INACTIVAS: /inactivas
+          url = `${Server}/api/categorias/inactivas`;
+        } else if (filter === 'ALL') {
+          // Ruta para Listar TODAS: /all
+          url = `${Server}/api/categorias/all`;
+        }
+        // Si filter === 'ACTIVE', la URL por defecto (`${Server}/api/categorias`) ya es correcta.
       }
       
+      const res = await fetch(url);
+
       if (!res.ok) {
-        // Lanza el error si es 500, 401, etc.
-        throw new Error(`Error HTTP: ${res.status}`);
+        if (res.status === 404) {
+            setCategorias([]);
+            // Mensaje de 404 más específico
+            const filterLabel = filter === 'ACTIVE' ? 'activas' : filter === 'INACTIVE' ? 'inactivas' : 'disponibles';
+            setMensaje(trimmedBusqueda 
+                ? `No se encontraron coincidencias para "${trimmedBusqueda}" en categorías ${filterLabel.split(' ')[0]}.` 
+                : `No hay categorías ${filterLabel} registradas.`);
+            return;
+        }
+        // En caso de un error HTTP (ej. 500)
+        const errorData = await res.json().catch(() => ({ message: `Error HTTP: ${res.status}` }));
+        throw new Error(errorData.message || `Error HTTP: ${res.status}`);
       }
 
       const data = await res.json();
-
       const categoriasRaw: CategoriaRaw[] = Array.isArray(data) ? data : [];
       
       const categoriasNormalizadas: Categoria[] = categoriasRaw.map((c: CategoriaRaw) => ({
         id_categoria: Number(c.id_categoria),
         nombre: c.nombre ?? "",
         descripcion: c.descripcion ?? "",
-        // Conversión robusta: asume 'estado' es 1 o 0, o ya es booleano
-        estado: c.estado === undefined || c.estado === null ? true : Boolean(Number(c.estado)),
+        // Asume que 1/true es activo, 0/false es inactivo
+        estado: c.estado === undefined || c.estado === null ? true : Boolean(Number(c.estado)), 
       }));
 
-      // Actualizar estado
       setCategorias(categoriasNormalizadas);
+      
+      // Ajuste del mensaje de éxito
+      const filterLabel = filter === 'ACTIVE' ? 'activas' : filter === 'INACTIVE' ? 'inactivas' : 'todas';
       setMensaje(
-        categoriasNormalizadas.length && trimmedBusqueda ? `Resultados para "${trimmedBusqueda}"` : ""
+        categoriasNormalizadas.length && trimmedBusqueda 
+        ? `Resultados de búsqueda para "${trimmedBusqueda}" (${filterLabel}).` 
+        : categoriasNormalizadas.length 
+        ? `Mostrando ${categoriasNormalizadas.length} categorías (${filterLabel}).`
+        : `No hay categorías ${filterLabel} registradas.`
       );
-      if (!categoriasNormalizadas.length && !trimmedBusqueda) {
-          setMensaje("No hay categorías activas registradas.");
-      }
       
     } catch (err) {
       console.error(err);
-      setMensaje("Error al buscar categorías");
+      setMensaje(getErrorMessage(err)); 
     }
-  // 🚨 Dependencia de useCallback: solo busqueda cambia.
-  }, [busqueda]); 
+  }, [busqueda, filter]); 
   
-  // Cargar datos al montar el componente
   useEffect(() => {
       buscarCategorias();
   }, [buscarCategorias]); 
 
-  // 3. ✍️ Guardar cambios de edición (PUT)
+  // 1. Función para CREAR nueva categoría (POST)
+  const crearCategoria = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevaCategoria.nombre.trim()) {
+      setMensaje("El nombre de la nueva categoría es obligatorio.");
+      return;
+    }
+
+    try {
+      setMensaje("Creando categoría...");
+      const payload = {
+        nombre: String(nuevaCategoria.nombre).trim(),
+        descripcion: String(nuevaCategoria.descripcion).trim(),
+      };
+
+      const res = await fetch(
+        `${Server}/api/categorias/crear`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: `Error HTTP: ${res.status}` }));
+        throw new Error(errorData.message || `Error del servidor al crear (${res.status})`);
+      }
+
+      const nueva = await res.json();
+
+      setMensaje(`Categoría "${nueva.nombre}" creada con éxito.`);
+      setNuevaCategoria({ nombre: "", descripcion: "" }); // Limpiar formulario
+      buscarCategorias(); // Recargar la lista
+    } catch (err) {
+      console.error("Error de creación:", err);
+      setMensaje(getErrorMessage(err)); 
+    }
+  };
+
+  // 3. Guardar cambios de edición (PUT)
   const guardarCambios = async () => {
     if (!editando) return;
     if (!editando.nombre.trim()) {
@@ -100,13 +194,12 @@ export default function CrudCategorias() {
     }
 
     try {
-      // Validar datos antes de enviar
+      setMensaje("Guardando cambios...");
       const payload = {
         nombre: String(editando.nombre).trim(),
         descripcion: String(editando.descripcion).trim(),
       };
 
-      // ✅ Usa Server
       const res = await fetch(
         `${Server}/api/categorias/actualizar/${editando.id_categoria}`,
         {
@@ -119,7 +212,8 @@ export default function CrudCategorias() {
       );
 
       if (!res.ok) {
-        throw new Error(`Error del servidor (${res.status})`);
+        const errorData = await res.json().catch(() => ({ message: `Error HTTP: ${res.status}` }));
+        throw new Error(errorData.message || `Error del servidor (${res.status})`);
       }
 
       const data = await res.json();
@@ -129,17 +223,17 @@ export default function CrudCategorias() {
       buscarCategorias(); // Recargar para mostrar el cambio
     } catch (err) {
       console.error(err);
-      setMensaje("Error al actualizar la categoría");
+      setMensaje(getErrorMessage(err)); 
     }
   };
   
-  // 4. 🗑️ Desactivar (Eliminación Lógica) (DELETE)
+  // 4. Desactivar (Eliminación Lógica) (DELETE)
   const desactivarCategoria = async (id: number) => {
     const categoriaEncontrada = categorias.find(c => c.id_categoria === id);
     if (!categoriaEncontrada || !confirm(`¿Deseas marcar la categoría "${categoriaEncontrada.nombre}" como inactiva?`)) return;
 
     try {
-      // ✅ Usa Server
+      setMensaje("Desactivando categoría...");
       const res = await fetch(
         `${Server}/api/categorias/eliminar/${id}`,
         {
@@ -148,20 +242,52 @@ export default function CrudCategorias() {
       );
 
       if (!res.ok) {
-        throw new Error(`Error del servidor (${res.status})`);
+        const errorData = await res.json().catch(() => ({ message: `Error HTTP: ${res.status}` }));
+        throw new Error(errorData.message || `Error del servidor (${res.status})`);
       }
 
       const data = await res.json();
 
       setMensaje(data.message || "Categoría marcada como inactiva");
-      buscarCategorias(); // Recargar la lista (que filtra por estado=TRUE)
+      buscarCategorias(); 
     } catch (err) {
       console.error(err);
-      setMensaje("Error al cambiar el estado de la categoría");
+      setMensaje(getErrorMessage(err)); 
     }
   };
 
-  // 5. Handlers tipados para inputs
+  // 5. Función para REACTIVAR categoría (PUT)
+  const reactivarCategoria = async (id: number) => {
+    const categoriaEncontrada = categorias.find(c => c.id_categoria === id);
+    if (!categoriaEncontrada || !confirm(`¿Deseas reactivar la categoría "${categoriaEncontrada.nombre}"?`)) return;
+
+    try {
+      setMensaje("Reactivando categoría...");
+      // Ruta de reactivación implementada en el backend: /api/categorias/reactivar/:id 
+      const res = await fetch(
+        `${Server}/api/categorias/reactivar/${id}`, 
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: `Error HTTP: ${res.status}` }));
+        throw new Error(errorData.message || `Error del servidor (${res.status})`);
+      }
+
+      const data = await res.json();
+
+      setMensaje(data.message || "Categoría reactivada correctamente");
+      buscarCategorias(); 
+    } catch (err) {
+      console.error(err);
+      setMensaje(getErrorMessage(err)); 
+    }
+  };
+
+
+  // 6. Handlers tipados para inputs
   const handleBusquedaChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setBusqueda(e.target.value);
 
@@ -171,8 +297,23 @@ export default function CrudCategorias() {
           prev ? { ...prev, [name]: value } : prev
       );
   };
+  
+  const handleNuevaCategoriaChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNuevaCategoria((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  
+  // Handler para el filtro de estado
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setFilter(e.target.value as FilterState);
+      setBusqueda(""); // Limpiar búsqueda al cambiar el filtro para priorizar el filtro de estado
+  };
 
-  // 6. 🖼️ Renderizado
+
+  // 7. Renderizado (Se mantiene sin cambios)
   return (
     <div
       className="crud-container"
@@ -195,34 +336,115 @@ export default function CrudCategorias() {
           marginBottom: "10px",
         }}
       >
-        Gestion de Categorías
+        Gestión de Categorías
       </h1>
       <p style={{ textAlign: "center", marginBottom: "30px" }}>
-        Busca, edita o marca categorías como inactivas.
+        Crea, busca, edita, desactiva y reactiva categorías.
       </p>
-
-      {/* Barra de búsqueda */}
+      
+      {/* Formulario de Creación */}
       <div
-        className="search-bar"
+        style={{
+          border: "1px dashed #333",
+          padding: "20px",
+          marginBottom: "30px",
+          borderRadius: "8px",
+          backgroundColor: "#f9f9f9",
+        }}
+      >
+        <h3 style={{ marginTop: 0, borderBottom: "1px solid #ddd", paddingBottom: "10px" }}>
+          ➕ Crear Nueva Categoría
+        </h3>
+        <form onSubmit={crearCategoria} style={{ display: "flex", gap: "15px", flexDirection: "column" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input
+              type="text"
+              name="nombre"
+              placeholder="Nombre (obligatorio)"
+              value={nuevaCategoria.nombre}
+              onChange={handleNuevaCategoriaChange}
+              required
+              style={{
+                flex: 1,
+                padding: "8px",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+              }}
+            />
+            <input
+              type="text"
+              name="descripcion"
+              placeholder="Descripción (opcional)"
+              value={nuevaCategoria.descripcion}
+              onChange={handleNuevaCategoriaChange}
+              style={{
+                flex: 2,
+                padding: "8px",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+              }}
+            />
+          </div>
+          <button
+            type="submit"
+            style={{
+              border: "2px solid #000",
+              background: "#000",
+              color: "#fff",
+              fontWeight: "bold",
+              padding: "10px 15px",
+              borderRadius: "5px",
+              cursor: "pointer",
+              transition: "background 0.3s",
+            }}
+          >
+            Guardar Categoría
+          </button>
+        </form>
+      </div>
+      
+      <hr style={{ border: "0", borderTop: "1px solid #eee", margin: "30px 0" }} />
+
+
+      {/* Barra de búsqueda y Filtro */}
+      <div
+        className="search-and-filter-bar"
         style={{
           display: "flex",
-          justifyContent: "center",
+          justifyContent: "space-between", 
           gap: "10px",
           margin: "20px 0",
         }}
       >
+        {/* Input de Búsqueda */}
         <input
           type="text"
           placeholder="Buscar categoría por nombre..."
           value={busqueda}
           onChange={handleBusquedaChange}
           style={{
-            width: "60%",
+            flexGrow: 1, 
             padding: "8px",
             border: "2px solid #000",
             borderRadius: "5px",
           }}
         />
+        
+        {/* Selector de Filtro */}
+        <select
+            value={filter}
+            onChange={handleFilterChange}
+            style={{
+              width: "150px", 
+              padding: "8px",
+              border: "2px solid #000",
+              borderRadius: "5px",
+            }}
+        >
+            <option value="ACTIVE">Activas</option>
+            <option value="INACTIVE">Inactivas</option>
+            <option value="ALL">Todas</option>
+        </select>
         
       </div>
 
@@ -274,39 +496,17 @@ export default function CrudCategorias() {
                 >
                   <td style={{ padding: "10px", border: "1px solid #000" }}>{c.id_categoria}</td>
                   
-                  {/* Nombre */}
+                  {/* Nombre y Descripción */}
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        name="nombre"
-                        value={editando?.nombre || ""}
-                        onChange={handleEditChange}
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          width: "100%",
-                        }}
-                      />
+                      <input type="text" name="nombre" value={editando?.nombre || ""} onChange={handleEditChange} style={{ border: "1px solid #000", padding: "4px", width: "100%", }} />
                     ) : (
                       c.nombre
                     )}
                   </td>
-                  
-                  {/* Descripción */}
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        name="descripcion"
-                        value={editando?.descripcion || ""}
-                        onChange={handleEditChange}
-                        style={{
-                          border: "1px solid #000",
-                          padding: "4px",
-                          width: "100%",
-                        }}
-                      />
+                      <input type="text" name="descripcion" value={editando?.descripcion || ""} onChange={handleEditChange} style={{ border: "1px solid #000", padding: "4px", width: "100%", }} />
                     ) : (
                       c.descripcion
                     )}
@@ -319,88 +519,48 @@ export default function CrudCategorias() {
                   
                   {/* Acciones */}
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
-                    {!isInactive && (
-                      <>
-                        {isEditing ? (
-                          <div
+                    {isEditing ? (
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                        <button onClick={guardarCambios} style={{ border: "2px solid #000", background: "#000", color: "#fff", fontWeight: "bold", padding: "6px 10px", borderRadius: "5px", cursor: "pointer", }} title="Guardar">Guardar</button>
+                        <button onClick={() => setEditando(null)} style={{ border: "2px solid #000", background: "#fff", color: "#000", fontWeight: "bold", padding: "6px 10px", borderRadius: "5px", cursor: "pointer", }} title="Cancelar edición">Cancelar</button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+                        {isInactive ? (
+                          // 🟢 Mostrar botón REACTIVAR si está Inactiva
+                          <button
+                            onClick={() => reactivarCategoria(c.id_categoria)}
                             style={{
-                              display: "flex",
-                              gap: "6px",
-                              justifyContent: "center",
+                              border: "2px solid #000",
+                              background: "#d4edda", // Fondo ligeramente verde
+                              color: "#000",
+                              fontWeight: "bold",
+                              padding: "6px 10px",
+                              borderRadius: "5px",
+                              cursor: "pointer",
                             }}
+                            title="Reactivar categoría"
                           >
-                            <button
-                              onClick={guardarCambios}
-                              style={{
-                                border: "2px solid #000",
-                                background: "#000",
-                                color: "#fff",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                              }}
-                              title="Guardar"
-                            >
-                              Guardar
-                            </button>
-                            <button
-                              onClick={() => setEditando(null)}
-                              style={{
-                                border: "2px solid #000",
-                                background: "#fff",
-                                color: "#000",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                              }}
-                              title="Cancelar edición"
-                            >
-                              Cancelar
-                            </button>
-                          </div>
+                            Reactivar
+                          </button>
                         ) : (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "6px",
-                              justifyContent: "center",
-                            }}
-                          >
+                          // ✏️🗑️ Mostrar botones EDITAR y DESACTIVAR si está Activa
+                          <>
                             <button
                               onClick={() => setEditando(c)}
-                              style={{
-                                border: "2px solid #000",
-                                background: "transparent",
-                                color: "#000",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                              }}
-                              title="Editar categoría"
+                              style={{ border: "2px solid #000", background: "transparent", color: "#000", fontWeight: "bold", padding: "6px 10px", borderRadius: "5px", cursor: "pointer", }} title="Editar categoría"
                             >
                               Editar
                             </button>
                             <button
                               onClick={() => desactivarCategoria(c.id_categoria)}
-                              style={{
-                                border: "2px solid #000",
-                                background: "#fff",
-                                color: "#000",
-                                fontWeight: "bold",
-                                padding: "6px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer",
-                              }}
-                              title="Marcar como inactiva"
+                              style={{ border: "2px solid #000", background: "#fff", color: "#000", fontWeight: "bold", padding: "6px 10px", borderRadius: "5px", cursor: "pointer", }} title="Marcar como inactiva"
                             >
                               Inactivar
                             </button>
-                          </div>
+                          </>
                         )}
-                      </>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -408,14 +568,7 @@ export default function CrudCategorias() {
             })
           ) : (
             <tr>
-              <td
-                colSpan={5} // Colspan ajustado para 5 columnas
-                style={{
-                  textAlign: "center",
-                  color: "#999",
-                  padding: "12px",
-                }}
-              >
+              <td colSpan={5} style={{ textAlign: "center", color: "#999", padding: "12px", }}>
                 Sin resultados
               </td>
             </tr>
