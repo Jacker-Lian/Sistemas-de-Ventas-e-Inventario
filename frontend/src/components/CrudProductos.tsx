@@ -85,14 +85,14 @@ export default function CrudProductos() {
     try {
   // Validar datos antes de enviar
       const payload = {
-        id: Number(editando.id),
-        nombre: String(editando.nombre).trim(),
-        precio_venta: Number(editando.precio),
-        precio_compra: 0, // Valor por defecto ya que no se edita en UI
-        stock: Number(editando.stock),
-        descripcion: editando.descripcion ? String(editando.descripcion) : "",
-        id_categoria: Number(editando.id_categoria) || 1,
-        id_proveedor: Number(editando.id_proveedor) || 1,
+          id: Number(editando.id),
+          nombre: String(editando.nombre).trim(),
+          precio_venta: Number(editando.precio),
+          precio_compra: 0, 
+          stock: Number(editando.stock),
+          descripcion: editando.descripcion ? String(editando.descripcion) : "",
+          id_categoria: Number(editando.id_categoria),   // <---- CORREGIDO
+          id_proveedor: Number(editando.id_proveedor),   // <---- CORREGIDO
       };
 
       const res = await fetch(
