@@ -10,6 +10,7 @@ import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 import Sucursales from "./components/Sucursales";
+import Proveedor from "./components/Proveedor/Proveedor";
 import { Gastos } from "./components/Gastos";
 
 
