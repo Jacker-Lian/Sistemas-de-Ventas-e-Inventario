@@ -67,7 +67,7 @@ class App {
 
         
           Stock: "/api/stock",
-          Proveedores: "/api/proveedores"
+      
           Proveedores: "/api/proveedores",
           Gastos: "/api/gastos",
         },
@@ -124,12 +124,7 @@ class App {
 
 
 
-    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
-    this.app.use(
-        "/api/detalle-venta", 
-        detalleVentaRoutesInstance.getRouter()
-    );
-    
+
     // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
