@@ -37,7 +37,8 @@ const Proveedor = () => {
   const [form] = Form.useForm();
 
   // ✅ URL base configurable desde .env
-  const baseURL = import.meta.env.VITE_SERVER_URL;
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 
   const columns = [
     {
