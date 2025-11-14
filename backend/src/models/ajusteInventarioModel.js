@@ -103,14 +103,14 @@ const AjusteInventarioModel = {
                 valores.push(`%${filtros.nombre_usuario}%`);
             }
             if(filtros.nombre_producto){
-                condiciones.push("u.nombre LIKE ?");
+                condiciones.push("p.nombre LIKE ?");
                 valores.push(`%${filtros.nombre_producto}%`);
             }
             if(filtros.fecha_inicio){
                 condiciones.push("DATE(ai.fecha_creacion) >= ?");
-                valores.push(filtros.fecha_fin)
+                valores.push(filtros.fecha_inicio)
             }
-            if(filtros.tipo_fin){
+            if(filtros.fecha_fin){
                 condiciones.push("DATE (ai.fecha_creacion) <= ?");
                 valores.push(filtros.fecha_fin)
             }
@@ -119,7 +119,7 @@ const AjusteInventarioModel = {
                 valores.push(filtros.tipo_ajuste)
             }
             if(condiciones.length > 0){
-                consultasSQL =+ " WHERE " + condiciones.join(" AND ");
+                consultaSQL += " WHERE " + condiciones.join(" AND ");
             }
             
             
