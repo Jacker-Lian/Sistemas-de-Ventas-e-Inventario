@@ -4,6 +4,17 @@ import ControlStock  from "./components/control-stock";
 
 import { Login, Admin, Caja, AjusteInventario, PrivateRoute, 
   CrudCategorias, RegistrarVenta, HistorialVentas, ReporteVentas, Gastos,  } from './components';
+import Login from "./components/Login";
+import Admin from "./components/Admin";
+import Caja from "./components/Caja";
+import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
+import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
+import PrivateRoute from "./components/PrivateRoute";
+import CrudCategorias from "./components/CategoriaTable";
+import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
+import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+import Sucursales from "./components/Sucursales";
+import { Gastos } from "./components/Gastos";
 
 
 function App() {
@@ -70,6 +81,14 @@ function App() {
             } 
           />
           <Route 
+            path="/admin/Sucursales" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Sucursales />
+              </PrivateRoute>
+            } 
+          />
+          <Route
             path="/categorias" 
             element={
               <PrivateRoute roles={['ADMIN']}>
