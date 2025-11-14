@@ -9,6 +9,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+import Sucursales from "./components/Sucursales";
+import { Gastos } from "./components/Gastos";
 import CrudProductos from './components/CrudProductos';
 
 
@@ -75,6 +77,30 @@ function App() {
                 <ReporteVentas />
               </PrivateRoute>
             } 
+          />
+           <Route 
+            path="/admin/Sucursales" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Sucursales />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/categorias" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudCategorias />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/gastos"
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <Gastos />
+              </PrivateRoute>
+            }
           />
           <Route 
             path="/CrudProductos" 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
