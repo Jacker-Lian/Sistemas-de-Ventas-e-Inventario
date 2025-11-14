@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from 'react-router-dom'; // ✅ Correcto
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
@@ -11,8 +11,6 @@ import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 import Proveedor from "./components/Proveedor/Proveedor";
 
-import { Login, Admin, Caja, AjusteInventario, PrivateRoute, 
-  CrudCategorias, RegistrarVenta, HistorialVentas, ReporteVentas, Gastos  } from './components';
 
 
 function App() {
@@ -87,22 +85,6 @@ function App() {
                 <ReporteVentas />
               </PrivateRoute>
             } 
-          />
-          <Route 
-            path="/categorias" 
-            element={
-              <PrivateRoute roles={['ADMIN']}>
-                <CrudCategorias />
-              </PrivateRoute>
-            } 
-          />
-          <Route
-            path="/gastos"
-            element={
-              <PrivateRoute roles={['ADMIN', 'CAJA']}>
-                <Gastos />
-              </PrivateRoute>
-            }
           />
         </Routes>
       </AuthProvider>

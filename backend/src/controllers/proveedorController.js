@@ -36,7 +36,7 @@ const proveedorController = {
     try {
       const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // ✅ Validación completa
+      //  Validación completa
       if (!nombre || typeof nombre !== "string" || nombre.trim() === "")
         return res.status(400).json({ message: "Nombre inválido" });
 
@@ -82,7 +82,7 @@ const proveedorController = {
 
       const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // ✅ Validación completa
+      //  Validación completa
       if (!nombre || typeof nombre !== "string" || nombre.trim() === "")
         return res.status(400).json({ message: "Nombre inválido" });
 
