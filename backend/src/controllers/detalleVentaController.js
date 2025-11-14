@@ -12,16 +12,21 @@ const detalleVentaController = {
             
             if (resultado) {
                 return res.status(201).json({ 
-                    mensaje: "Detalle de venta registrado correctamente",
-                    id_insertado: resultado
+                    success: true,
+                    message: "Detalle de venta registrado correctamente",
+                    data: { id_insertado: resultado.insertId }
                 });
             } else {
-                return res.status(400).json({ mensaje: "Error al registrar detalle de venta." });
+                return res.status(400).json({ 
+                    success: false,
+                    message: "Error al registrar detalle de venta." 
+                });
             }
         } catch (error) {
             console.error("Error en registrarDetalleVenta:", error);
             return res.status(500).json({ 
-                mensaje: "Error interno del servidor al registrar detalle de venta.",
+                success: false,
+                message: "Error interno del servidor al registrar detalle de venta.",
                 error: error.message 
             });
         }
@@ -34,16 +39,21 @@ const detalleVentaController = {
             const detalles = await detalleVentaModelInstance.getDetallesPorVenta(idVenta);
 
             if (detalles.length > 0) {
-                return res.status(200).json(detalles);
+                return res.status(200).json({
+                    success: true,
+                    data: detalles
+                });
             } else {
                 return res.status(404).json({ 
-                    mensaje: `No se encontraron detalles para la Venta con ID: ${idVenta}` 
+                    success: false,
+                    message: `No se encontraron detalles para la Venta con ID: ${idVenta}` 
                 });
             }
         } catch (error) {
             console.error("Error en obtenerDetallesPorVenta:", error);
             return res.status(500).json({ 
-                mensaje: "Error interno del servidor al obtener detalles de venta.",
+                success: false,
+                message: "Error interno del servidor al obtener detalles de venta.",
                 error: error.message 
             });
         }

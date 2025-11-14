@@ -1,5 +1,6 @@
 const express = require("express");
 const cajaController = require("../controllers/cajaController");
+const { verificarToken, requireRole } = require('../middleware/verificarToken');
 
 class CajaRoutes {
   constructor() {
@@ -8,12 +9,38 @@ class CajaRoutes {
   }
 
   configurarRutas() {
-    this.router.post("/abrir", cajaController.abrirCaja);
-    this.router.post("/movimiento", cajaController.registrarMovimiento);
-    this.router.put("/cerrar/:id_caja", cajaController.cerrarCaja);
-    this.router.get("/listar", cajaController.listarCajas);
+    // Todas las rutas requieren autenticación
+    this.router.use(verificarToken);
 
-    this.router.get("/:id_caja", cajaController.obtenerCajaPorId);
+    // Apertura de caja - Solo ADMIN y CAJA
+    this.router.post("/abrir", 
+        requireRole(['ADMIN', 'CAJA']), 
+        cajaController.abrirCaja
+    );
+
+    // Registrar movimiento - Solo ADMIN y CAJA
+    this.router.post("/movimiento", 
+        requireRole(['ADMIN', 'CAJA']), 
+        cajaController.registrarMovimiento
+    );
+
+    // Cerrar caja - Solo ADMIN y CAJA
+    this.router.put("/cerrar/:id_caja", 
+        requireRole(['ADMIN', 'CAJA']), 
+        cajaController.cerrarCaja
+    );
+
+    // Listar cajas - ADMIN y CAJA
+    this.router.get("/listar", 
+        requireRole(['ADMIN', 'CAJA']), 
+        cajaController.listarCajas
+    );
+
+    // Obtener caja por ID - ADMIN y CAJA
+    this.router.get("/:id_caja", 
+        requireRole(['ADMIN', 'CAJA']), 
+        cajaController.obtenerCajaPorId
+    );
   }
 
   getRouter() {

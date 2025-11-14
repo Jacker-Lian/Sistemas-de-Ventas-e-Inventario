@@ -1,40 +1,33 @@
-
 const express = require('express');
-const detalleVentaController = require('../controllers/detalleVentaController'); 
-
+const detalleVentaController = require('../controllers/detalleVentaController');
+const { verificarToken, requireRole } = require('../middleware/verificarToken');
 
 class DetalleVentaRoutes {
-    
-    
     constructor() {
-        this.router = express.Router(); 
-        this.configurarRutas(); 
+        this.router = express.Router();
+        this.configurarRutas();
     }
 
-   
     configurarRutas() {
-        
-        // Ruta POST para registrar un nuevo detalle de venta
-        // La ruta completa será: /api/detalle-venta/
-        this.router.post(
-            '/registrar', 
+        // Todas las rutas requieren autenticación
+        this.router.use(verificarToken);
+
+        // Registrar detalle de venta - ADMIN y CAJA
+        this.router.post('/registrar', 
+            requireRole(['ADMIN', 'CAJA']), 
             detalleVentaController.registrarDetalleVenta
         );
-        
-        this.router.get(
-            '/:idVenta', 
+
+        // Obtener detalles por venta - ADMIN y CAJA
+        this.router.get('/venta/:idVenta', 
+            requireRole(['ADMIN', 'CAJA']), 
             detalleVentaController.obtenerDetallesPorVenta
         );
-         
     }
-    
-    /**
-     * @returns {Router} 
-     */
+
     getRouter() {
         return this.router;
     }
 }
-
 
 module.exports = DetalleVentaRoutes;

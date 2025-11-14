@@ -1,5 +1,6 @@
 const express = require('express');
 const authController = require('../controllers/usuarioController');
+const { verificarToken } = require('../middleware/verificarToken');
 
 class UsuarioRoutes {
   constructor() {
@@ -8,16 +9,12 @@ class UsuarioRoutes {
   }
 
   configurarRutas() {
+    // Rutas públicas
     this.router.post('/login', authController.login);
-
-    this.router.post('/logout', (req, res) => {
-      res.clearCookie('token', {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax'
-      });
-      res.json({ message: 'Sesión cerrada correctamente' });
-    });
+    
+    // Rutas protegidas
+    this.router.post('/logout', verificarToken, authController.logout);
+    this.router.get('/me', verificarToken, authController.getCurrentUser);
   }
 
   getRouter() {
@@ -26,5 +23,3 @@ class UsuarioRoutes {
 }
 
 module.exports = UsuarioRoutes;
-
-

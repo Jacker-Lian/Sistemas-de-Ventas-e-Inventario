@@ -5,9 +5,9 @@ class CajaModel {
     try {
       const pool = database.getPool();
 
-      // Verificar si ya hay una caja abierta para ese usuario (solo columnas necesarias)
+      // Verificar si ya hay una caja abierta para ese usuario
       const [cajaAbierta] = await pool.query(
-        "SELECT id_caja FROM caja WHERE id_usuario = ? AND estado_caja = 'ABIERTA'",
+        "SELECT id_caja FROM caja WHERE id_usuario = ? AND estado_caja = 'ABIERTA' AND estado = 1",
         [idUsuario]
       );
 
@@ -16,8 +16,8 @@ class CajaModel {
       }
 
       const [result] = await pool.query(
-        `INSERT INTO caja (fecha_apertura, id_usuario, id_sucursal) 
-         VALUES (NOW(), ?, ?)`,
+        `INSERT INTO caja (fecha_apertura, id_usuario, id_sucursal, estado_caja) 
+         VALUES (NOW(), ?, ?, 'ABIERTA')`,
         [idUsuario, idSucursal]
       );
 
@@ -31,9 +31,9 @@ class CajaModel {
     try {
       const pool = database.getPool();
 
-      // Verificar que la caja esté abierta (usando COUNT)
+      // Verificar que la caja esté abierta
       const [rows] = await pool.query(
-        "SELECT COUNT(1) AS count FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA'",
+        "SELECT COUNT(1) AS count FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
         [idCaja]
       );
 
@@ -47,7 +47,6 @@ class CajaModel {
           [monto, idCaja]
         );
       } else if (tipo === "EGRESO") {
-        // Corregido: los egresos deben restar
         await pool.query(
           "UPDATE caja SET total_egresos = total_egresos + ? WHERE id_caja = ?",
           [monto, idCaja]
@@ -66,9 +65,9 @@ class CajaModel {
     try {
       const pool = database.getPool();
 
-      // Verificar caja abierta (usando COUNT)
+      // Verificar caja abierta
       const [rows] = await pool.query(
-        "SELECT COUNT(1) AS count FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA'",
+        "SELECT COUNT(1) AS count FROM caja WHERE id_caja = ? AND estado_caja = 'ABIERTA' AND estado = 1",
         [idCaja]
       );
 
@@ -95,11 +94,12 @@ class CajaModel {
           id_caja, fecha_apertura, fecha_cierre, total_ingresos, total_egresos, 
           estado_caja, id_usuario, id_sucursal, estado, fecha_creacion, fecha_actualizacion
         FROM caja
+        WHERE estado = 1
       `;
       const params = [];
 
       if (estado) {
-        query += " WHERE estado_caja = ?";
+        query += " AND estado_caja = ?";
         params.push(estado);
       }
 
@@ -109,7 +109,7 @@ class CajaModel {
       throw error;
     }
   }
-// Obtiene una caja específica por su ID, solo si está ABIERTA y activa (estado=1)
+
   async obtenerCajaAbiertaPorId(idCaja) {
     try {
       const pool = database.getPool();
@@ -118,7 +118,6 @@ class CajaModel {
         [idCaja]
       );
       
-      // Devuelve la primera fila encontrada o undefined si el array está vacío
       return rows[0];
     } catch (error) {
       throw error;
@@ -126,4 +125,4 @@ class CajaModel {
   }
 }
 
-module.exports = CajaModel;
+module.exports = new CajaModel();

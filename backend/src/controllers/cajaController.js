@@ -6,12 +6,21 @@ const cajaController = {
       const { id_usuario, id_sucursal } = req.body;
 
       if (!id_usuario)
-        return res.status(400).json({ message: "El id_usuario es obligatorio." });
+        return res.status(400).json({ 
+          success: false,
+          message: "El id_usuario es obligatorio." 
+        });
 
       const result = await cajaModel.abrirCaja(id_usuario, id_sucursal);
-      res.status(201).json(result);
+      res.status(201).json({ 
+        success: true,
+        data: result 
+      });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
     }
   },
 
@@ -21,13 +30,20 @@ const cajaController = {
 
       if (!id_caja || !tipo || monto == null)
         return res.status(400).json({
+          success: false,
           message: "Debe enviar id_caja, tipo (INGRESO/EGRESO) y monto.",
         });
 
       await cajaModel.registrarMovimiento(id_caja, tipo, monto);
-      res.status(200).json({ message: "Movimiento registrado correctamente." });
+      res.status(200).json({ 
+        success: true,
+        message: "Movimiento registrado correctamente." 
+      });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
     }
   },
 
@@ -35,9 +51,15 @@ const cajaController = {
     try {
       const { id_caja } = req.params;
       await cajaModel.cerrarCaja(id_caja);
-      res.status(200).json({ message: "Caja cerrada correctamente." });
+      res.status(200).json({ 
+        success: true,
+        message: "Caja cerrada correctamente." 
+      });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
     }
   },
 
@@ -48,13 +70,22 @@ const cajaController = {
       if (estado && estado !== "ABIERTA" && estado !== "CERRADA") {
         return res
           .status(400)
-          .json({ message: "El estado debe ser 'ABIERTA' o 'CERRADA'." });
+          .json({ 
+            success: false,
+            message: "El estado debe ser 'ABIERTA' o 'CERRADA'." 
+          });
       }
 
       const cajas = await cajaModel.listarCajas(estado);
-      res.status(200).json(cajas);
+      res.status(200).json({
+        success: true,
+        data: cajas
+      });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
     }
   },
   
@@ -63,22 +94,32 @@ const cajaController = {
       const { id_caja } = req.params;
 
       if (!id_caja) {
-        return res.status(400).json({ message: "El id_caja es obligatorio en la URL." });
+        return res.status(400).json({ 
+          success: false,
+          message: "El id_caja es obligatorio en la URL." 
+        });
       }
 
       const caja = await cajaModel.obtenerCajaAbiertaPorId(id_caja);
 
       if (caja) {
-        // Si encontramos la caja, la devolvemos con estado 200
-        res.status(200).json(caja);
+        res.status(200).json({
+          success: true,
+          data: caja
+        });
       } else {
-        // Si no se encuentra (o no cumple la condición), devolvemos 404
-        res.status(404).json({ message: "No se encontró una caja abierta y activa con ese ID." });
+        res.status(404).json({ 
+          success: false,
+          message: "No se encontró una caja abierta y activa con ese ID." 
+        });
       }
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
     }
   },
 };
 
-module.exports = cajaController;
+module.exports = cajaController;  

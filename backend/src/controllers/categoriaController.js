@@ -1,4 +1,4 @@
-const Categoria = require('../models/Categoria');
+const Categoria = require('../models/categoriaModel');
 
 // Función auxiliar para validar ID numérico
 const validarId = (id) => {
