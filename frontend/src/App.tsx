@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from 'react-router-dom'; // ✅ Correcto
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
@@ -11,6 +11,7 @@ import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 import Sucursales from "./components/Sucursales";
+import Proveedor from "./components/Proveedor/Proveedor";
 import { Gastos } from "./components/Gastos";
 
 
@@ -29,6 +30,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/admin/usuarios"
             element={
@@ -69,6 +71,7 @@ function App() {
               </PrivateRoute>
             } 
           />
+
           <Route
             path="/ventas/historial"
             element={
@@ -76,6 +79,14 @@ function App() {
                 <HistorialVentas />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/proveedores" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Proveedor />
+              </PrivateRoute>
+            } 
           />
           <Route 
             path="/inventario/ReporteVentas" 

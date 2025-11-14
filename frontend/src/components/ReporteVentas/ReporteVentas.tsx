@@ -4,11 +4,12 @@ import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-const Base_url = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000' ;
+
+const Base_url = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 interface VentaProducto {
   id_producto: number;
-  nombre: string;
+  nombre_producto: string;
   cantidad_vendida: string;
   total_recaudado: string;
 }
@@ -16,9 +17,10 @@ interface VentaProducto {
 const { RangePicker } = DatePicker;
 
 const ReporteVentas = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<VentaProducto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+
   const [fechas, setFechas] = useState({
     fechaInicio: dayjs().startOf('month').format('YYYY-MM-DD'),
     fechaFin: dayjs().format('YYYY-MM-DD')
@@ -49,12 +51,14 @@ const ReporteVentas = () => {
     try {
       setLoading(true);
       setError(undefined);
+
       const response = await axios.get(`${Base_url}/api/ventas/reporte-ventas-por-producto`, {
         params: {
           fechaInicio: fechas.fechaInicio,
           fechaFin: fechas.fechaFin
         }
       });
+
       setData(response.data);
     } catch (err) {
       setError('Error al cargar el reporte. Intente nuevamente.');
@@ -80,17 +84,17 @@ const ReporteVentas = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h2>Reporte de Ventas por Producto</h2>
-      
+
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Space>
-          <RangePicker 
+          <RangePicker
             format="YYYY-MM-DD"
             onChange={handleBuscar}
             defaultValue={[dayjs(fechas.fechaInicio), dayjs(fechas.fechaFin)]}
           />
-          <Button 
-            type="primary" 
-            icon={<SearchOutlined />} 
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
             onClick={cargarReporte}
             loading={loading}
           >
@@ -98,29 +102,45 @@ const ReporteVentas = () => {
           </Button>
         </Space>
 
-        {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: 16 }}
+          />
+        )}
 
-        <Table 
-          columns={columns} 
-          dataSource={data} 
+        <Table
+          columns={columns}
+          dataSource={data}
           rowKey="id_producto"
           loading={loading}
           pagination={{ pageSize: 10 }}
           bordered
-          summary={(pageData: VentaProducto[]) => {
+          summary={(pageData: readonly VentaProducto[]) => {
+            // Convertimos readonly → array normal
+            const rows = [...pageData];
+
             let totalVentas = 0;
             let totalUnidades = 0;
 
-            pageData.forEach(({ total_recaudado, cantidad_vendida }) => {
+            rows.forEach(({ total_recaudado, cantidad_vendida }) => {
               totalVentas += parseFloat(total_recaudado);
               totalUnidades += parseInt(cantidad_vendida);
             });
 
             return (
               <Table.Summary.Row style={{ fontWeight: 'bold' }}>
-                <Table.Summary.Cell index={0} align="center">Total</Table.Summary.Cell>
-                <Table.Summary.Cell index={1} align="right">{totalUnidades}</Table.Summary.Cell>
-                <Table.Summary.Cell index={2} align="right">S/ {totalVentas.toFixed(2)}</Table.Summary.Cell>
+                <Table.Summary.Cell index={0} align="center">
+                  Total
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={1} align="right">
+                  {totalUnidades}
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={2} align="right">
+                  S/ {totalVentas.toFixed(2)}
+                </Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}
