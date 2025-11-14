@@ -65,6 +65,7 @@ class App {
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando correctamente",
         endpoints: {
           Login: "/api/usuario",
+          Auth: "/api/auth",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
@@ -93,9 +94,48 @@ class App {
     this.app.use("/api/sucursales", new SucursalRoutes().getRouter());
     this.app.use("/api/gastos", new GastoRoutes().getRouter());
 
+<<<<<<< HEAD
     // ============================
     // ❌ Ruta no encontrada
     // ============================
+=======
+
+
+    // Montar rutas de ventas
+    const ventasRoutesInstance = new ventasRoutes();
+    this.app.use("/api/ventas", ventasRoutesInstance.getRouter());
+    
+    // Montar rutas de categorías
+    const categoriaRoutes = new CategoriaRoutes();
+    this.app.use('/api/categorias', categoriaRoutes.getRouter());
+
+    // Montar rutas de ajustes de inventario
+    const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
+    this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
+    // Montar rutas de gastos
+    const gastoRoutesInstance = new gastoRoutes();
+    this.app.use("/api/gastos", gastoRoutesInstance.getRouter());
+    // Montar rutas para la gestion de caja
+    const cajaRoutesInstance = new CajaRoutes();
+    this.app.use("/api/caja", cajaRoutesInstance.getRouter());
+    // Montar rutas de productos
+    const productoRoutersInstance = new ProductoRouters();
+    this.app.use("/api/productos", productoRoutersInstance.getRouter());
+    // Montar ruta para mostrar historial ventas
+    const historialVentasRoutesInstance = new HistorialVentasRoutes();
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
+    this.app.use(
+        "/api/detalle-venta", 
+        detalleVentaRoutesInstance.getRouter()
+    );
+    const sucursalRoutesInstance = new SucursalRoutes();
+    this.app.use("/api/sucursales", sucursalRoutesInstance.getRouter());
+    
+>>>>>>> origin/main
     this.app.use((req, res) => {
       console.log("❌ 404 - Ruta no encontrada:", req.originalUrl);
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });

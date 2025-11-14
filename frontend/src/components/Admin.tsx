@@ -18,6 +18,7 @@ function Admin() {
 
   const cards = [
     { title: "Usuarios", desc: "Gestionar usuarios del sistema", to: "/admin/usuarios" },
+<<<<<<< HEAD
     { title: "Productos", desc: "Gestionar productos e inventario", to: "/admin/productos" },
     { title: "Ventas", desc: "Revisar y gestionar ventas", to: "/admin/ventas" },
     { title: "Proveedores", desc: "Gestionar proveedores y contactos", to: "/proveedores" },
@@ -28,6 +29,15 @@ function Admin() {
     { title: "Historial de Ventas", desc: "Ventas realizadas", to: "/ventas/historial" },
     { title: "Sucursales", desc: "Gestionar sucursales", to: "/admin/Sucursales" },
     { title: "Gastos", desc: "Control de gastos", to: "/gastos" },
+=======
+    { title: "Registrar Venta", desc: "Registro de Ventas", to: "/registrarVenta" },
+    { title: "categorías", desc: "Gestionar categorías de productos", to: "/categorias" },
+    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },
+    { title: "Reporte de Ventas", desc: "Ver reportes y estadísticas de ventas", to: "/inventario/ReporteVentas" },
+    { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
+    { title: "Sucursales", desc: "Gestionar sucursales de la empresa", to: "/admin/Sucursales" },
+    { title: "Gastos", desc: "Gestionar gastos y tipos de gasto", to: "/gastos" },
+>>>>>>> origin/main
   ];
 
   return (
