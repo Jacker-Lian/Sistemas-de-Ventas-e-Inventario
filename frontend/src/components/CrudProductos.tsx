@@ -7,8 +7,8 @@ interface Producto {
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
-  id_categoria?: number;
-  id_proveedor?: number;
+  id_categoria: number;
+  id_proveedor: number;
 }
 
 export default function CrudProductos() {
@@ -50,8 +50,8 @@ export default function CrudProductos() {
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
       descripcion: p.descripcion ?? null,
-      id_categoria: p.id_categoria ? Number(p.id_categoria) : undefined,
-      id_proveedor: p.id_proveedor ? Number(p.id_proveedor) : undefined,
+      id_categoria: p.id_categoria ? Number(p.id_categoria) : 0,
+      id_proveedor: p.id_proveedor ? Number(p.id_proveedor) : 0,
     }));
 
     // Actualizar estado
@@ -82,8 +82,8 @@ export default function CrudProductos() {
         precio_compra: Number(editando.precio),
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
-        id_categoria: Number(editando.id_categoria) || 1,
-        id_proveedor: Number(editando.id_proveedor) || 1,
+        id_categoria: Number(editando.id_categoria),
+        id_proveedor: Number(editando.id_proveedor),
       };
 
       const res = await fetch(
@@ -130,6 +130,16 @@ export default function CrudProductos() {
   const handleEditStock = (e: React.ChangeEvent<HTMLInputElement>) =>
     setEditando((prev) =>
       prev ? { ...prev, stock: parseInt(e.target.value) || 0 } : prev
+    );
+
+  const handleEditCategoria = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEditando((prev) =>
+      prev ? { ...prev, id_categoria: parseInt(e.target.value) || 0 } : prev
+    );
+
+  const handleEditProveedor = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEditando((prev) =>
+      prev ? { ...prev, id_proveedor: parseInt(e.target.value) || 0 } : prev
     );
 
   // Cambiar estado del producto a inactivo
@@ -258,6 +268,8 @@ export default function CrudProductos() {
             <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Precio</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Stock</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Categoria</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Proveedor</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Estado</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Acciones</th>
           </tr>
@@ -328,6 +340,38 @@ export default function CrudProductos() {
                       />
                     ) : (
                       p.stock
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="number"
+                        value={editando.id_categoria}
+                        onChange={handleEditCategoria}
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "60px",
+                        }}
+                      />
+                    ) : (
+                      p.id_categoria
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="number"
+                        value={editando.id_proveedor}
+                        onChange={handleEditProveedor}
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "60px",
+                        }}
+                      />
+                    ) : (
+                      p.id_proveedor
                     )}
                   </td>
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
@@ -420,7 +464,7 @@ export default function CrudProductos() {
           ) : (
             <tr>
               <td
-                colSpan={6}
+                colSpan={8}
                 style={{
                   textAlign: "center",
                   color: "#999",
