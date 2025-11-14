@@ -4,6 +4,7 @@ interface Producto {
   id: number;
   nombre: string;
   precio: number;
+  precio_compra?: number;
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
@@ -29,7 +30,7 @@ export default function CrudProductos() {
 
     const res = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProductos${queryString}`,
-       {
+      {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -44,8 +45,8 @@ export default function CrudProductos() {
 
     const data = await res.json();
 
-    // Validar y extraer los productos del backend
-    const productosRaw = Array.isArray(data?.productos) ? data.productos : [];
+        // Validar y extraer los productos del backend
+        const productosRaw = Array.isArray(data?.productos) ? data.productos : [];
 
     // Normalizar los datos recibidos
     const productosNormalizados: Producto[] = productosRaw.map((p: any) => ({
@@ -70,6 +71,35 @@ export default function CrudProductos() {
     setMensaje("Error al buscar productos");
   }
 };
+
+    // Obtener producto completo desde backend antes de editar
+    const obtenerYEditar = async (id: number) => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/productos/obtenerProducto/${id}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error(`Error al obtener producto (${res.status})`);
+        const data = await res.json();
+        const p: Producto = {
+          id: Number(data.id),
+          nombre: data.nombre ?? '',
+          precio: Number(data.precio) || 0,
+          precio_compra: typeof data.precio_compra !== 'undefined' ? Number(data.precio_compra) : undefined,
+          stock: Number(data.stock) || 0,
+          estado: data.estado,
+          descripcion: data.descripcion ?? null,
+          id_categoria: data.id_categoria ? Number(data.id_categoria) : undefined,
+          id_proveedor: data.id_proveedor ? Number(data.id_proveedor) : undefined,
+        };
+        setEditando(p);
+        setMensaje('');
+      } catch (err) {
+        console.error(err);
+        setMensaje('Error al obtener datos completos del producto');
+      }
+    };
   useEffect(() => {
     buscarProductos();
   }, []);
@@ -85,14 +115,15 @@ export default function CrudProductos() {
     try {
   // Validar datos antes de enviar
       const payload = {
-          id: Number(editando.id),
-          nombre: String(editando.nombre).trim(),
-          precio_venta: Number(editando.precio),
-          precio_compra: 0, 
-          stock: Number(editando.stock),
-          descripcion: editando.descripcion ? String(editando.descripcion) : "",
-          id_categoria: Number(editando.id_categoria),   // <---- CORREGIDO
-          id_proveedor: Number(editando.id_proveedor),   // <---- CORREGIDO
+        id: Number(editando.id),
+        nombre: String(editando.nombre).trim(),
+        precio_venta: Number(editando.precio),
+        // Usar precio_compra si está disponible, si no tomar precio_venta
+        precio_compra: typeof editando.precio_compra !== 'undefined' ? Number(editando.precio_compra) : Number(editando.precio) || 0,
+        stock: Number(editando.stock),
+        descripcion: editando.descripcion ? String(editando.descripcion) : "",
+        id_categoria: Number(editando.id_categoria),
+        id_proveedor: Number(editando.id_proveedor),
       };
 
       const res = await fetch(
@@ -102,6 +133,8 @@ export default function CrudProductos() {
           headers: {
             "Content-Type": "application/json",
           },
+          // Incluir credenciales para rutas protegidas
+          credentials: 'include',
           body: JSON.stringify(payload),
         }
       );
@@ -153,6 +186,7 @@ export default function CrudProductos() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: 'include',
           body: JSON.stringify({ id }),
         }
       );
@@ -391,7 +425,7 @@ export default function CrudProductos() {
                             }}
                           >
                             <button
-                              onClick={() => setEditando(p)}
+                              onClick={() => obtenerYEditar(p.id)}
                               style={{
                                 border: "2px solid #000",
                                 background: "transparent",
