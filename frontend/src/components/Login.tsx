@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
@@ -10,9 +10,28 @@ function Login() {
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user) {
+      navigate("/panel", { replace: true });
+    }
+  }, 
+  [user, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      if (user.rol_usuario?.toUpperCase() === "ADMIN") {
+        navigate("/admin", { replace: true });
+      } else if (user.rol_usuario?.toUpperCase() === "CAJA") {
+        navigate("/caja", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [user, navigate]);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -20,7 +39,7 @@ function Login() {
 
     try {
       const res = await api.post(
-        "/login",
+        "/api/usuario/login",
         { email, password },
         { withCredentials: true }
       );

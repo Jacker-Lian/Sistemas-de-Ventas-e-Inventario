@@ -73,31 +73,66 @@ const AjusteInventarioModel = {
     },
 
     // 2. Obtener todos los ajustes de inventario (GET /api/inventario/historial)
-    obtenerTodos: async () => {
+    obtenerTodos: async (filtros = {}) => {
         try {
+            const pool = db.getPool();
+            
+            
             // Query con JOINs a producto, usuarios y sucursal
-            const query = `
+            let consultaSQL = `
                 SELECT 
                     ai.id_ajuste,
-                    ai.cantidad_ajustada,
+                    ai.id_producto,
                     ai.tipo_ajuste,
+                    ai.id_usuario,
                     ai.stock_nuevo,
                     ai.observaciones,
                     ai.fecha_creacion,
                     p.nombre as nombre_producto, 
-                    u.nombre_usuario,
-                    s.nombre as nombre_sucursal
+                    u.nombre_usuario as nombre_usuario
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
-                INNER JOIN sucursal s ON ai.id_sucursal = s.id_sucursal
-                ORDER BY ai.fecha_creacion DESC
             `;
-            const [ajustes] = await db.query(query);
+
+            const condiciones = [];
+            const valores = [];
+
+            if(filtros.nombre_usuario){
+                condiciones.push("u.nombre_usuario LIKE ?");
+                valores.push(`%${filtros.nombre_usuario}%`);
+            }
+            if(filtros.nombre_producto){
+                condiciones.push("p.nombre LIKE ?");
+                valores.push(`%${filtros.nombre_producto}%`);
+            }
+            if(filtros.fecha_inicio){
+                condiciones.push("DATE(ai.fecha_creacion) >= ?");
+                valores.push(filtros.fecha_inicio)
+            }
+            if(filtros.fecha_fin){
+                condiciones.push("DATE (ai.fecha_creacion) <= ?");
+                valores.push(filtros.fecha_fin)
+            }
+            if(filtros.tipo_ajuste){
+                condiciones.push("ai.tipo_ajuste = ?");
+                valores.push(filtros.tipo_ajuste)
+            }
+            if(condiciones.length > 0){
+                consultaSQL += " WHERE " + condiciones.join(" AND ");
+            }
+            
+            
+           consultaSQL += ` ORDER BY ai.fecha_creacion DESC `
+            
+            const [ajustes] = await pool.query(consultaSQL, valores);
             return ajustes;
+
         } catch (error) {
+            console.error('error en obtenerTodos(AjusteInventarioModel): ', error)
             throw error;
         }
+    
     },
 
     // 3. Obtener ajustes por producto (GET /api/inventario/ajustes-producto/:idProducto)

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
+import './AjusteInventario.css';
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
-// URL de tu Backend (Node.js)
-const API_URL = 'http://38.250.161.15:3000/api'; 
+const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
@@ -28,7 +27,7 @@ const AjusteInventario: React.FC = () => {
         const fetchProductos = async () => {
             try {
                 // Backend expone /api/productos/obtenerProductos que retorna { productos: [...], usuario: {...} }
-                const response = await fetch(`${API_URL}/productos/obtenerProductos`);
+                const response = await fetch(`${API_URL}/api/productos/obtenerProductos`);
                 if (!response.ok) throw new Error('No se pudo cargar la lista de productos.');
                 const data = await response.json();
                 const listaBackend = Array.isArray(data) ? data : (Array.isArray(data.productos) ? data.productos : []);
@@ -85,7 +84,7 @@ const AjusteInventario: React.FC = () => {
         try {
             // Endpoint correcto según backend: /api/ajustes-inventario (POST)
             const token = localStorage.getItem('token') || '';
-            const response = await fetch(`${API_URL}/ajustes-inventario`, {
+            const response = await fetch(`${API_URL}/api/ajustes-inventario`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -111,7 +110,7 @@ const AjusteInventario: React.FC = () => {
             setMensaje({ texto: '✅ Ajuste de inventario realizado con éxito!', tipo: 'success' });
             
             // Recargar productos para reflejar el nuevo stock sin recargar toda la página
-            const updatedProductsResponse = await fetch(`${API_URL}/productos/obtenerProductos`, {
+            const updatedProductsResponse = await fetch(`${API_URL}/api/productos/obtenerProductos`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : undefined
             });
             if (updatedProductsResponse.ok) {
