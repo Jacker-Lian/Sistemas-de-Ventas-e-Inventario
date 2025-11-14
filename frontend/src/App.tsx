@@ -86,6 +86,22 @@ function App() {
               </PrivateRoute>
             } 
           />
+          <Route 
+            path="/categorias" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudCategorias />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/gastos"
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <Gastos />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
