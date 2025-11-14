@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
@@ -12,6 +12,8 @@ import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 import Sucursales from "./components/Sucursales";
 import { Gastos } from "./components/Gastos";
+import CrudProductos from './components/CrudProductos';
+
 
 
 function App() {
@@ -85,7 +87,7 @@ function App() {
               </PrivateRoute>
             } 
           />
-          <Route 
+           <Route 
             path="/admin/Sucursales" 
             element={
               <PrivateRoute roles={['ADMIN']}>
@@ -108,6 +110,14 @@ function App() {
                 <Gastos />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="/CrudProductos" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudProductos />
+              </PrivateRoute>
+            } 
           />
         </Routes>
       </AuthProvider>

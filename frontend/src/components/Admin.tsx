@@ -23,6 +23,7 @@ function Admin() {
     { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
     { title: "Sucursales", desc: "Gestionar sucursales de la empresa", to: "/admin/Sucursales" },
     { title: "Gastos", desc: "Gestionar gastos y tipos de gasto", to: "/gastos" },
+    { title: "Crud Productos", desc: "Gestionar productos del inventario", to: "/CrudProductos"},
   ];
 
   return (

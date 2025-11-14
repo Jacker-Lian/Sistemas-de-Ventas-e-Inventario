@@ -4,11 +4,12 @@ interface Producto {
   id: number;
   nombre: string;
   precio: number;
+  precio_compra: number;
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
-  id_categoria?: number;
-  id_proveedor?: number;
+  id_categoria: number;
+  id_proveedor: number;
 }
 
 export default function CrudProductos() {
@@ -46,12 +47,13 @@ export default function CrudProductos() {
       id: Number(p.id),
       nombre: p.nombre ?? "",
       precio: Number(p.precio) || 0,
+      precio_compra: Number(p.precio_compra) || Number(p.precio) || 0,
       stock: Number(p.stock) || 0,
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
       descripcion: p.descripcion ?? null,
-      id_categoria: p.id_categoria ? Number(p.id_categoria) : undefined,
-      id_proveedor: p.id_proveedor ? Number(p.id_proveedor) : undefined,
+      id_categoria: p.id_categoria != null ? Number(p.id_categoria) : null,
+      id_proveedor: p.id_proveedor != null ? Number(p.id_proveedor) : null,
     }));
 
     // Actualizar estado
@@ -74,22 +76,60 @@ export default function CrudProductos() {
     }
 
     try {
+      // Evitar llamada si no hay cambios respecto al producto original
+      const original = productos.find((p) => p.id === editando.id);
+      if (original) {
+        const orig = {
+          nombre: (original.nombre ?? "").toString().trim(),
+          precio_venta: Number(original.precio),
+          precio_compra: Number(original.precio_compra),
+          stock: Number(original.stock),
+          descripcion: original.descripcion ?? "",
+          id_categoria: Number(original.id_categoria),
+          id_proveedor: Number(original.id_proveedor),
+        };
+
+        const edited = {
+          nombre: String(editando.nombre).trim(),
+          precio_venta: Number(editando.precio),
+          precio_compra: Number(editando.precio_compra),
+          stock: Number(editando.stock),
+          descripcion: editando.descripcion ? String(editando.descripcion) : "",
+          id_categoria: Number(editando.id_categoria),
+          id_proveedor: Number(editando.id_proveedor),
+        };
+
+        const noChanges =
+          orig.nombre === edited.nombre &&
+          orig.precio_venta === edited.precio_venta &&
+          orig.precio_compra === edited.precio_compra &&
+          orig.stock === edited.stock &&
+          (orig.descripcion ?? "") === (edited.descripcion ?? "") &&
+          orig.id_categoria === edited.id_categoria &&
+          orig.id_proveedor === edited.id_proveedor;
+
+        if (noChanges) {
+          setMensaje("No hay cambios para guardar");
+          return;
+        }
+      }
   // Validar datos antes de enviar
       const payload = {
         id: Number(editando.id),
         nombre: String(editando.nombre).trim(),
         precio_venta: Number(editando.precio),
-        precio_compra: Number(editando.precio),
+        precio_compra: Number(editando.precio_compra),
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
-        id_categoria: Number(editando.id_categoria) || 1,
-        id_proveedor: Number(editando.id_proveedor) || 1,
+        id_categoria: editando.id_categoria != null ? Number(editando.id_categoria) : null,
+        id_proveedor: editando.id_proveedor != null ? Number(editando.id_proveedor) : null,
       };
 
       const res = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/api/productos/actualizarProducto`,
         {
           method: "PUT",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -132,15 +172,26 @@ export default function CrudProductos() {
       prev ? { ...prev, stock: parseInt(e.target.value) || 0 } : prev
     );
 
+  const handleEditCategoria = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEditando((prev) =>
+      prev ? { ...prev, id_categoria: parseInt(e.target.value) || 0 } : prev
+    );
+
+  const handleEditProveedor = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEditando((prev) =>
+      prev ? { ...prev, id_proveedor: parseInt(e.target.value) || 0 } : prev
+    );
+
   // Cambiar estado del producto a inactivo
   const desactivarProducto = async (id: number) => {
     if (!confirm("¿Deseas marcar este producto como inactivo?")) return;
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/productos/desactivarProducto`,
+        `${import.meta.env.VITE_SERVER_URL}/api/productos/desactivarProducto`,
         {
           method: "PUT",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -256,8 +307,12 @@ export default function CrudProductos() {
           >
             <th style={{ padding: "10px", border: "1px solid #000" }}>ID</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Nombre</th>
-            <th style={{ padding: "10px", border: "1px solid #000" }}>Precio</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Precio Venta</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Precio Compra</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Stock</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Categoria</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Proveedor</th>
+            <th style={{ padding: "10px", border: "1px solid #000" }}>Descripción</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Estado</th>
             <th style={{ padding: "10px", border: "1px solid #000" }}>Acciones</th>
           </tr>
@@ -296,6 +351,8 @@ export default function CrudProductos() {
                       <input
                         type="number"
                         value={editando.precio}
+                        step="0.01"
+                        min={0}
                         onChange={handleEditPrecio}
                         style={{
                           border: "1px solid #000",
@@ -305,6 +362,28 @@ export default function CrudProductos() {
                       />
                     ) : (
                       p.precio.toFixed(2)
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="number"
+                        value={editando.precio_compra}
+                        step="0.01"
+                        min={0}
+                        onChange={(e) =>
+                          setEditando((prev) =>
+                            prev ? { ...prev, precio_compra: parseFloat(e.target.value) || 0 } : prev
+                          )
+                        }
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "80px",
+                        }}
+                      />
+                    ) : (
+                      p.precio_compra.toFixed(2)
                     )}
                   </td>
                   <td
@@ -319,6 +398,8 @@ export default function CrudProductos() {
                       <input
                         type="number"
                         value={editando.stock}
+                        step={1}
+                        min={0}
                         onChange={handleEditStock}
                         style={{
                           border: "1px solid #000",
@@ -328,6 +409,62 @@ export default function CrudProductos() {
                       />
                     ) : (
                       p.stock
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="number"
+                        value={editando.id_categoria}
+                        min={0}
+                        step={1}
+                        onChange={handleEditCategoria}
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "60px",
+                        }}
+                      />
+                    ) : (
+                      p.id_categoria
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="number"
+                        value={editando.id_proveedor}
+                        min={0}
+                        step={1}
+                        onChange={handleEditProveedor}
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "60px",
+                        }}
+                      />
+                    ) : (
+                      p.id_proveedor
+                    )}
+                  </td>
+                  <td style={{ padding: "10px", border: "1px solid #000" }}>
+                    {editando?.id === p.id ? (
+                      <input
+                        type="text"
+                        value={editando.descripcion || ""}
+                        onChange={(e) =>
+                          setEditando((prev) =>
+                            prev ? { ...prev, descripcion: e.target.value } : prev
+                          )
+                        }
+                        style={{
+                          border: "1px solid #000",
+                          padding: "4px",
+                          width: "100%",
+                        }}
+                      />
+                    ) : (
+                      p.descripcion || ""
                     )}
                   </td>
                   <td style={{ padding: "10px", border: "1px solid #000" }}>
@@ -420,7 +557,7 @@ export default function CrudProductos() {
           ) : (
             <tr>
               <td
-                colSpan={6}
+                colSpan={10}
                 style={{
                   textAlign: "center",
                   color: "#999",

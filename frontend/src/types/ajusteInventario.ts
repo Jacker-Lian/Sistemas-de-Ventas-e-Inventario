@@ -1,8 +1,12 @@
 export interface Producto {
-    id_producto: number;
+    id: number;
     nombre: string;
-    stock: number; // El stock actual del producto
-    // Otros campos que tu tabla 'producto' pueda tener
+    precio: number;
+    stock: number;
+    estado?: number | string;
+    descripcion?: string | null;
+    id_categoria?: number;
+    id_proveedor?: number;
 }
 
 export interface AjusteFormData {

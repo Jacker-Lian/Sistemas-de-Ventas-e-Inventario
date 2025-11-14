@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import './AjusteInventario.css';
+import { Link } from 'react-router-dom';
+import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
-const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+// URL de tu Backend (Node.js)
+const API_URL = import.meta.env.VITE_SERVER_URL;
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
@@ -54,8 +56,10 @@ const AjusteInventario: React.FC = () => {
 
     const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const id = parseInt(e.target.value);
-        setFormData((prev: AjusteFormData) => ({ ...prev, id_producto: id }));
-        const selectedProduct = productos.find((p: Producto) => p.id_producto === id);
+        setFormData(prev => ({ ...prev, id_producto: id }));
+        
+        // Muestra el stock del producto seleccionado
+        const selectedProduct = productos.find(p => p.id === id);
         setStockActual(selectedProduct ? selectedProduct.stock : null);
     };
 
@@ -143,6 +147,7 @@ const AjusteInventario: React.FC = () => {
     return (
         <div className="container-ajuste">
             <h2>⚙️ Ajuste Manual de Inventario</h2>
+            <Link to="/CrudProductos" className="btn-crud-inventario">Ir a Gestión de Productos</Link>
             
             {mensaje.texto && (
                 <div className={`alerta ${mensaje.tipo === 'error' ? 'alerta-error' : 'alerta-exito'}`}>
@@ -162,8 +167,8 @@ const AjusteInventario: React.FC = () => {
                         required
                     >
                         <option value="">-- Seleccione un producto --</option>
-                        {productos.map((p: Producto) => (
-                            <option key={p.id_producto} value={p.id_producto}>
+                        {productos.map(p => (
+                            <option key={p.id} value={p.id}>
                                 {p.nombre} (Stock: {p.stock})
                             </option>
                         ))}
