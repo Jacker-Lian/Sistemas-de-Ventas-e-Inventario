@@ -10,20 +10,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@heroicons/react": "^2.2.0",
     "@ant-design/icons": "^6.1.0",
+    "@heroicons/react": "^2.2.0",
     "antd": "^5.28.0",
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.5"
+    "react-router-dom": "^7.9.5",
+    "recharts": "^3.4.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@types/node": "^24.6.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/recharts": "^1.8.29",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
