@@ -26,6 +26,8 @@ function Admin() {
     { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
     { title: "Sucursales", desc: "Gestionar sucursales de la empresa", to: "/admin/Sucursales" },
     { title: "Gastos", desc: "Gestionar gastos y tipos de gasto", to: "/gastos" },
+  
+    { title: "Historial Inventario", desc: "Revisar ajustes de stock", to: "/inventario/historial" },
   ];
 
   return (
