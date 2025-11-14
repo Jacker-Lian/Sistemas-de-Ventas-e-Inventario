@@ -24,6 +24,37 @@ class ProveedorModel {
     return rows;
   }
 
+  // Buscar proveedores (NUEVO)
+  async buscarProveedores(query) {
+    const sql = `
+      SELECT 
+        id_proveedor,
+        nombre,
+        ruc,
+        telefono,
+        direccion,
+        correo,
+        producto_principal
+      FROM proveedor
+      WHERE estado = 1
+        AND (
+          nombre LIKE ? OR
+          ruc LIKE ? OR
+          telefono LIKE ? OR
+          direccion LIKE ? OR
+          correo LIKE ? OR
+          producto_principal LIKE ?
+        )
+      ORDER BY nombre
+    `;
+
+    const like = `%${query}%`;
+    const params = [like, like, like, like, like, like];
+
+    const [rows] = await this.pool.query(sql, params);
+    return rows;
+  }
+
   // Obtener proveedor por ID
   async obtenerProveedorPorId(id) {
     const query = `
@@ -89,10 +120,10 @@ class ProveedorModel {
       id
     ]);
 
-    return result.affectedRows > 0; // Devuelve true si se actualizó correctamente
+    return result.affectedRows > 0;
   }
 
-  // Desactivar proveedor (borrado lógico)
+  // Desactivar proveedor
   async desactivarProveedor(id) {
     const query = `
       UPDATE proveedor 
@@ -100,7 +131,7 @@ class ProveedorModel {
       WHERE id_proveedor = ?
     `;
     const [result] = await this.pool.query(query, [id]);
-    return result.affectedRows > 0; //  Devuelve true si se desactivó correctamente
+    return result.affectedRows > 0;
   }
 }
 

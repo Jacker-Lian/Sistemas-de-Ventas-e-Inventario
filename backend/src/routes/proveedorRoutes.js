@@ -8,6 +8,10 @@ class ProveedorRoutes {
   }
 
   configurarRutas() {
+
+    // 🔍 NUEVA RUTA DE BÚSQUEDA
+    this.router.get("/buscar", proveedorController.buscarProveedores);
+
     // GET /api/proveedores → obtener todos
     this.router.get("/", proveedorController.obtenerProveedores);
 
