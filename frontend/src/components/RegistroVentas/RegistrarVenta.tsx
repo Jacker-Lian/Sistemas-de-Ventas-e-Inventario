@@ -433,7 +433,7 @@ function RegistrarVenta() {
               <div className="info-item">
                 <span className="info-label">Usuario:</span>
                 <span className="info-value">
-                  {user?.nombre_usuario || user?.nombre || "Caja"}
+                  {user?.nombre_usuario || user?.nombre || "Usuario"}
                 </span>
               </div>
               <div className="info-item">
