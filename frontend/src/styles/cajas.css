@@ -1,0 +1,160 @@
+/* CONTENEDOR GENERAL */
+.caja-container {
+  padding: 2rem;
+  background: #f4f6f9;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* TÍTULO */
+.titulo {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-bottom: 1.8rem;
+  color: #1f2937;
+}
+
+/* BOTONES DE ACCESO RÁPIDO */
+.acciones-rapidas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-acceso {
+  background: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-acceso:hover {
+  background: #2563eb;
+}
+
+/* TARJETAS */
+.caja-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: white;
+  padding: 1.4rem;
+  border-radius: 14px;
+  width: 250px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.valor {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subida {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.rojo {
+  color: #dc2626;
+}
+
+.alerta-card {
+  border-left: 5px solid #dc2626;
+}
+
+/* GRAFICAS */
+.caja-graficas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3rem;
+  margin-bottom: 2rem;
+}
+
+.grafica {
+  background: white;
+  padding: 1.4rem;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  width: 480px;
+}
+
+.grafica h3 {
+  margin-bottom: 0.7rem;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+/* TABLA */
+.agentes-section {
+  background: white;
+  padding: 1.4rem;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.agentes-section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.agentes-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.agentes-section th,
+.agentes-section td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.activo {
+  background: #d1fae5;
+  color: #0f5132;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.inactivo {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .caja-cards,
+  .caja-graficas {
+    justify-content: center;
+  }
+
+  .grafica {
+    width: 100%;
+  }
+
+  .acciones-rapidas {
+    justify-content: center;
+  }
+}
