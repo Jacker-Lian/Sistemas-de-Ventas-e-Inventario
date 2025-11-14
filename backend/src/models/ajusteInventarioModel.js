@@ -17,8 +17,14 @@ const AjusteInventarioModel = {
         } = datos;
 
         let connection;
+        const pool = db.getPool();
         try {
+<<<<<<< HEAD
             connection = await pool.getConnection(); 
+=======
+            // INICIO DE LA TRANSACCIÓN
+            connection = await pool.getConnection();
+>>>>>>> main
             await connection.beginTransaction();
 
             // 1. Obtener Stock Actual y Validar Producto
