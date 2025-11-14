@@ -1,0 +1,144 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background-color: #fff;
+  color: #111;
+  padding: 24px 28px;
+  border-radius: 10px;
+  width: 400px;
+  height: 640px;
+  max-width: 90%;
+  font-family: "Poppins", sans-serif;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-card h2 {
+  margin-top: 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.modal-card label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 500;
+  font-size: 14.5px;
+}
+
+.modal-card input,
+.modal-card select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background-color: #fff;
+  color: #111;
+  font-size: 14px;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.modal-card input:focus,
+.modal-card select:focus {
+  border-color: #00bcd4;
+  background-color: #f9fdff;
+  outline: none;
+}
+
+.fila-doble {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fila-doble .campo {
+  flex: 1;
+}
+
+.modal-card p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.modal-card hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 14px 0;
+}
+
+/* botones */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  gap: 10px;
+}
+
+.actions button {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button.guardar {
+  background-color: #111;
+  color: #fff;
+}
+button.guardar:hover {
+  background-color: #333;
+}
+button.guardar:active {
+  transform: scale(0.97);
+}
+
+button.cerrar {
+  background-color: #b0b0b0;
+  color: #fff;
+}
+button.cerrar:hover {
+  background-color: #8d8d8d;
+}
+button.cerrar:active {
+  transform: scale(0.97);
+}
+
+.resumen-costos {
+  margin-top: 16px;
+  padding: 6px 0;
+}
+
+.resumen-costos p {
+  margin: 3px 0;
+  font-size: 14px;
+  text-align: right;
+}
+
+.resumen-costos hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 6px 0;
+}
+
+.resumen-costos strong {
+  font-size: 15px;
+  color: #000;
+}
