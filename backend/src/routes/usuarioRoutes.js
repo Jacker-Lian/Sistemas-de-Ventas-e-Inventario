@@ -1,5 +1,5 @@
 const express = require('express');
-const authController = require('../controllers/usuarioController');
+const { authController, usuarioController } = require('../controllers/usuarioController');
 
 class UsuarioRoutes {
   constructor() {
@@ -10,7 +10,6 @@ class UsuarioRoutes {
   configurarRutas() {
     // Autenticación
     this.router.post('/login', authController.login);
-    this.router.post('/register', authController.register);
     this.router.post('/logout', (req, res) => {
       res.clearCookie('token', {
         httpOnly: true,
@@ -20,11 +19,13 @@ class UsuarioRoutes {
       res.json({ message: 'Sesión cerrada correctamente' });
     });
 
-    // CRUD de usuarios
-    this.router.get('/', authController.listUsers);
-    this.router.get('/:id', authController.getUser);
-    this.router.put('/:id', authController.updateUser);
-    this.router.delete('/:id', authController.deleteUser);
+    // CRUD de usuarios con nombres explícitos
+    this.router.get('/listar', usuarioController.listUsers);          
+    this.router.get('/obtener/:id', usuarioController.getUser);       
+    this.router.get('/buscar/:q', usuarioController.searchUsers);    
+    this.router.post('/crear', usuarioController.createUser);        
+    this.router.put('/actualizar/:id', usuarioController.updateUser);
+    this.router.delete('/eliminar/:id', usuarioController.deleteUser);
   }
 
   getRouter() {
@@ -33,5 +34,6 @@ class UsuarioRoutes {
 }
 
 module.exports = UsuarioRoutes;
+
 
 

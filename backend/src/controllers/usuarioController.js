@@ -7,7 +7,7 @@ dotenv.config();
 const usuarioModel = new UsuarioModel();
 
 const authController = {};
-
+const usuarioController = {};
 /**
  * POST /api/auth/login
  * Body: { email, password }
@@ -76,109 +76,110 @@ authController.login = async (req, res) => {
 };
 
 /**
- * POST /api/usuario/register
- * Body: { nombre_usuario, email_usuario, password, rol_usuario? }
- */
-authController.register = async (req, res) => {
-  try {
-    const { nombre_usuario, email_usuario, password, rol_usuario } = req.body;
-    if (!nombre_usuario || !email_usuario || !password) {
-      return res.status(400).json({ message: 'nombre, email y password son requeridos' });
-    }
-
-    const existing = await usuarioModel.obtenerPorEmail(email_usuario);
-    if (existing) return res.status(409).json({ message: 'El email ya está registrado' });
-
-    const hashed = await bcrypt.hash(password, 10);
-  const role = (rol_usuario && String(rol_usuario).toUpperCase() === 'ADMIN') ? 'ADMIN' : 'CAJA';
-
-    const user = await usuarioModel.crearUsuario({ nombre_usuario, email_usuario, password_hash: hashed, rol_usuario: role, estado: 1 });
-
-    return res.status(201).json({ message: 'Usuario creado', user });
-  } catch (error) {
-    console.error('Error en register:', error);
-    return res.status(500).json({ message: 'Error interno' });
-  }
-};
-
-/**
  * GET /api/usuario
  */
-authController.listUsers = async (req, res) => {
+usuarioController.listUsers = async (req, res) => {
   try {
     const users = await usuarioModel.listarUsuarios();
-    return res.json({ users });
+    res.json({ users });
   } catch (error) {
-    console.error('Error en listUsers:', error);
-    return res.status(500).json({ message: 'Error interno' });
+    console.error(error);
+    res.status(500).json({ message: 'Error interno al listar usuarios' });
   }
 };
 
 /**
  * GET /api/usuario/:id
  */
-authController.getUser = async (req, res) => {
+usuarioController.getUser = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await usuarioModel.obtenerPorId(id);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    return res.json({ user });
+    res.json({ user });
   } catch (error) {
-    console.error('Error en getUser:', error);
-    return res.status(500).json({ message: 'Error interno' });
+    console.error(error);
+    res.status(500).json({ message: 'Error interno al obtener usuario' });
+  }
+};
+
+usuarioController.createUser = async (req, res) => {
+  try {
+    const { nombre_usuario, email_usuario, password, rol_usuario } = req.body;
+
+    if (!nombre_usuario || !email_usuario || !password) {
+      return res.status(400).json({ message: 'Nombre, email y contraseña son requeridos' });
+    }
+
+    const existing = await usuarioModel.obtenerPorEmail(email_usuario);
+    if (existing) return res.status(409).json({ message: 'El email ya está registrado' });
+
+    const hashed = await bcrypt.hash(password, 10);
+    const role = (rol_usuario && String(rol_usuario).toUpperCase() === 'ADMIN') ? 'ADMIN' : 'CAJA';
+
+    const user = await usuarioModel.crearUsuario({ nombre_usuario, email_usuario, password_hash: hashed, rol_usuario: role });
+    res.status(201).json({ message: 'Usuario creado', user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno al crear usuario' });
   }
 };
 
 /**
  * PUT /api/usuario/:id
  */
-authController.updateUser = async (req, res) => {
+usuarioController.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre_usuario, email_usuario, password, rol_usuario, estado } = req.body;
 
-    // Si se cambia email, verificar no exista otro con ese email
-    if (email_usuario) {
-      const other = await usuarioModel.obtenerPorEmail(email_usuario);
-      if (other && String(other.id_usuario) !== String(id)) {
-        return res.status(409).json({ message: 'El email ya está en uso por otro usuario' });
-      }
-    }
-
     const fields = {};
     if (nombre_usuario) fields.nombre_usuario = nombre_usuario;
     if (email_usuario) fields.email_usuario = email_usuario;
+    if (rol_usuario) fields.rol_usuario = String(rol_usuario).toUpperCase() === 'ADMIN' ? 'ADMIN' : 'CAJA';
     if (typeof estado !== 'undefined') fields.estado = estado ? 1 : 0;
-  if (rol_usuario) fields.rol_usuario = String(rol_usuario).toUpperCase() === 'ADMIN' ? 'ADMIN' : 'CAJA';
-    if (password) {
-      fields.password_hash = await bcrypt.hash(password, 10);
-    }
+    if (password) fields.password_hash = await bcrypt.hash(password, 10);
 
     const updated = await usuarioModel.actualizarUsuario(id, fields);
     if (updated === null) return res.status(400).json({ message: 'No hay campos para actualizar' });
 
-    return res.json({ message: 'Usuario actualizado' });
+    res.json({ message: 'Usuario actualizado' });
   } catch (error) {
-    console.error('Error en updateUser:', error);
-    return res.status(500).json({ message: 'Error interno' });
+    console.error(error);
+    res.status(500).json({ message: 'Error interno al actualizar usuario' });
   }
 };
 
 /**
  * DELETE /api/usuario/:id
  */
-authController.deleteUser = async (req, res) => {
+usuarioController.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const exist = await usuarioModel.obtenerPorId(id);
     if (!exist) return res.status(404).json({ message: 'Usuario no encontrado' });
 
     await usuarioModel.desactivarUsuario(id);
-    return res.json({ message: 'Usuario desactivado' });
+    res.json({ message: 'Usuario desactivado' });
   } catch (error) {
-    console.error('Error en deleteUser:', error);
-    return res.status(500).json({ message: 'Error interno' });
+    console.error(error);
+    res.status(500).json({ message: 'Error interno al desactivar usuario' });
   }
 };
 
-module.exports = authController;
+usuarioController.searchUsers = async (req, res) => {
+  try {
+    const { q } = req.params;
+    const users = await usuarioModel.listarUsuarios();
+    const filtered = users.filter(u =>
+      u.nombre_usuario.toLowerCase().includes(q.toLowerCase()) ||
+      u.email_usuario.toLowerCase().includes(q.toLowerCase())
+    );
+    res.json(filtered);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno al buscar usuarios' });
+  }
+};
+
+module.exports = { authController, usuarioController };
