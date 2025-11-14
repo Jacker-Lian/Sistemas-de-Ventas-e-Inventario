@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
@@ -7,13 +8,18 @@ const API_URL = 'http://localhost:3000/api';
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
     const [productos, setProductos] = useState<Producto[]>([]);
+    const { user } = useAuth();
     const [formData, setFormData] = useState<AjusteFormData>({
         id_producto: '',
         cantidad_ajustada: 0,
         tipo_ajuste: 'DISMINUCION',
-        id_usuario: 2, // **IMPORTANTE: Debe ser dinámico (ID del usuario logueado)**
+        id_usuario: user?.id_usuario || '',
         observaciones: ''
     });
+        // Actualizar id_usuario en formData si cambia el usuario autenticado
+        useEffect(() => {
+            setFormData((prev) => ({ ...prev, id_usuario: user?.id_usuario || '' }));
+        }, [user]);
     const [stockActual, setStockActual] = useState<number | null>(null);
     const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'success' | 'error' | '' }>({ texto: '', tipo: '' });
 
