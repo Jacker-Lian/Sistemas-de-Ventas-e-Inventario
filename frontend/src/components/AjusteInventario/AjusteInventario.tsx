@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
-const API_URL = 'http://localhost:3000/api'; 
+const API_URL = 'http://38.250.161.15:3000/api'; 
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
