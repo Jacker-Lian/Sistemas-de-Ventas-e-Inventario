@@ -24,6 +24,7 @@ function Admin() {
     { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },
     { title: "Reporte de Ventas", desc: "Ver reportes y estadísticas de ventas", to: "/inventario/ReporteVentas" },
     { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
+    { title: "Sucursales", desc: "Gestionar sucursales de la empresa", to: "/admin/Sucursales" },
     { title: "Gastos", desc: "Gestionar gastos y tipos de gasto", to: "/gastos" },
   ];
 
