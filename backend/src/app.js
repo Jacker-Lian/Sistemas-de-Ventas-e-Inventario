@@ -25,8 +25,8 @@ class App {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
     const ALLOWED_ORIGINS = [
-      "http://localhost:5174",       // para desarrollo local
-      "http://127.0.0.1:5174",       // para desarrollo local (codespaces?)
+      "http://localhost:5173",       // para desarrollo local
+      "http://127.0.0.1:5173",       // para desarrollo local (codespaces?)
       "http://38.250.161.15"         // para producción
     ];
 
@@ -65,9 +65,9 @@ class App {
           HistorialVentas: "/api/historial-ventas",
           DetalleVenta: "/api/detalle-venta",
 
-        
+
           Stock: "/api/stock",
-      
+
           Proveedores: "/api/proveedores",
           Gastos: "/api/gastos",
         },
@@ -117,10 +117,11 @@ class App {
     );
 
 
-  
+
+
     // 2. Montar Router de STOCK
-    this.app.use("/api", stockRouter);
-    console.log("DEBUG: Router de Stock montado en /api.");
+    this.app.use("/api/stock", stockRouter);
+    console.log("DEBUG: Router de Stock montado en /api/stock.");
 
 
 
