@@ -122,8 +122,8 @@ export default function CrudProductos() {
         precio_compra: typeof editando.precio_compra !== 'undefined' ? Number(editando.precio_compra) : Number(editando.precio) || 0,
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
-        id_categoria: Number(editando.id_categoria),
-        id_proveedor: Number(editando.id_proveedor),
+        id_categoria: Number(editando.id_categoria ?? 1),
+        id_proveedor: Number(editando.id_proveedor ?? 1),
       };
 
       const res = await fetch(
