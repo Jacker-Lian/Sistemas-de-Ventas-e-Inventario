@@ -16,7 +16,7 @@ const INITIAL_RESUMEN: ResumenStock = {
 
 // 2. ENDPOINT CORREGIDO
 // La ruta que devuelve tu resumen de stock es: /api/stock/resumen-inventario
-const BASE_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000/api/stock/resumen-inventario";
+const API_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000/api/stock/resumen-inventario";
 
 
 const ControlStock: React.FC = () => {
@@ -42,7 +42,7 @@ const ControlStock: React.FC = () => {
             setResumen(datos.data);
         } else {
             // Maneja caso donde la respuesta es OK, pero success: false
-            throw new Error(datos.mensaje || "Respuesta de API inesperada");
+            console.log (datos.mensaje || "Respuesta de API inesperada");
         }
 
       } catch (error) {
@@ -63,7 +63,7 @@ const ControlStock: React.FC = () => {
   // 5. RENDERIZADO ADAPTADO: Mostrando el resumen
   return (
     <div style={styles.contenedor}>
-      <h1> Resumen de Inventario</h1>
+      <h1>Resumen de Inventario</h1>
       <p>Vista rápida del inventario.</p>
 
       <div style={styles.cardContainer}>

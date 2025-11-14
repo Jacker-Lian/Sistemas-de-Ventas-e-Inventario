@@ -25,8 +25,8 @@ class App {
     const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
     const ALLOWED_ORIGINS = [
-      "http://localhost:5173",       // para desarrollo local
-      "http://127.0.0.1:5173",       // para desarrollo local (codespaces?)
+      "http://localhost:5174",       // para desarrollo local
+      "http://127.0.0.1:5174",       // para desarrollo local (codespaces?)
       "http://38.250.161.15"         // para producción
     ];
 
