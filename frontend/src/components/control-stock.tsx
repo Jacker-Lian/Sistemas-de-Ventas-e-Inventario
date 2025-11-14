@@ -48,7 +48,7 @@ const ControlStock: React.FC = () => {
               {/* Estilo para la celda de stock */}
               <td style={{ ...td, color: p.alerta_stock === 1 ? 'red' : 'inherit', fontWeight: p.alerta_stock === 1 ? 'bold' : 'normal' }}>
                 {p.stock}
-                {p.alerta_stock === 1 && ' ⚠️'} {/* Mostrar un ícono de alerta */}
+                {p.alerta_stock === 1 && ' '} 
               </td>
               <td style={td}>{p.vendidos}</td>
             </tr>
