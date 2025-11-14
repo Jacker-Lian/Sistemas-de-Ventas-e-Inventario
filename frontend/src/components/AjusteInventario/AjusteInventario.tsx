@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
-const API_URL = 'http://localhost:3000/api'; 
+const API_URL = import.meta.env.VITE_SERVER_URL;
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
@@ -46,7 +46,7 @@ const AjusteInventario: React.FC = () => {
         setFormData(prev => ({ ...prev, id_producto: id }));
         
         // Muestra el stock del producto seleccionado
-        const selectedProduct = productos.find(p => p.id_producto === id);
+        const selectedProduct = productos.find(p => p.id === id);
         setStockActual(selectedProduct ? selectedProduct.stock : null);
     };
 
@@ -145,7 +145,7 @@ const AjusteInventario: React.FC = () => {
                     >
                         <option value="">-- Seleccione un producto --</option>
                         {productos.map(p => (
-                            <option key={p.id_producto} value={p.id_producto}>
+                            <option key={p.id} value={p.id}>
                                 {p.nombre} (Stock: {p.stock})
                             </option>
                         ))}

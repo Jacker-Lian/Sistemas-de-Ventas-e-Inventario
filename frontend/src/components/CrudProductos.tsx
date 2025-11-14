@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 interface Producto {
   id: number;
   nombre: string;
-  precio_venta: number;
+  precio: number;
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
@@ -51,7 +51,7 @@ export default function CrudProductos() {
     const productosNormalizados: Producto[] = productosRaw.map((p: any) => ({
       id: Number(p.id),
       nombre: p.nombre ?? "",
-      precio_venta: Number(p.precio_venta) || 0,
+      precio: Number(p.precio) || 0,
       stock: Number(p.stock) || 0,
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
@@ -87,8 +87,8 @@ export default function CrudProductos() {
       const payload = {
         id: Number(editando.id),
         nombre: String(editando.nombre).trim(),
-        precio_venta: Number(editando.precio_venta),
-        // precio_compra: Number(editando.precio), (no esta en la base de datos ??)
+        precio_venta: Number(editando.precio),
+        precio_compra: 0, // Valor por defecto ya que no se edita en UI
         stock: Number(editando.stock),
         descripcion: editando.descripcion ? String(editando.descripcion) : "",
         id_categoria: Number(editando.id_categoria) || 1,
@@ -304,7 +304,7 @@ export default function CrudProductos() {
                     {editando?.id === p.id ? (
                       <input
                         type="number"
-                        value={editando.precio_venta}
+                        value={editando.precio}
                         onChange={handleEditPrecio}
                         style={{
                           border: "1px solid #000",
@@ -313,7 +313,7 @@ export default function CrudProductos() {
                         }}
                       />
                     ) : (
-                      p.precio_venta.toFixed(2)
+                      p.precio.toFixed(2)
                     )}
                   </td>
                   <td
