@@ -9,21 +9,21 @@ class ProductoModel {
     const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE id_producto = ? AND estado = 1';
     
     const [rows] = await this.pool.query(query, [id]);
-    return rows[0]; // Devuelve el primer producto encontrado
+    return rows[0]; 
   }
 //metodo usadoo por gandy mas y un compañero
   async obtenerProductos() {
     const query = 'SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE estado = 1';
-    const [rows] = await this.pool.query(query);
+    const [rows] = await this.pool.query(query); //esto es un tipo de coenccion a ala base de datos 
     return rows;
   }
-
+/*
 async obtenerSoloVentas() {
     const query = ` SELECT id_producto, SUM(cantidad) AS total_vendido FROM  detalle_venta GROUP BY   id_producto;  `;
            
     const [rows] = await this.pool.query(query);
     return rows;
-}
+}*/
 
   async buscarProductos(query) {
     const searchQuery = `SELECT id_producto AS id, nombre, precio_venta AS precio, stock, descripcion, estado FROM producto WHERE nombre LIKE ? AND estado = 1`;

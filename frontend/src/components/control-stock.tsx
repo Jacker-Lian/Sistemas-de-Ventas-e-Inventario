@@ -14,7 +14,7 @@ const ENDPOINT = `${API_URL}/api/stock/productos`;
 
 const ControlStock: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(true); 
 
   useEffect(() => {
     const cargar = async () => {
@@ -37,7 +37,7 @@ const ControlStock: React.FC = () => {
           <tr style={{ background: "#f2f2f2" }}>
             <th style={th}>Producto</th>
             <th style={th}>Stock</th>
-            <th style={th}>Vendidos</th>
+            {/*<th style={th}>Vendidos</th>*/}
           </tr>
         </thead>
 
