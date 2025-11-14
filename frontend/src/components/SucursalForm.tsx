@@ -31,9 +31,9 @@ const SucursalForm = ({ editData, onClose }: Props) => {
   };
 
   return (
-      <div className="modal-box">
-
-        <h3>{editData ? "Editar Sucursal" : "Nueva Sucursal"}</h3>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2 className="mb-3">{editData ? "Editar Sucursal" : "Nueva Sucursal"}</h2>
 
         <form onSubmit={handleSubmit}>
           <input
@@ -43,21 +43,18 @@ const SucursalForm = ({ editData, onClose }: Props) => {
             onChange={(e) => setForm({ ...form, nombre: e.target.value })}
             required
           />
-
           <input
             className="form-control mb-2"
             placeholder="Dirección"
             value={form.direccion}
             onChange={(e) => setForm({ ...form, direccion: e.target.value })}
           />
-
           <input
             className="form-control mb-2"
             placeholder="Teléfono"
             value={form.telefono}
             onChange={(e) => setForm({ ...form, telefono: e.target.value })}
           />
-
           <input
             className="form-control mb-2"
             placeholder="Correo"
@@ -66,12 +63,12 @@ const SucursalForm = ({ editData, onClose }: Props) => {
             onChange={(e) => setForm({ ...form, correo: e.target.value })}
           />
 
-          <button className="btn btn-success w-100">
+          <button className="btn btn-success w-100 mb-2">
             {editData ? "Actualizar" : "Crear"}
           </button>
         </form>
 
-        <button className="btn btn-secondary w-100 mt-3" onClick={onClose}>
+        <button className="btn btn-secondary w-100" onClick={onClose}>
           Cerrar
         </button>
       </div>
@@ -80,3 +77,4 @@ const SucursalForm = ({ editData, onClose }: Props) => {
 };
 
 export default SucursalForm;
+

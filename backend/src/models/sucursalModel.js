@@ -2,9 +2,21 @@ const { getPool } = require('../config/database');
 
 const Sucursal = {
 
+  listar: async () => {
+    const pool = getPool();
+    const [rows] = await pool.query(
+      'SELECT id_sucursal, nombre, direccion, telefono, correo, estado FROM sucursal'
+    );
+    return rows;
+  },
+
+
   obtenerPorId: async (id) => {
     const pool = getPool();
-    const [rows] = await pool.query('SELECT * FROM sucursal WHERE id_sucursal = ?', [id]);
+    const [rows] = await pool.query(
+      'SELECT id_sucursal, nombre, direccion, telefono, correo, estado FROM sucursal WHERE id_sucursal = ?',
+      [id]
+    );
     return rows[0];
   },
 
@@ -30,14 +42,15 @@ const Sucursal = {
     return result.affectedRows;
   },
 
-  eliminar: async (id) => {
+  cambiarEstado: async (id, nuevoEstado) => {
     const pool = getPool();
     const [result] = await pool.query(
-      'UPDATE sucursal SET estado = 0 WHERE id_sucursal = ?',
-      [id]
+      'UPDATE sucursal SET estado=? WHERE id_sucursal=?',
+      [nuevoEstado, id]
     );
     return result.affectedRows;
   }
+
 };
 
 module.exports = Sucursal;

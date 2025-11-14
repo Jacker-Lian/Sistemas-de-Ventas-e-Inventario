@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import SucursalForm from "./SucursalForm";
+import "../styles/global.css"
 
 interface Sucursal {
   id_sucursal: number;
@@ -14,8 +15,8 @@ const API_URL = `${import.meta.env.VITE_SERVER_URL}/api/sucursales`;
 
 const Sucursales = () => {
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editData, setEditData] = useState<Sucursal | null>(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [datosEditar, setDatosEditar] = useState<Sucursal | null>(null);
 
   const cargarSucursales = async () => {
     const res = await fetch(API_URL);
@@ -27,25 +28,29 @@ const Sucursales = () => {
     cargarSucursales();
   }, []);
 
-  const eliminarSucursal = async (id: number) => {
-    if (!confirm("¿Eliminar sucursal?")) return;
-
-    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    cargarSucursales();
+  const abrirFormulario = (sucursal?: Sucursal) => {
+    setDatosEditar(sucursal || null);
+    setMostrarFormulario(true);
   };
 
-  const abrirFormulario = (sucursal?: Sucursal) => {
-    setEditData(sucursal || null);
-    setShowForm(true);
+  const cambiarEstadoSucursal = async (id: number, nuevoEstado: number) => {
+    await fetch(`${API_URL}/${id}/estado`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado: nuevoEstado }),
+    });
+    cargarSucursales();
   };
 
   return (
     <div className="container">
-      <h1 className="mt-3">Sucursales</h1>
-
-      <button className="btn btn-primary" onClick={() => abrirFormulario()}>
-        Nueva Sucursal
-      </button>
+      <h1 className="mt-3">Sucursales</h1><br />
+      <h4>Bienvenido/a, aquí podrás crear, editar, activar o desactivar sucursales de tu empresa.</h4><br />
+      <div style={{ textAlign: "right", margin: "1rem 0" }}>
+        <button className="btn btn-primary btn-small" onClick={() => abrirFormulario()}>
+          Nueva Sucursal
+        </button>
+      </div>
 
       <table className="table mt-3">
         <thead>
@@ -54,7 +59,8 @@ const Sucursales = () => {
             <th>Dirección</th>
             <th>Teléfono</th>
             <th>Correo</th>
-            <th></th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -65,7 +71,7 @@ const Sucursales = () => {
               <td>{s.direccion}</td>
               <td>{s.telefono}</td>
               <td>{s.correo}</td>
-
+              <td>{s.estado === 1 ? "Activo" : "Inactivo"}</td>
               <td>
                 <button
                   className="btn btn-warning btn-sm"
@@ -75,10 +81,10 @@ const Sucursales = () => {
                 </button>
 
                 <button
-                  className="btn btn-danger btn-sm ms-2"
-                  onClick={() => eliminarSucursal(s.id_sucursal)}
+                  className={`btn btn-sm ms-2 ${s.estado === 1 ? "btn-danger" : "btn-success"}`}
+                  onClick={() => cambiarEstadoSucursal(s.id_sucursal, s.estado === 1 ? 0 : 1)}
                 >
-                  Eliminar
+                  {s.estado === 1 ? "Desactivar" : "Activar"}
                 </button>
               </td>
             </tr>
@@ -86,11 +92,11 @@ const Sucursales = () => {
         </tbody>
       </table>
 
-      {showForm && (
+      {mostrarFormulario && (
         <SucursalForm
-          editData={editData}
+          editData={datosEditar}
           onClose={() => {
-            setShowForm(false);
+            setMostrarFormulario(false);
             cargarSucursales();
           }}
         />
@@ -100,3 +106,5 @@ const Sucursales = () => {
 };
 
 export default Sucursales;
+
+

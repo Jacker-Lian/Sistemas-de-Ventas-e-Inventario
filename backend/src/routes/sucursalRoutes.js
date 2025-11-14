@@ -12,7 +12,7 @@ class SucursalRoutes {
     this.router.get("/:id", sucursalController.obtener);
     this.router.post("/", sucursalController.crear);
     this.router.put("/:id", sucursalController.actualizar);
-    this.router.delete("/:id", sucursalController.eliminar);
+    this.router.patch("/:id/estado", sucursalController.cambiarEstado);
   }
 
   getRouter() {
@@ -21,4 +21,5 @@ class SucursalRoutes {
 }
 
 module.exports = SucursalRoutes;
+
 
