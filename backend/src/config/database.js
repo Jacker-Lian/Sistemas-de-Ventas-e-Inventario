@@ -15,9 +15,15 @@ function createPool() {
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-      decimalNumbers: true
+      decimalNumbers: true,
+      dateStrings: true // para que las fechas se vean bien
+    });
+    // manejar errores de conexión
+    pool.on("error", (err) => {
+      console.error("Error con la base de datos:", err);
     });
   }
+
   return pool;
 }
 

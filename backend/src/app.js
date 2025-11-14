@@ -12,6 +12,10 @@ const HistorialVentasRoutes = require('./routes/historialVentasRoutes');
 const DetalleVentaRoutes = require('./routes/detalleVentaRoutes');
 const MotivosCancelacionRoutes = require('./routes/motivosCancelacionRoutes');
 const CategoriaRoutes = require('./routes/categoriaRoutes');
+const ProductoRouters = require("./routes/productoRouters");
+const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
+const gastoRoutes = require('./routes/gastoRoutes');
 
 class App {
   constructor() {
@@ -69,6 +73,8 @@ class App {
           DetalleVenta: "/api/detalle-venta",
           MotivosCancelacion: "/api/motivos-cancelacion",
           Categorias: "/api/categorias"
+          Proveedores: "/api/proveedores",
+          Gastos: "/api/gastos",
         },
       });
     });
@@ -97,8 +103,11 @@ class App {
     // Montar rutas de ajustes de inventario
     const ajusteInventarioRoutesInstance = new AjusteInventarioRoutes();
     this.app.use("/api/ajustes-inventario", ajusteInventarioRoutesInstance.getRouter());
-
-    // Montar rutas de caja
+    
+    // Montar rutas de gastos
+    const gastoRoutesInstance = new gastoRoutes();
+    this.app.use("/api/gastos", gastoRoutesInstance.getRouter());
+    // Montar rutas para la gestion de caja
     const cajaRoutesInstance = new CajaRoutes();
     this.app.use("/api/caja", cajaRoutesInstance.getRouter());
 
@@ -123,6 +132,17 @@ class App {
     this.app.use("/api/categorias", categoriaRoutesInstance.getRouter());
 
     // Manejo de rutas no encontradas (404)
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
+    this.app.use(
+        "/api/detalle-venta", 
+        detalleVentaRoutesInstance.getRouter()
+    );
+    
+    // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ 
         success: false, 
