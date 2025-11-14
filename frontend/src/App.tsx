@@ -11,6 +11,8 @@ import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 
+import { Login, Admin, Caja, AjusteInventario, PrivateRoute, 
+  CrudCategorias, RegistrarVenta, HistorialVentas, ReporteVentas, Gastos  } from './components';
 
 
 function App() {
@@ -83,6 +85,22 @@ function App() {
             element={
               <PrivateRoute roles={['ADMIN', 'CAJA']}>
                 <ReporteVentas />
+              </PrivateRoute>
+            }
+          />
+          <Route 
+            path="/categorias" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudCategorias />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/gastos"
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <Gastos />
               </PrivateRoute>
             }
           />

@@ -12,6 +12,7 @@ const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
 //const alertasRoutes = require("./routes/alertasRoutes");
 const stockRouter = require("./routes/stockRoutes");
 
+const gastoRoutes = require('./routes/gastoRoutes');
 
 class App {
   constructor() {
@@ -67,6 +68,8 @@ class App {
         
           Stock: "/api/stock",
           Proveedores: "/api/proveedores"
+          Proveedores: "/api/proveedores",
+          Gastos: "/api/gastos",
         },
       });
     });
@@ -96,6 +99,9 @@ class App {
     );
 
 
+    // Montar rutas de gastos
+    const gastoRoutesInstance = new gastoRoutes();
+    this.app.use("/api/gastos", gastoRoutesInstance.getRouter());
     // Montar rutas para la gestion de caja
     const cajaRoutesInstance = new CajaRoutes();
     this.app.use("/api/caja", cajaRoutesInstance.getRouter());
@@ -118,6 +124,12 @@ class App {
 
 
 
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
+    this.app.use(
+        "/api/detalle-venta", 
+        detalleVentaRoutesInstance.getRouter()
+    );
+    
     // Ruta 404
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
