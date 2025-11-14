@@ -59,6 +59,7 @@ class App {
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
           Login: "/api/usuario",
+          Auth: "/api/auth",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
@@ -81,6 +82,8 @@ class App {
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
 
     //RUTAS DE COMPAÑEROS (RESTAURADAS)
+
+
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
     this.app.use("/api/ventas", ventasRoutesInstance.getRouter());

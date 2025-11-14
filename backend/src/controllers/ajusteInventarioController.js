@@ -68,8 +68,9 @@ const AjusteInventarioController = {
     // 2. Obtener todos los ajustes de inventario (GET /api/inventario/historial)
     obtenerTodosLosAjustes: async (req, res) => {
         try {
-            // Esta función deberá hacer JOINs con producto, usuarios y sucursal
-            const ajustes = await AjusteInventarioModel.obtenerTodos();
+            const filtros = req.query;
+
+            const ajustes = await AjusteInventarioModel.obtenerTodos(filtros);
             res.json({
                 success: true,
                 data: ajustes

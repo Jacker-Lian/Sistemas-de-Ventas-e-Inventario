@@ -1,13 +1,67 @@
 import Navbar from "./Navbar";
+import { useAuth } from "../context/AuthContext";
+import { Navigate, Link } from "react-router-dom";
+import "../styles/admin.css"; 
 
 function Caja() {
-  return (
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (user.rol_usuario && String(user.rol_usuario).toUpperCase() !== "CAJA") {
+    return <Navigate to="/" replace />;
+  }
+
+  const cards = [
+    { title: "Registrar Venta", desc: "Registro de Ventas", to: "/registrarVenta" },
+    { title: "Historial de Ventas", desc: "Consulta todas las ventas realizadas", to: "/ventas/historial" },
+    { title: "Ajustes", desc: "Ajustes de inventario y movimientos", to: "/inventario/ajuste" },
+    { title: "Gastos", desc: "Gestionar gastos y tipos de gasto", to: "/gastos" },
+    //{ title: "Reporte Diario", desc: "Ver reporte diario de ventas realizadas", to: "/caja/reporte-diario" },
+  ];
+return (
     <>
       <Navbar />
-      <div style={{ textAlign: "center", marginTop: "3rem" }}>
-        <h2>Bienvenido al Módulo de Caja</h2>
-        <p>Registra ventas, imprime boletas y consulta inventario.</p>
-      </div>
+      <main className="admin-page">
+        <div className="admin-header">
+          <div className="admin-welcome">
+            <h2 className="muted-small">Bienvenido(a) al</h2>
+            <h1 className="title">Panel de Caja</h1>
+            <p className="lead muted">
+              Herramientas y accesos rápidos para gestionar tus operaciones diarias.
+            </p>
+          </div>
+
+          <div className="admin-user">
+            <div className="admin-user-name">{user.nombre_usuario}</div>
+            <div className="admin-user-role">{user.rol_usuario ?? "Caja"}</div>
+          </div>
+        </div>
+
+        <section className="admin-grid">
+          {cards.map((c) => (
+            <article key={c.title} className="admin-card" aria-labelledby={`card-${c.title}`}>
+              <div>
+                <h3 id={`card-${c.title}`} className="admin-card-title">
+                  {c.title}
+                </h3>
+                <p className="admin-card-desc">{c.desc}</p>
+              </div>
+              <div className="admin-card-actions">
+                <Link
+                  to={c.to}
+                  className="btn btn-primary"
+                  title={`Abrir ${c.title}`}
+                >
+                  Abrir
+                </Link>
+              </div>
+            </article>
+          ))}
+        </section>
+      </main>
     </>
   );
 }

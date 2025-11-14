@@ -38,6 +38,8 @@ export default function HistorialVentas() {
   const [detalleVenta, setDetalleVenta] = useState<DetalleVenta[] | null>(null);
   const [ventaSeleccionada, setVentaSeleccionada] = useState<Venta | null>(null);
 
+  
+
   const fetchVentas = async () => {
     try {
       setLoading(true);
@@ -68,6 +70,87 @@ export default function HistorialVentas() {
     } catch (err) {
       console.error(err);
       setError("No se pudo obtener el detalle de la venta.");
+    }
+  };
+
+
+  const convertirJsonA_CSV = (datos: DetalleVenta[], infoVenta: Venta) => {
+    const headers = [
+      "ID Venta",
+      "Fecha Venta",
+      "Producto",
+      "Cantidad",
+      "Precio Unitario",
+      "Subtotal"
+    ];
+    
+    const csvRows = [headers.join(',')]; 
+
+    for (const item of datos) {
+      const values = [
+        infoVenta.id_venta,
+        new Date(infoVenta.fecha_venta).toLocaleString(), 
+        `"${item.nombre_producto.replace(/"/g, '""')}"`, 
+        item.cantidad,
+        item.precio_unitario.toFixed(2),
+        item.subtotal.toFixed(2)
+      ];
+      csvRows.push(values.join(','));
+    }
+
+    csvRows.push(""); 
+    csvRows.push(`,,,,Total:,S/ ${infoVenta.total.toFixed(2)}`);
+
+    return csvRows.join('\n'); 
+  };
+
+  const descargarCSV = (csvString: string, idVenta: number) => {
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `detalle_venta_${idVenta}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const [exportLoadingId, setExportLoadingId] = useState<number | null>(null);
+
+
+  const handleExportarCSVDirecto = async (idVenta: number) => {
+    if (exportLoadingId === idVenta) return; 
+    
+    setExportLoadingId(idVenta);
+    setError(null);
+    
+    try {
+      const { data: ventaData } = await apiVentas.get(`/api/historial-ventas/${idVenta}`);
+      const ventaInfo: Venta = ventaData.data;
+
+
+      const { data: detalleData } = await apiVentas.get(`/api/detalle-venta/${idVenta}`);
+      const detalles: DetalleVenta[] = detalleData;
+
+      if (!detalles || detalles.length === 0) {
+        setError("No hay detalles para exportar en esta venta.");
+        setExportLoadingId(null);
+        return;
+      }
+
+      const csvString = convertirJsonA_CSV(detalles, ventaInfo);
+      
+      descargarCSV(csvString, idVenta);
+
+    } catch (err: any) {
+      console.error(err);
+      setError("Error al generar el CSV: " + (err.response?.data?.message || err.message));
+    } finally {
+      setExportLoadingId(null); 
     }
   };
 
@@ -152,6 +235,7 @@ export default function HistorialVentas() {
                   <th>Método de Pago</th>
                   <th>Total</th>
                   <th>Estado</th>
+                  <th>Acciones</th> 
                 </tr>
               </thead>
               <tbody>
@@ -171,6 +255,21 @@ export default function HistorialVentas() {
                         {venta.estado_venta}
                       </span>
                     </td>
+                    
+                    <td>
+                      <button
+                        className="btn-filtrar" //boton exportar
+                        style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
+                        onClick={(e) => {
+                          e.stopPropagation(); 
+                          handleExportarCSVDirecto(venta.id_venta);
+                        }}
+                        disabled={exportLoadingId === venta.id_venta} 
+                      >
+                        {exportLoadingId === venta.id_venta ? "..." : "Exportar"}
+                      </button>
+                    </td>
+                    
                   </tr>
                 ))}
               </tbody>
