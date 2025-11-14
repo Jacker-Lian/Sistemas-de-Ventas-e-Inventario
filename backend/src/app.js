@@ -9,9 +9,10 @@ const CategoriaRoutes = require('./routes/categoriaRoutes');
 const AjusteInventarioRoutes = require("./routes/ajusteInventarioRoutes");
 const CajaRoutes = require("./routes/cajaRoutes");
 const ProductoRouters = require("./routes/productoRouters");
-const HistorialVentasRoutes = require("./routes/historial-ventas.routes.js");
-const ProveedorRoutes = require("./routes/proveedorRoutes");
-const DetalleVentaRoutes = require("./routes/detalleVentaRoutes");
+const HistorialVentasRoutes = require('./routes/historial-ventas.routes.js');
+const detalleVentaRoutes = require('./routes/detalleVentaRoutes');
+const SucursalRoutes = require("./routes/sucursalRoutes");
+const gastoRoutes = require('./routes/gastoRoutes');
 
 class App {
   constructor() {
@@ -67,7 +68,9 @@ class App {
           HistorialVentas: "/api/historial-ventas",
           Proveedores: "/api/proveedores",
           DetalleVenta: "/api/detalle-venta",
-          Caja: "/api/caja"
+          Proveedores: "/api/proveedores",
+          Sucursales: "/api/sucursales",
+          Gastos: "/api/gastos",
         },
       });
     });
@@ -92,15 +95,18 @@ class App {
     this.app.use("/api/productos", productoRoutersInstance.getRouter());
 
     const historialVentasRoutesInstance = new HistorialVentasRoutes();
-    this.app.use("/api/historial-ventas", historialVentasRoutesInstance.getRouter());
-
-    const proveedorRoutesInstance = new ProveedorRoutes();
-    this.app.use("/api/proveedores", proveedorRoutesInstance.getRouter());
-
-    const detalleVentaRoutesInstance = new DetalleVentaRoutes();
-    this.app.use("/api/detalle-venta", detalleVentaRoutesInstance.getRouter());
-
-    // Ruta 404
+    this.app.use(
+      "/api/historial-ventas",
+      historialVentasRoutesInstance.getRouter()
+    );
+    const detalleVentaRoutesInstance = new detalleVentaRoutes(); 
+    this.app.use(
+        "/api/detalle-venta", 
+        detalleVentaRoutesInstance.getRouter()
+    );
+    const sucursalRoutesInstance = new SucursalRoutes();
+    this.app.use("/api/sucursales", sucursalRoutesInstance.getRouter());
+    
     this.app.use((req, res) => {
       res.status(404).json({ success: false, mensaje: "Ruta no encontrada" });
     });
