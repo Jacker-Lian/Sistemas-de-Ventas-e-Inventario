@@ -16,9 +16,7 @@ const INITIAL_RESUMEN: ResumenStock = {
 
 // 2. ENDPOINT CORREGIDO
 // La ruta que devuelve tu resumen de stock es: /api/stock/resumen-inventario
-const API_URL = import.meta.env.MODE === "development"
-  ? "http://localhost:3000/api/stock/resumen-inventario"
-  : "http://38.250.161.15/api/stock/resumen-inventario";
+const BASE_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000/api/stock/resumen-inventario";
 
 
 const ControlStock: React.FC = () => {
