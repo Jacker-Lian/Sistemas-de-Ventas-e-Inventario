@@ -55,6 +55,7 @@ this.app.use(cors({
         mensaje: "Backend de Sistema de Ventas e Inventario funcionando",
         endpoints: {
           Login: "/api/usuario",
+          Auth: "/api/auth",
           Ventas: "/api/ventas",
           AjustesInventario: "/api/ajustes-inventario",
           Productos: "/api/productos",
@@ -71,6 +72,8 @@ this.app.use(cors({
     // Montar tus rutas de login
     const usuarioRoutes = new UsuarioRoutes();
     this.app.use("/api/usuario", usuarioRoutes.getRouter());
+
+
 
     // Montar rutas de ventas
     const ventasRoutesInstance = new ventasRoutes();
