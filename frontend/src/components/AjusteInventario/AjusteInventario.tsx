@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 // URL de tu Backend (Node.js)
@@ -123,6 +124,7 @@ const AjusteInventario: React.FC = () => {
     return (
         <div className="container-ajuste">
             <h2>⚙️ Ajuste Manual de Inventario</h2>
+            <Link to="/CrudProductos" className="btn-crud-inventario">Ir a Gestión de Productos</Link>
             
             {mensaje.texto && (
                 <div className={`alerta ${mensaje.tipo === 'error' ? 'alerta-error' : 'alerta-exito'}`}>
