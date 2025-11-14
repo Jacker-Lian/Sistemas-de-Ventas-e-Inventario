@@ -11,6 +11,8 @@ import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
 import Proveedor from "./components/Proveedor/Proveedor";
 
+import { Login, Admin, Caja, AjusteInventario, PrivateRoute, 
+  CrudCategorias, RegistrarVenta, HistorialVentas, ReporteVentas, Gastos  } from './components';
 
 
 function App() {
