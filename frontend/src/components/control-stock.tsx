@@ -5,8 +5,8 @@ interface Producto {
   nombre: string;
   stock: number;
   vendidos: number;
-  stock_minimo: number;
-  alerta_stock: 0 | 1;
+ 
+
 }
 
 const API_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
@@ -30,7 +30,7 @@ const ControlStock: React.FC = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1> Inventario por Producto</h1>
+      <h1>Inventario por Producto</h1>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 20 }}>
         <thead>
@@ -43,13 +43,9 @@ const ControlStock: React.FC = () => {
 
         <tbody>
           {productos.map(p => (
-            <tr key={p.id_producto} style={p.alerta_stock === 1 ? { backgroundColor: '#ffe6e6' } : {}}>
+            <tr key={p.id_producto}>
               <td style={td}>{p.nombre}</td>
-              {/* Estilo para la celda de stock */}
-              <td style={{ ...td, color: p.alerta_stock === 1 ? 'red' : 'inherit', fontWeight: p.alerta_stock === 1 ? 'bold' : 'normal' }}>
-                {p.stock}
-                {p.alerta_stock === 1 && ' '} 
-              </td>
+              <td style={td}>{p.stock}</td>
               <td style={td}>{p.vendidos}</td>
             </tr>
           ))}

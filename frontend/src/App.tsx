@@ -2,8 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ControlStock  from "./components/control-stock";
 
-import { Login, Admin, Caja, AjusteInventario, PrivateRoute, 
-  CrudCategorias, RegistrarVenta, HistorialVentas, ReporteVentas, Gastos,  } from './components';
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Caja from "./components/Caja";
