@@ -1,26 +1,33 @@
-const db = require('../config/database'); // AJUSTA ESTA RUTA A TU ARCHIVO DE CONEXIÓN REAL
+// Importamos la función 'getPool' en lugar de todo el objeto 'db'
+const { getPool } = require('../config/database'); 
+
+// Obtenemos la instancia del Pool de Conexiones una vez al inicio del módulo
+const pool = getPool(); 
 
 const AjusteInventarioModel = {
     // 1. Ejecuta la transacción de ajuste (POST)
     crear: async (datos) => {
         const {
             id_producto,
-            cantidad_ajustada, // Viene como magnitud (valor absoluto)
-            tipo_ajuste,      // 'AUMENTO' o 'DISMINUCION'
+            cantidad_ajustada, 
+            tipo_ajuste,      
             id_usuario,
             observaciones,
-            id_sucursal       
+            id_sucursal       
         } = datos;
 
         let connection;
         const pool = db.getPool();
         try {
+<<<<<<< HEAD
+            connection = await pool.getConnection(); 
+=======
             // INICIO DE LA TRANSACCIÓN
             connection = await pool.getConnection();
+>>>>>>> main
             await connection.beginTransaction();
 
             // 1. Obtener Stock Actual y Validar Producto
-            // Consulta la tabla producto para obtener el stock actual
             const [productRows] = await connection.query(
                 'SELECT stock FROM producto WHERE id_producto = ?',
                 [id_producto]
@@ -31,14 +38,11 @@ const AjusteInventarioModel = {
             }
 
             const stock_actual = productRows[0].stock;
-
-            // 2. Cálculo y Validación del Nuevo Stock
-            // Definir la cantidad neta: positivo si AUMENTO, negativo si DISMINUCION
             const cantidad_neta = tipo_ajuste === 'AUMENTO' ? cantidad_ajustada : -cantidad_ajustada;
             const stock_nuevo = stock_actual + cantidad_neta;
 
             if (stock_nuevo < 0) {
-                 throw new Error('El ajuste no puede dejar el stock con valor negativo.');
+                throw new Error('El ajuste no puede dejar el stock con valor negativo.');
             }
             
             // 3. ACTUALIZAR LA TABLA 'producto'
@@ -55,66 +59,49 @@ const AjusteInventarioModel = {
                 [id_producto, cantidad_ajustada, tipo_ajuste, id_usuario, stock_nuevo, observaciones, id_sucursal]
             );
 
-            // 5. COMMIT: Confirmar los dos pasos (UPDATE y INSERT)
+            // 5. COMMIT
             await connection.commit();
             
             return { 
-                id_ajuste: resultado.insertId, // Retorna el ID generado
+                id_ajuste: resultado.insertId,
                 stock_nuevo 
             };
 
         } catch (error) {
-            // ROLLBACK: Si algo falla, deshace todos los cambios
             if (connection) await connection.rollback(); 
-            throw error; // Propaga el error al Controlador
+            throw error; 
         } finally {
-            if (connection) connection.release(); // Libera la conexión
+            if (connection) connection.release(); 
         }
     },
 
-    // 2. Obtener todos los ajustes de inventario (GET /api/inventario/historial)
+    // 2. Obtener todos los ajustes de inventario 
     obtenerTodos: async () => {
         try {
-            // Query con JOINs a producto, usuarios y sucursal
             const query = `
                 SELECT 
-                    ai.id_ajuste,
-                    ai.cantidad_ajustada,
-                    ai.tipo_ajuste,
-                    ai.stock_nuevo,
-                    ai.observaciones,
-                    ai.fecha_creacion,
-                    p.nombre as nombre_producto, 
-                    u.nombre_usuario,
-                    s.nombre as nombre_sucursal
+                    ai.id_ajuste, ai.cantidad_ajustada, ai.tipo_ajuste, ai.stock_nuevo, ai.observaciones, ai.fecha_creacion,
+                    p.nombre as nombre_producto, u.nombre_usuario, s.nombre as nombre_sucursal
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
                 INNER JOIN sucursal s ON ai.id_sucursal = s.id_sucursal
                 ORDER BY ai.fecha_creacion DESC
             `;
-            const [ajustes] = await db.query(query);
+            const [ajustes] = await pool.query(query);
             return ajustes;
         } catch (error) {
             throw error;
         }
     },
 
-    // 3. Obtener ajustes por producto (GET /api/inventario/ajustes-producto/:idProducto)
+    // 3. Obtener ajustes por producto 
     obtenerPorProducto: async (idProducto) => {
         try {
-            // Query con JOINs y filtro por id_producto
             const query = `
                 SELECT 
-                    ai.id_ajuste,
-                    ai.cantidad_ajustada,
-                    ai.tipo_ajuste,
-                    ai.stock_nuevo,
-                    ai.observaciones,
-                    ai.fecha_creacion,
-                    p.nombre as nombre_producto, 
-                    u.nombre_usuario,
-                    s.nombre as nombre_sucursal
+                    ai.id_ajuste, ai.cantidad_ajustada, ai.tipo_ajuste, ai.stock_nuevo, ai.observaciones, ai.fecha_creacion,
+                    p.nombre as nombre_producto, u.nombre_usuario, s.nombre as nombre_sucursal
                 FROM ajustes_inventario ai
                 INNER JOIN producto p ON ai.id_producto = p.id_producto
                 INNER JOIN usuarios u ON ai.id_usuario = u.id_usuario
@@ -122,8 +109,19 @@ const AjusteInventarioModel = {
                 WHERE ai.id_producto = ?
                 ORDER BY ai.fecha_creacion DESC
             `;
-            const [ajustes] = await db.query(query, [idProducto]);
+            const [ajustes] = await pool.query(query, [idProducto]);
             return ajustes;
+        } catch (error) {
+            throw error;
+        }
+    },
+    
+    // 4. Obtener la lista de productos (GET /productos)
+    obtenerListaProductos: async () => {
+        try {
+            const query = 'SELECT id_producto, nombre, stock FROM producto WHERE estado = 1 ORDER BY nombre ASC'; 
+            const [productos] = await pool.query(query);
+            return productos;
         } catch (error) {
             throw error;
         }
