@@ -1,3 +1,4 @@
+// src/models/motivosCancelacionModel.js
 const database = require("../config/database");
 
 class MotivosCancelacionModel {
@@ -5,10 +6,7 @@ class MotivosCancelacionModel {
     this.table = "motivos_cancelacion";
   }
 
-  /**
-   * Crear nuevo motivo de cancelación
-   * @param {string} descripcion
-   */
+  // Crear nuevo motivo de cancelación
   async crear(descripcion) {
     try {
       const pool = database.getPool();
@@ -28,9 +26,7 @@ class MotivosCancelacionModel {
     }
   }
 
-  /**
-   * Obtener todos los motivos activos
-   */
+  // Obtener todos los motivos activos
   async obtenerTodosActivos() {
     try {
       const pool = database.getPool();
@@ -43,10 +39,7 @@ class MotivosCancelacionModel {
     }
   }
 
-  /**
-   * Obtener motivo por ID
-   * @param {number} id_motivo
-   */
+  // Obtener motivo por ID
   async obtenerPorId(id_motivo) {
     try {
       const pool = database.getPool();
@@ -60,11 +53,7 @@ class MotivosCancelacionModel {
     }
   }
 
-  /**
-   * Actualizar descripción de motivo
-   * @param {number} id_motivo
-   * @param {string} descripcion
-   */
+  // Actualizar descripción de motivo
   async actualizar(id_motivo, descripcion) {
     try {
       const pool = database.getPool();
@@ -84,10 +73,7 @@ class MotivosCancelacionModel {
     }
   }
 
-  /**
-   * Desactivar motivo de cancelación
-   * @param {number} id_motivo
-   */
+  // Desactivar motivo de cancelación
   async desactivar(id_motivo) {
     try {
       const pool = database.getPool();
@@ -110,4 +96,5 @@ class MotivosCancelacionModel {
   }
 }
 
+// Exportar la **clase** como constructor
 module.exports = MotivosCancelacionModel;

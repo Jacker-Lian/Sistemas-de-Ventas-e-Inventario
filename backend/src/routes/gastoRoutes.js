@@ -1,14 +1,5 @@
 const { Router } = require("express");
-const {
-  getGastos,
-  getGastoById,
-  getOneGasto,
-  postGasto,
-  putGasto,
-  patchGasto,
-  getTiposGasto,
-  postTipoGasto,
-} = require("../controllers/gastoController.js");
+const gastoController = require("../controllers/gastoController");
 const { verificarToken, requireRole } = require('../middleware/verificarToken');
 
 class GastoRoutes {
@@ -24,46 +15,46 @@ class GastoRoutes {
     // Obtener tipos de gasto - ADMIN y CAJA
     this.router.get("/tipos", 
       requireRole(['ADMIN', 'CAJA']), 
-      getTiposGasto
+      gastoController.getTiposGasto
     );
 
     // Crear tipo de gasto - Solo ADMIN
     this.router.post("/tipo", 
       requireRole(['ADMIN']), 
-      postTipoGasto
+      gastoController.postTipoGasto
     );
 
     // Obtener todos los gastos - ADMIN y CAJA
     this.router.get("/", 
       requireRole(['ADMIN', 'CAJA']), 
-      getGastos
+      gastoController.getGastos
     );
 
     // Crear gasto - ADMIN y CAJA
     this.router.post("/", 
       requireRole(['ADMIN', 'CAJA']), 
-      postGasto
+      gastoController.postGasto
     );
 
     // Obtener gasto por ID - ADMIN y CAJA
     this.router.get("/:id", 
       requireRole(['ADMIN', 'CAJA']), 
-      getGastoById, 
-      getOneGasto
+      gastoController.getGastoById, 
+      gastoController.getOneGasto
     );
 
     // Actualizar gasto - Solo ADMIN
     this.router.put("/:id", 
       requireRole(['ADMIN']), 
-      getGastoById, 
-      putGasto
+      gastoController.getGastoById, 
+      gastoController.putGasto
     );
 
     // Eliminar gasto - Solo ADMIN
     this.router.patch("/:id", 
       requireRole(['ADMIN']), 
-      getGastoById, 
-      patchGasto
+      gastoController.getGastoById, 
+      gastoController.patchGasto
     );
   }
 

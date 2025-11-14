@@ -1,6 +1,7 @@
 const cajaModel = require("../models/cajaModel");
 
 const cajaController = {
+  // Abrir caja
   abrirCaja: async (req, res) => {
     try {
       const { id_usuario, id_sucursal } = req.body;
@@ -24,6 +25,7 @@ const cajaController = {
     }
   },
 
+  // Registrar movimiento de caja
   registrarMovimiento: async (req, res) => {
     try {
       const { id_caja, tipo, monto } = req.body;
@@ -31,7 +33,7 @@ const cajaController = {
       if (!id_caja || !tipo || monto == null)
         return res.status(400).json({
           success: false,
-          message: "Debe enviar id_caja, tipo (INGRESO/EGRESO) y monto.",
+          message: "Debe enviar id_caja, tipo (INGRESO/EGRESO) y monto."
         });
 
       await cajaModel.registrarMovimiento(id_caja, tipo, monto);
@@ -47,10 +49,19 @@ const cajaController = {
     }
   },
 
+  // Cerrar caja
   cerrarCaja: async (req, res) => {
     try {
       const { id_caja } = req.params;
-      await cajaModel.cerrarCaja(id_caja);
+      const { monto_final } = req.body; // Si tu endpoint necesita el monto final
+
+      if (!id_caja)
+        return res.status(400).json({ 
+          success: false,
+          message: "El id_caja es obligatorio en la URL." 
+        });
+
+      await cajaModel.cerrarCaja(id_caja, monto_final);
       res.status(200).json({ 
         success: true,
         message: "Caja cerrada correctamente." 
@@ -63,6 +74,7 @@ const cajaController = {
     }
   },
 
+  // Listar cajas por estado
   listarCajas: async (req, res) => {
     try {
       const { estado } = req.query;
@@ -72,7 +84,7 @@ const cajaController = {
           .status(400)
           .json({ 
             success: false,
-            message: "El estado debe ser 'ABIERTA' o 'CERRADA'." 
+            message: "El estado debe ser 'ABIERTA' o 'CERRADA'."
           });
       }
 
@@ -88,7 +100,8 @@ const cajaController = {
       });
     }
   },
-  
+
+  // Obtiene caja abierta y activa por ID
   obtenerCajaPorId: async (req, res) => {
     try {
       const { id_caja } = req.params;
@@ -120,6 +133,58 @@ const cajaController = {
       });
     }
   },
+
+  // Listar movimientos de caja
+  obtenerMovimientos: async (req, res) => {
+    try {
+      const { id_caja } = req.params;
+
+      if (!id_caja) {
+        return res.status(400).json({ 
+          success: false,
+          message: "El id_caja es obligatorio en la URL." 
+        });
+      }
+
+      const movimientos = await cajaModel.obtenerMovimientos(id_caja);
+
+      res.status(200).json({
+        success: true,
+        data: movimientos
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
+    }
+  },
+
+  // Total de caja (ingresos, egresos, saldo)
+  calcularTotalCaja: async (req, res) => {
+    try {
+      const { id_caja } = req.params;
+
+      if (!id_caja) {
+        return res.status(400).json({ 
+          success: false,
+          message: "El id_caja es obligatorio en la URL." 
+        });
+      }
+
+      const total = await cajaModel.calcularTotalCaja(id_caja);
+
+      res.status(200).json({
+        success: true,
+        data: total
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        message: error.message 
+      });
+    }
+  }
 };
 
-module.exports = cajaController;  
+module.exports = cajaController;

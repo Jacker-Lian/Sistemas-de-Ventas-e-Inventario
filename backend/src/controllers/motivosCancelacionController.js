@@ -1,11 +1,10 @@
+// src/controllers/motivosCancelacionController.js
 const MotivosCancelacionModel = require('../models/motivosCancelacionModel');
 
 const motivosCancelacionModelInstance = new MotivosCancelacionModel();
 
 const MotivosCancelacionController = {
-  /**
-   * Crear nuevo motivo de cancelación
-   */
+  // Crear nuevo motivo de cancelación
   crearMotivoCancelacion: async (req, res) => {
     try {
       const { descripcion } = req.body;
@@ -33,9 +32,7 @@ const MotivosCancelacionController = {
     }
   },
 
-  /**
-   * Obtener todos los motivos activos
-   */
+  // Obtener todos los motivos activos
   obtenerMotivosActivos: async (req, res) => {
     try {
       const motivos = await motivosCancelacionModelInstance.obtenerTodosActivos();
@@ -53,9 +50,7 @@ const MotivosCancelacionController = {
     }
   },
 
-  /**
-   * Obtener motivo por ID
-   */
+  // Obtener motivo por ID
   obtenerMotivoPorId: async (req, res) => {
     try {
       const { id } = req.params;
@@ -90,9 +85,7 @@ const MotivosCancelacionController = {
     }
   },
 
-  /**
-   * Actualizar motivo de cancelación
-   */
+  // Actualizar motivo de cancelación
   actualizarMotivo: async (req, res) => {
     try {
       const { id } = req.params;
@@ -135,9 +128,7 @@ const MotivosCancelacionController = {
     }
   },
 
-  /**
-   * Desactivar motivo de cancelación
-   */
+  // Desactivar motivo de cancelación
   desactivarMotivo: async (req, res) => {
     try {
       const { id } = req.params;

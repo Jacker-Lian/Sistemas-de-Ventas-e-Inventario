@@ -12,16 +12,16 @@ class HistorialVentasRoutes {
     // Todas las rutas requieren autenticación
     this.router.use(verificarToken);
 
-    // Obtener historial de ventas - Solo ADMIN
-    this.router.get("/", 
-        requireRole(['ADMIN']), 
-        HistorialVentasController.getSalesHistory
+    // Obtener historial de ventas - Solo ADMIN puede
+    this.router.get("/",
+      requireRole(['ADMIN']),
+      HistorialVentasController.getSalesHistory
     );
 
-    // Obtener detalle de una venta - ADMIN y CAJA
-    this.router.get("/:id", 
-        requireRole(['ADMIN', 'CAJA']), 
-        HistorialVentasController.getSaleDetail
+    // Obtener detalle de una venta - ADMIN y CAJA pueden
+    this.router.get("/:id",
+      requireRole(['ADMIN', 'CAJA']),
+      HistorialVentasController.getSaleDetail
     );
   }
 

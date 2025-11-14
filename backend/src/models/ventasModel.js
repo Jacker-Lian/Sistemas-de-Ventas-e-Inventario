@@ -205,7 +205,7 @@ class VentasModel {
 
       // Verificar que la venta existe y está activa
       const [ventaRows] = await connection.query(
-        `SELECT id_venta, estado_venta FROM ${this.table} WHERE id_venta = ? AND estado = 1`,
+        `SELECT id_venta, estado_venta, total, id_caja FROM ${this.table} WHERE id_venta = ? AND estado = 1`,
         [id_venta]
       );
 
@@ -228,7 +228,7 @@ class VentasModel {
         throw new Error("El motivo de cancelación con el id proporcionado no existe o está inactivo.");
       }
 
-      // Si la venta estaba COMPLETADA, restaurar el stock
+      // Si la venta estaba COMPLETADA, restaurar el stock y ajustar ingresos
       if (ventaRows[0].estado_venta === "COMPLETADA") {
         const [detallesVenta] = await connection.query(
           "SELECT id_producto, cantidad FROM detalle_venta WHERE id_venta = ?",
@@ -241,12 +241,18 @@ class VentasModel {
             [detalle.cantidad, detalle.id_producto]
           );
         }
+
+        // Restar el total de la venta de los ingresos de la caja
+        await connection.query(
+          "UPDATE caja SET total_ingresos = total_ingresos - ? WHERE id_caja = ?",
+          [ventaRows[0].total, ventaRows[0].id_caja]
+        );
       }
 
-      // Actualizar la venta con el estado "CANCELADA" y el id_motivo_cancelacion
+      // Actualizar la venta con el estado "CANCELADA" y el id_motivo
       await connection.query(
         `UPDATE ${this.table} 
-         SET estado_venta = 'CANCELADA', id_motivo_cancelacion = ? 
+         SET estado_venta = 'CANCELADA', id_motivo = ? 
          WHERE id_venta = ?`,
         [id_motivo_cancelacion, id_venta]
       );

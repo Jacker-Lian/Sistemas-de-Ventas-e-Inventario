@@ -9,36 +9,26 @@ class SucursalRoutes {
   }
 
   configurarRutas() {
-    // Todas las rutas requieren autenticación
     this.router.use(verificarToken);
 
-    // Listar sucursales - ADMIN y CAJA
-    this.router.get("/", 
-      requireRole(['ADMIN', 'CAJA']), 
+    this.router.get('/',
+      requireRole(['ADMIN', 'CAJA']),
       sucursalController.listar
     );
-
-    // Obtener sucursal por ID - ADMIN y CAJA
-    this.router.get("/:id", 
-      requireRole(['ADMIN', 'CAJA']), 
+    this.router.get('/:id',
+      requireRole(['ADMIN', 'CAJA']),
       sucursalController.obtener
     );
-
-    // Crear sucursal - Solo ADMIN
-    this.router.post("/", 
-      requireRole(['ADMIN']), 
+    this.router.post('/',
+      requireRole(['ADMIN']),
       sucursalController.crear
     );
-
-    // Actualizar sucursal - Solo ADMIN
-    this.router.put("/:id", 
-      requireRole(['ADMIN']), 
+    this.router.put('/:id',
+      requireRole(['ADMIN']),
       sucursalController.actualizar
     );
-
-    // Cambiar estado de sucursal - Solo ADMIN
-    this.router.patch("/:id/estado", 
-      requireRole(['ADMIN']), 
+    this.router.patch('/:id/estado',
+      requireRole(['ADMIN']),
       sucursalController.cambiarEstado
     );
   }
