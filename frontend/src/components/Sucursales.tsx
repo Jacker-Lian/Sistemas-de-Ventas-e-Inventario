@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SucursalForm from "./SucursalForm";
 import "../styles/global.css"
 
@@ -17,6 +18,8 @@ const Sucursales = () => {
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [datosEditar, setDatosEditar] = useState<Sucursal | null>(null);
+
+  const navigate = useNavigate();
 
   const cargarSucursales = async () => {
     const res = await fetch(API_URL);
@@ -44,8 +47,13 @@ const Sucursales = () => {
 
   return (
     <div className="container">
+      <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>
+        ← Volver
+      </button>
+
       <h1 className="mt-3">Sucursales</h1><br />
       <h4>Bienvenido/a, aquí podrás crear, editar, activar o desactivar sucursales de tu empresa.</h4><br />
+
       <div style={{ textAlign: "right", margin: "1rem 0" }}>
         <button className="btn btn-primary btn-small" onClick={() => abrirFormulario()}>
           Nueva Sucursal
@@ -106,5 +114,6 @@ const Sucursales = () => {
 };
 
 export default Sucursales;
+
 
 
