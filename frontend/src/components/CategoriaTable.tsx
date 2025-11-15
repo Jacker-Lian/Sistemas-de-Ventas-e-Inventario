@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react"; 
 const Server = import.meta.env.Server || "http://38.250.161.15:3000";
+
 // 1. Definición de Tipos (Interface)
 interface Categoria {
   id_categoria: number;
