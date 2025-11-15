@@ -18,10 +18,10 @@ import {
 function Caja() {
 
   // DATOS SIMULADOS
-  const [totales] = useState({
+  const totales = {
     ventasHoy: 1580,
     totalCaja: 5240
-  });
+  };
 
   const [alertasStock] = useState(3);
 
