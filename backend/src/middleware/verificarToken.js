@@ -11,7 +11,6 @@ const verificarToken = (req, res, next) => {
       return next();
     }
 
-
     if (!token) {
       return res.status(401).json({ message: "No autorizado: token no proporcionado" });
     }

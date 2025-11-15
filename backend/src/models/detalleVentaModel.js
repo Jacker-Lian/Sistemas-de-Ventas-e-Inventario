@@ -1,29 +1,29 @@
-const database =require("../config/database");
+const database = require("../config/database");
 
 class DetalleVentaModel {
-    
+
     constructor() {
         this.table = "detalle_venta"
-      }
+    }
 
     /**
    * Registra producto de una venta
    * @param {object} datosDetalle
    */
-    async registrarDetalleVenta(datosDetalle){
+    async registrarDetalleVenta(datosDetalle) {
         const pool = database.getPool();
-        try{
+        try {
             //datos del objeto
-            const{
+            const {
                 id_venta,
                 id_producto,
                 cantidad,
                 precio_unitario,
                 subtotal
-            } =datosDetalle;
+            } = datosDetalle;
 
             //consulta para insertar en la tabla
-            const query =`INSERT INTO ${this.table}
+            const query = `INSERT INTO ${this.table}
             (id_venta, id_producto, cantidad, precio_unitario, subtotal)
             VALUES (?, ?, ?, ?, ?)`;
 
@@ -36,7 +36,7 @@ class DetalleVentaModel {
                 subtotal
             ]);
             return resultado; //resultado del insert
-        } catch(error){
+        } catch (error) {
             throw new Error("Error al registrar detalle de venta " + error.message);
         }
 
@@ -62,17 +62,27 @@ class DetalleVentaModel {
                 JOIN producto p ON dv.id_producto = p.id_producto
                 WHERE dv.id_venta = ?
             `;
-            
+
             const [rows] = await pool.query(query, [idVenta]);
-            
+
             return rows;
         } catch (error) {
             console.error("Error en el Modelo al obtener detalles por venta:", error);
-            throw error; 
+            throw error;
         }
     }
-
-    
+    // Función solicitada por tu profesor para mover la lógica de SUM(cantidad)
+    async obtenerCantidadTotalVendida() {
+        const pool = database.getPool();
+        try {
+            const query = "SELECT SUM(cantidad) AS vendidos FROM detalle_venta";
+            const [result] = await pool.query(query);
+            return result[0].vendidos || 0;
+        } catch (error) {
+            console.error("Error al obtener la cantidad total vendida:", error);
+            throw error;
+        }
+    }
 }
 
-module.exports =DetalleVentaModel;
+module.exports = DetalleVentaModel;
