@@ -5,7 +5,7 @@ class ProveedorModel {
     this.pool = database.getPool();
   }
 
-  // Obtener todos los proveedores activos
+  // obtener todos los proveedores activos
   async obtenerProveedores() {
     const query = `
       SELECT 
@@ -24,7 +24,7 @@ class ProveedorModel {
     return rows;
   }
 
-  // Buscar proveedores (NUEVO)
+  // buscar proveedores 
   async buscarProveedores(query) {
     const sql = `
       SELECT 
@@ -55,7 +55,7 @@ class ProveedorModel {
     return rows;
   }
 
-  // Obtener proveedor por ID
+  // obtener proveedor por ID
   async obtenerProveedorPorId(id) {
     const query = `
       SELECT 
@@ -73,7 +73,7 @@ class ProveedorModel {
     return rows[0];
   }
 
-  // Crear nuevo proveedor
+  // crear nuevo proveedor
   async crearProveedor(proveedorData) {
     const query = `
       INSERT INTO proveedor (
@@ -97,7 +97,7 @@ class ProveedorModel {
     return result.insertId;
   }
 
-  // Actualizar proveedor
+  // actualizar proveedor
   async actualizarProveedor(id, proveedorData) {
     const query = `
       UPDATE proveedor 
@@ -123,7 +123,7 @@ class ProveedorModel {
     return result.affectedRows > 0;
   }
 
-  // Desactivar proveedor
+  // desactivar proveedor
   async desactivarProveedor(id) {
     const query = `
       UPDATE proveedor 

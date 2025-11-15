@@ -1,17 +1,23 @@
+// inporta el modelo de proveedor
 const ProveedorModel = require("../models/proveedorModel");
+
+// crear instancia del modelo
 const proveedorModelInstance = new ProveedorModel();
 
+// controlador de proveedores
 const proveedorController = {
 
-  // ▶ NUEVO BUSCADOR
+  // buscar proveedores por texto
   buscarProveedores: async (req, res) => {
     try {
       const query = req.query.query;
 
+      // validación de query
       if (!query || query.trim() === "") {
         return res.status(400).json({ message: "Debe enviar un texto de búsqueda" });
       }
 
+      // buscar proveedores en el modelo
       const resultados = await proveedorModelInstance.buscarProveedores(query);
       return res.status(200).json(resultados);
 
@@ -21,8 +27,8 @@ const proveedorController = {
     }
   },
 
-
-  // Obtener todos los proveedores
+  
+  // obtener todos los proveedores
   obtenerProveedores: async (req, res) => {
     try {
       const proveedores = await proveedorModelInstance.obtenerProveedores();
@@ -33,16 +39,19 @@ const proveedorController = {
     }
   },
 
-  // ... (todo tu código igual, sin cambios)
   
+  // obtener un proveedor por su ID
   obtenerProveedorPorId: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
+
+      // Validación de ID
       if (isNaN(id) || id <= 0) {
         return res.status(400).json({ message: "ID de proveedor inválido" });
       }
 
       const proveedor = await proveedorModelInstance.obtenerProveedorPorId(id);
+
       if (!proveedor) return res.status(404).json({ message: "Proveedor no encontrado" });
 
       return res.status(200).json(proveedor);
@@ -52,11 +61,13 @@ const proveedorController = {
     }
   },
 
+  
+  // crear un nuevo proveedor
   crearProveedor: async (req, res) => {
     try {
       const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // Validaciones (todas las tuyas igual)
+      // validaciones de datos
       if (!nombre || typeof nombre !== "string" || nombre.trim() === "")
         return res.status(400).json({ message: "Nombre inválido" });
 
@@ -75,6 +86,7 @@ const proveedorController = {
       if (!producto_principal || typeof producto_principal !== "string" || producto_principal.trim() === "")
         return res.status(400).json({ message: "Producto principal inválido" });
 
+      // crear proveedor en el modelo
       const nuevoId = await proveedorModelInstance.crearProveedor({
         nombre,
         ruc,
@@ -94,14 +106,19 @@ const proveedorController = {
     }
   },
 
+
+  // actualizar un proveedor existente
   actualizarProveedor: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
-      if (isNaN(id) || id <= 0) return res.status(400).json({ message: "ID de proveedor inválido" });
+
+      // validación de ID
+      if (isNaN(id) || id <= 0)
+        return res.status(400).json({ message: "ID de proveedor inválido" });
 
       const { nombre, ruc, telefono, direccion, correo, producto_principal } = req.body;
 
-      // Validaciones (las mismas)
+      // validaciones de datos
       if (!nombre || typeof nombre !== "string" || nombre.trim() === "")
         return res.status(400).json({ message: "Nombre inválido" });
 
@@ -120,6 +137,7 @@ const proveedorController = {
       if (!producto_principal || typeof producto_principal !== "string" || producto_principal.trim() === "")
         return res.status(400).json({ message: "Producto principal inválido" });
 
+      // actualizar proveedor en el modelo
       const actualizado = await proveedorModelInstance.actualizarProveedor(id, {
         nombre,
         ruc,
@@ -138,12 +156,17 @@ const proveedorController = {
     }
   },
 
+  // desactivar un proveedor
   desactivarProveedor: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
-      if (isNaN(id) || id <= 0) return res.status(400).json({ message: "ID inválido" });
+
+      // validación de ID
+      if (isNaN(id) || id <= 0)
+        return res.status(400).json({ message: "ID inválido" });
 
       const desactivado = await proveedorModelInstance.desactivarProveedor(id);
+
       if (!desactivado) return res.status(404).json({ message: "Proveedor no encontrado" });
 
       return res.status(200).json({ message: "Proveedor desactivado exitosamente" });
@@ -154,4 +177,5 @@ const proveedorController = {
   }
 };
 
+// exportar el controlador
 module.exports = proveedorController;

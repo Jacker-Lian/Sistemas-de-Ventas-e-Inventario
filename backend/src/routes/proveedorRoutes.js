@@ -9,22 +9,12 @@ class ProveedorRoutes {
 
   configurarRutas() {
 
-    // 🔍 NUEVA RUTA DE BÚSQUEDA
+    // rutas de busqueda
     this.router.get("/buscar", proveedorController.buscarProveedores);
-
-    // GET /api/proveedores → obtener todos
-    this.router.get("/", proveedorController.obtenerProveedores);
-
-    // GET /api/proveedores/:id → obtener proveedor por ID
-    this.router.get("/:id", proveedorController.obtenerProveedorPorId);
-
-    // POST /api/proveedores → crear proveedor
+    this.router.get("/", proveedorController.obtenerProveedores);   
+    this.router.get("/:id", proveedorController.obtenerProveedorPorId);   
     this.router.post("/", proveedorController.crearProveedor);
-
-    // PUT /api/proveedores/:id → actualizar proveedor
     this.router.put("/:id", proveedorController.actualizarProveedor);
-
-    // DELETE /api/proveedores/:id → desactivar proveedor
     this.router.delete("/:id", proveedorController.desactivarProveedor);
   }
 

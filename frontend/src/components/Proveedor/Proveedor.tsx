@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 
+// Definición del tipo Proveedor
 type Proveedor = {
   id_proveedor: number;
   nombre: string;
@@ -27,6 +28,7 @@ type Proveedor = {
 };
 
 const Proveedor = () => {
+  // Estados principales
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -37,6 +39,7 @@ const Proveedor = () => {
 
   const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+  // Columnas de la tabla
   const columns = [
     { title: 'Nombre', dataIndex: 'nombre', key: 'nombre' },
     { title: 'RUC', dataIndex: 'ruc', key: 'ruc' },
@@ -49,6 +52,7 @@ const Proveedor = () => {
       key: 'acciones',
       render: (_: any, record: Proveedor) => (
         <Space>
+          {/* Botón para editar */}
           <Button
             type="primary"
             icon={<EditOutlined />}
@@ -57,6 +61,8 @@ const Proveedor = () => {
           >
             Editar
           </Button>
+
+          {/* Botón para eliminar con confirmación */}
           <Popconfirm
             title="¿Está seguro de eliminar este proveedor?"
             onConfirm={() => handleEliminar(record.id_proveedor)}
@@ -72,10 +78,12 @@ const Proveedor = () => {
     },
   ];
 
+  // Cargar proveedores al iniciar
   useEffect(() => {
     cargarProveedores();
   }, []);
 
+  // Función para cargar todos los proveedores
   const cargarProveedores = async () => {
     try {
       setLoading(true);
@@ -88,6 +96,7 @@ const Proveedor = () => {
     }
   };
 
+  // Función para buscar proveedores por query
   const buscarProveedores = async () => {
     const query = busqueda.trim();
     if (!query) {
@@ -107,11 +116,13 @@ const Proveedor = () => {
     }
   };
 
+  // Mostrar todos los proveedores
   const handleMostrarTodo = () => {
     setBusqueda('');
     cargarProveedores();
   };
 
+  // Abrir modal para crear un nuevo proveedor
   const handleNuevo = () => {
     setEditando(false);
     setProveedorActual(null);
@@ -119,6 +130,7 @@ const Proveedor = () => {
     setModalVisible(true);
   };
 
+  // Abrir modal para editar proveedor existente
   const handleEditar = (proveedor: Proveedor) => {
     setEditando(true);
     setProveedorActual(proveedor);
@@ -126,6 +138,7 @@ const Proveedor = () => {
     setModalVisible(true);
   };
 
+  // Eliminar proveedor
   const handleEliminar = async (id: number) => {
     try {
       await axios.delete(`${baseURL}/api/proveedores/${id}`);
@@ -136,6 +149,7 @@ const Proveedor = () => {
     }
   };
 
+  // Guardar proveedor (crear o actualizar)
   const handleSubmit = async (values: any) => {
     try {
       if (editando && proveedorActual) {
@@ -155,10 +169,7 @@ const Proveedor = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-
-      {/* ------------------------------ */}
-      {/* 🔵 Encabezado estilizado */}
-      {/* ------------------------------ */}
+      // Encabezado 
       <div
         style={{
           background: '#0077b6',
@@ -181,7 +192,7 @@ const Proveedor = () => {
         </h2>
       </div>
 
-      {/* BUSCADOR */}
+      // Barra de búsqueda y botón nuevo proveedor
       <div
         style={{
           marginBottom: '16px',
@@ -218,6 +229,7 @@ const Proveedor = () => {
         </Button>
       </div>
 
+      // Tabla de proveedores
       <Table
         columns={columns}
         dataSource={proveedores}
@@ -227,6 +239,7 @@ const Proveedor = () => {
         bordered
       />
 
+      // Modal para crear/editar proveedor
       <Modal
         title={editando ? 'Editar Proveedor' : 'Nuevo Proveedor'}
         open={modalVisible}
