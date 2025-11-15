@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext'; // Contexto de autenticación
 import './AjusteInventario.css';
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
-    const [productos, setProductos] = useState<Producto[]>([]);
-    const { user } = useAuth();
-    const [formData, setFormData] = useState<AjusteFormData>({
+    const [productos, setProductos] = useState<Producto[]>([]); // Lista de productos para el select
+    const { user } = useAuth(); // Usuario autenticado desde el contexto
+    const [formData, setFormData] = useState<AjusteFormData>({ // Datos del formulario
         id_producto: '',
-        cantidad_ajustada: 0,
+        cantidad_ajustada: 0, // Inicializa en 0
         tipo_ajuste: 'DISMINUCION',
-        id_usuario: user?.id_usuario || '',
+        id_usuario: user?.id_usuario || '', // Inicializa con el id del usuario autenticado
         observaciones: ''
     });
         // Actualizar id_usuario en formData si cambia el usuario autenticado
-        useEffect(() => {
-            setFormData((prev) => ({ ...prev, id_usuario: user?.id_usuario || '' }));
-        }, [user]);
-    const [stockActual, setStockActual] = useState<number | null>(null);
-    const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'success' | 'error' | '' }>({ texto: '', tipo: '' });
+        useEffect(() => { 
+            setFormData((prev) => ({ ...prev, id_usuario: user?.id_usuario || '' })); // Actualiza id_usuario
+        }, [user]); // Solo se ejecuta cuando cambia el usuario
+    const [stockActual, setStockActual] = useState<number | null>(null); // Stock actual del producto seleccionado
+    const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'success' | 'error' | '' }>({ texto: '', tipo: '' }); // Mensajes de éxito/error
 
     // --- EFECTO: Cargar Productos ---
     useEffect(() => {
@@ -47,25 +47,25 @@ const AjusteInventario: React.FC = () => {
     }, []);
 
     // --- MANEJADORES DE CAMBIO ---
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev: AjusteFormData) => ({ ...prev, [name]: value }));
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => { // Manejador genérico para textarea y select
+        const { name, value } = e.target; // Extrae nombre y valor del campo
+        setFormData((prev: AjusteFormData) => ({ ...prev, [name]: value })); // Actualiza el estado del formulario
     };
 
-    const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => { // Manejador específico para el select de productos
         const id = parseInt(e.target.value);
         setFormData((prev: AjusteFormData) => ({ ...prev, id_producto: id }));
         const selectedProduct = productos.find((p: Producto) => p.id_producto === id);
         setStockActual(selectedProduct ? selectedProduct.stock : null);
     };
 
-    const handleCantidadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const cantidad = parseFloat(e.target.value);
-        const cantidadEntera = Math.trunc(cantidad); 
-        setFormData((prev: AjusteFormData) => ({ 
-            ...prev, 
-            cantidad_ajustada: isNaN(cantidadEntera) ? 0 : cantidadEntera,
-            tipo_ajuste: cantidadEntera >= 0 ? 'AUMENTO' : 'DISMINUCION' 
+    const handleCantidadChange = (e: React.ChangeEvent<HTMLInputElement>) => { // Manejador específico para la cantidad ajustada
+        const cantidad = parseFloat(e.target.value); // Permite decimales temporalmente
+        const cantidadEntera = Math.trunc(cantidad);  // Convierte a entero truncando decimales
+        setFormData((prev: AjusteFormData) => ({  // Actualiza cantidad_ajustada y tipo_ajuste
+            ...prev, // Mantiene los demás campos
+            cantidad_ajustada: isNaN(cantidadEntera) ? 0 : cantidadEntera, // Si no es número, pone 0
+            tipo_ajuste: cantidadEntera >= 0 ? 'AUMENTO' : 'DISMINUCION' // Define tipo según el signo
         }));
     };
 
@@ -142,6 +142,9 @@ const AjusteInventario: React.FC = () => {
     // --- RENDERIZADO ---
     return (
         <div className="container-ajuste">
+            <button className="btn-back" onClick={() => window.history.back()} style={{ marginBottom: '1rem' }}>
+                ← Regresar
+            </button>
             <h2>⚙️ Ajuste Manual de Inventario</h2>
             
             {mensaje.texto && (
