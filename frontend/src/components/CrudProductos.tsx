@@ -78,7 +78,7 @@ export default function CrudProductos() {
       setMensaje("ID de categoría debe ser un número positivo");
       return;
     }
-    if (editando.id_proveedor == null || editando.id_proveedor <= 0) {
+     if (editando.id_proveedor == null || editando.id_proveedor <= 0) {
       setMensaje("ID de proveedor debe ser un número positivo");
       return;
     }
