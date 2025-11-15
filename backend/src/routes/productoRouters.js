@@ -13,9 +13,6 @@ class ProductoRouters {
     this.router.route('/obtenerProductos')
       .get(productoController.obtenerProductos);
 
-    // Aplicar middleware de autenticación a todas las rutas
-    this.router.use(verificarToken);
-
     // Ruta para obtener productos por categoría
     this.router.route('/obtenerProductosPorCategoria/:id_categoria')
       .get(productoController.obtenerProductosPorCategoria);
@@ -35,6 +32,9 @@ class ProductoRouters {
     // Ruta para desactivar producto
     this.router.route('/desactivarProducto')
       .put(productoController.desactivarProducto);
+
+     // Aplicar middleware de autenticación a todas las rutas
+    this.router.use(verificarToken);
   }
 
   getRouter() {
