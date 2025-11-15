@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import './AjusteInventario.css';
+import AlertaStock from '../AlertasInventario/AlertasInventario';
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
 const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
