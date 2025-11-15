@@ -7,4 +7,5 @@ export { default as HistorialVentas } from './HistorialVentas/HistorialVentas';
 export { default as ReporteVentas } from './ReporteVentas/ReporteVentas';
 export { default as CrudCategorias} from './CategoriaTable';
 export { default as RegistrarVenta} from './RegistroVentas/RegistrarVenta';
+export { default as NotFoundPage} from './NotFoundPage';
 export * from './Gastos';
