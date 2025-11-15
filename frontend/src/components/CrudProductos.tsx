@@ -8,8 +8,8 @@ interface Producto {
   stock: number;
   estado?: number | string;
   descripcion?: string | null;
-  id_categoria: number | null;
-  id_proveedor: number | null;
+  id_categoria: number;
+  id_proveedor: number;
 }
 
 export default function CrudProductos() {
@@ -52,8 +52,8 @@ export default function CrudProductos() {
       estado:
         p.estado === undefined || p.estado === null ? 1 : Number(p.estado),
       descripcion: p.descripcion ?? null,
-      id_categoria: p.id_categoria != null ? Number(p.id_categoria) : null,
-      id_proveedor: p.id_proveedor != null ? Number(p.id_proveedor) : null,
+      id_categoria: p.id_categoria != null ? Number(p.id_categoria) : 0,
+      id_proveedor: p.id_proveedor != null ? Number(p.id_proveedor) : 0,
     }));
 
     // Actualizar estado
@@ -74,11 +74,11 @@ export default function CrudProductos() {
       setMensaje("El nombre no puede estar vacío");
       return;
     }
-    if (editando.id_categoria == null || editando.id_categoria <= 0) {
+    if (editando.id_categoria <= 0) {
       setMensaje("ID de categoría debe ser un número positivo");
       return;
     }
-     if (editando.id_proveedor == null || editando.id_proveedor <= 0) {
+     if (editando.id_proveedor <= 0) {
       setMensaje("ID de proveedor debe ser un número positivo");
       return;
     }
@@ -182,12 +182,12 @@ export default function CrudProductos() {
 
   const handleEditCategoria = (e: React.ChangeEvent<HTMLInputElement>) =>
     setEditando((prev) =>
-      prev ? { ...prev, id_categoria: parseInt(e.target.value) || null } : prev
+      prev ? { ...prev, id_categoria: parseInt(e.target.value) || 0 } : prev
     );
 
   const handleEditProveedor = (e: React.ChangeEvent<HTMLInputElement>) =>
     setEditando((prev) =>
-      prev ? { ...prev, id_proveedor: parseInt(e.target.value) || null } : prev
+      prev ? { ...prev, id_proveedor: parseInt(e.target.value) || 0 } : prev
     );
 
   // Cambiar estado del producto a inactivo
@@ -423,7 +423,7 @@ export default function CrudProductos() {
                     {editando?.id === p.id ? (
                       <input
                         type="number"
-                        value={editando.id_categoria ?? ""}
+                        value={editando.id_categoria}
                         min={0}
                         step={1}
                         onChange={handleEditCategoria}
@@ -441,7 +441,7 @@ export default function CrudProductos() {
                     {editando?.id === p.id ? (
                       <input
                         type="number"
-                        value={editando.id_proveedor ?? ""}
+                        value={editando.id_proveedor}
                         min={0}
                         step={1}
                         onChange={handleEditProveedor}
