@@ -1,19 +1,50 @@
-
 const database = require('../config/database');
 
 class Categoria {
     
-    static async findAll() {
+    static async findAll() { // Listar solo ACTIVAS
         const pool = database.getPool();
         const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE estado = 1'); 
         return rows;
     }
+    
+    static async findAllState() { // Listar TODAS (Activas e Inactivas)
+        const pool = database.getPool();
+        const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria'); 
+        return rows;
+    }
 
-    static async findByName(nombre) {
+    static async findInactive() { // Listar SOLO INACTIVAS (estado = 0)
+        const pool = database.getPool();
+        const [rows] = await pool.query('SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE estado = 0'); 
+        return rows;
+    }
+
+    static async findByName(nombre) { // Buscar por nombre en SÓLO ACTIVAS
         const pool = database.getPool();
         const searchTerm = `%${nombre}%`;
         const [rows] = await pool.query(
             'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre LIKE ? AND estado = 1', 
+            [searchTerm]
+        );
+        return rows;
+    }
+    
+    static async findByNameInactive(nombre) { // Buscar por nombre en SÓLO INACTIVAS
+        const pool = database.getPool();
+        const searchTerm = `%${nombre}%`;
+        const [rows] = await pool.query(
+            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre LIKE ? AND estado = 0', 
+            [searchTerm]
+        );
+        return rows;
+    }
+
+    static async findByNameAll(nombre) { // Buscar por nombre en TODAS (Activas e Inactivas)
+        const pool = database.getPool();
+        const searchTerm = `%${nombre}%`;
+        const [rows] = await pool.query(
+            'SELECT id_categoria, nombre, descripcion, estado FROM categoria WHERE nombre LIKE ?', 
             [searchTerm]
         );
         return rows;
@@ -37,9 +68,15 @@ class Categoria {
         return result.affectedRows > 0;
     }
 
-    static async delete(id) {
+    static async delete(id) { // Desactivación Lógica
         const pool = database.getPool();
         const [result] = await pool.query('UPDATE categoria SET estado = 0 WHERE id_categoria = ?', [id]); 
+        return result.affectedRows > 0;
+    }
+    
+    static async reactivate(id) { // Reactivación Lógica
+        const pool = database.getPool();
+        const [result] = await pool.query('UPDATE categoria SET estado = 1 WHERE id_categoria = ?', [id]); 
         return result.affectedRows > 0;
     }
 }

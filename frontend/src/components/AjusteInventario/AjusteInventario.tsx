@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import './AjusteInventario.css'; // Asegúrate de que esta ruta sea correcta para tu CSS
-import AlertaStock from '../AlertasInventario/AlertasInventario';
+import { useAuth } from '../../context/AuthContext';
+import './AjusteInventario.css';
 import { type Producto, type AjusteFormData } from '../../types/ajusteInventario';
-// URL de tu Backend (Node.js)
-const API_URL = 'http://localhost:3000/api'; 
+const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 
 const AjusteInventario: React.FC = () => {
     // --- ESTADOS ---
     const [productos, setProductos] = useState<Producto[]>([]);
+    const { user } = useAuth();
     const [formData, setFormData] = useState<AjusteFormData>({
         id_producto: '',
         cantidad_ajustada: 0,
         tipo_ajuste: 'DISMINUCION',
-        id_usuario: 1, // **IMPORTANTE: Debe ser dinámico (ID del usuario logueado)**
+        id_usuario: user?.id_usuario || '',
         observaciones: ''
     });
+        // Actualizar id_usuario en formData si cambia el usuario autenticado
+        useEffect(() => {
+            setFormData((prev) => ({ ...prev, id_usuario: user?.id_usuario || '' }));
+        }, [user]);
     const [stockActual, setStockActual] = useState<number | null>(null);
     const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'success' | 'error' | '' }>({ texto: '', tipo: '' });
 
@@ -22,11 +26,18 @@ const AjusteInventario: React.FC = () => {
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                // Llama al GET /api/productos
-                const response = await fetch(`${API_URL}/productos`);
+                // Backend expone /api/productos/obtenerProductos que retorna { productos: [...], usuario: {...} }
+                const response = await fetch(`${API_URL}/api/productos/obtenerProductos`);
                 if (!response.ok) throw new Error('No se pudo cargar la lista de productos.');
-                const data: Producto[] = await response.json();
-                setProductos(data);
+                const data = await response.json();
+                const listaBackend = Array.isArray(data) ? data : (Array.isArray(data.productos) ? data.productos : []);
+                // Adaptar campos (backend usa id en lugar de id_producto)
+                const adaptados: Producto[] = listaBackend.map((p: any) => ({
+                    id_producto: p.id !== undefined ? p.id : p.id_producto,
+                    nombre: p.nombre,
+                    stock: p.stock ?? 0
+                }));
+                setProductos(adaptados);
             } catch (error: any) {
                 console.error("Error al cargar productos:", error);
                 setMensaje({ texto: `Error al cargar los productos: ${error.message}`, tipo: 'error' });
@@ -38,27 +49,22 @@ const AjusteInventario: React.FC = () => {
     // --- MANEJADORES DE CAMBIO ---
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev: AjusteFormData) => ({ ...prev, [name]: value }));
     };
 
     const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const id = parseInt(e.target.value);
-        setFormData(prev => ({ ...prev, id_producto: id }));
-        
-        // Muestra el stock del producto seleccionado
-        const selectedProduct = productos.find(p => p.id_producto === id);
+        setFormData((prev: AjusteFormData) => ({ ...prev, id_producto: id }));
+        const selectedProduct = productos.find((p: Producto) => p.id_producto === id);
         setStockActual(selectedProduct ? selectedProduct.stock : null);
     };
 
     const handleCantidadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const cantidad = parseFloat(e.target.value);
-        // Usamos Math.trunc para asegurar que la cantidad sea un entero (inventario)
         const cantidadEntera = Math.trunc(cantidad); 
-        
-        setFormData(prev => ({ 
+        setFormData((prev: AjusteFormData) => ({ 
             ...prev, 
             cantidad_ajustada: isNaN(cantidadEntera) ? 0 : cantidadEntera,
-            // Determina el tipo_ajuste automáticamente
             tipo_ajuste: cantidadEntera >= 0 ? 'AUMENTO' : 'DISMINUCION' 
         }));
     };
@@ -76,16 +82,21 @@ const AjusteInventario: React.FC = () => {
         }
 
         try {
-            // Llama al POST /api/inventario/ajuste
-            const response = await fetch(`${API_URL}/inventario/ajuste`, {
+            // Endpoint correcto según backend: /api/ajustes-inventario (POST)
+            const token = localStorage.getItem('token') || '';
+            const response = await fetch(`${API_URL}/api/ajustes-inventario`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({
                     id_producto,
                     cantidad_ajustada,
                     tipo_ajuste,
                     id_usuario,
-                    observaciones
+                    observaciones,
+                    id_sucursal: 1 // TODO: reemplazar por sucursal dinámica
                 })
             });
 
@@ -99,14 +110,22 @@ const AjusteInventario: React.FC = () => {
             setMensaje({ texto: '✅ Ajuste de inventario realizado con éxito!', tipo: 'success' });
             
             // Recargar productos para reflejar el nuevo stock sin recargar toda la página
-            const updatedProductsResponse = await fetch(`${API_URL}/productos`);
+            const updatedProductsResponse = await fetch(`${API_URL}/api/productos/obtenerProductos`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined
+            });
             if (updatedProductsResponse.ok) {
-                const updatedProducts: Producto[] = await updatedProductsResponse.json();
-                setProductos(updatedProducts);
+                const dataUpdated = await updatedProductsResponse.json();
+                const listaBackend = Array.isArray(dataUpdated) ? dataUpdated : (Array.isArray(dataUpdated.productos) ? dataUpdated.productos : []);
+                const adaptados: Producto[] = listaBackend.map((p: any) => ({
+                    id_producto: p.id !== undefined ? p.id : p.id_producto,
+                    nombre: p.nombre,
+                    stock: p.stock ?? 0
+                }));
+                setProductos(adaptados);
             }
 
             // Limpiar formulario
-            setFormData(prev => ({ 
+            setFormData((prev: AjusteFormData) => ({ 
                 ...prev, 
                 id_producto: '', 
                 cantidad_ajustada: 0, 
@@ -143,7 +162,7 @@ const AjusteInventario: React.FC = () => {
                         required
                     >
                         <option value="">-- Seleccione un producto --</option>
-                        {productos.map(p => (
+                        {productos.map((p: Producto) => (
                             <option key={p.id_producto} value={p.id_producto}>
                                 {p.nombre} (Stock: {p.stock})
                             </option>
@@ -250,4 +269,4 @@ const AjusteInventario: React.FC = () => {
     );
 };
 
-export default AjusteInventario;      
+export default AjusteInventario;

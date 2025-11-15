@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import ControlStock  from "./components/control-stock";
+
 import Login from "./components/Login";
 import Admin from "./components/Admin";
+import Usuarios from "./components/Usuarios";
 import Caja from "./components/Caja";
 import AjusteInventario from "./components/AjusteInventario/AjusteInventario";
 import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta"; 
@@ -9,7 +12,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
 import ReporteVentas from './components/ReporteVentas/ReporteVentas';
-
+import Sucursales from "./components/Sucursales";
+import { Gastos } from "./components/Gastos";
 
 
 function App() {
@@ -24,6 +28,14 @@ function App() {
             element={
               <PrivateRoute roles={["ADMIN"]}>
                 <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/usuarios"
+            element={
+              <PrivateRoute roles={["ADMIN"]}>
+                <Usuarios />
               </PrivateRoute>
             }
           />
@@ -74,6 +86,38 @@ function App() {
                 <ReporteVentas />
               </PrivateRoute>
             } 
+          />
+          <Route 
+            path="/admin/Sucursales" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <Sucursales />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/categorias" 
+            element={
+              <PrivateRoute roles={['ADMIN']}>
+                <CrudCategorias />
+              </PrivateRoute>
+            } 
+          />
+          <Route
+            path="/gastos"
+            element={
+              <PrivateRoute roles={['ADMIN', 'CAJA']}>
+                <Gastos />
+              </PrivateRoute>
+            }
+          />
+           <Route
+            path="/admin/control-stock"
+            element={
+              <PrivateRoute roles={['ADMIN','CAJA' ]}>
+                <ControlStock/>
+              </PrivateRoute>
+            }
           />
         </Routes>
       </AuthProvider>
