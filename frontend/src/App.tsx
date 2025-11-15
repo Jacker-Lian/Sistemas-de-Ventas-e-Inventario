@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ControlStock  from "./components/control-stock";
-
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Usuarios from "./components/Usuarios";
@@ -11,9 +10,10 @@ import RegistrarVenta from "./components/RegistroVentas/RegistrarVenta";
 import PrivateRoute from "./components/PrivateRoute";
 import CrudCategorias from "./components/CategoriaTable";
 import HistorialVentas from "./components/HistorialVentas/HistorialVentas";
-import ReporteVentas from './components/ReporteVentas/ReporteVentas';
+import ReporteVentas from "./components/ReporteVentas/ReporteVentas";
 import Sucursales from "./components/Sucursales";
 import { Gastos } from "./components/Gastos";
+import NotFoundPage from "./components/NotFoundPage";
 
 
 function App() {
@@ -119,6 +119,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
