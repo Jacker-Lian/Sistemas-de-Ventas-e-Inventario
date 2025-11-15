@@ -110,7 +110,7 @@ productoController.crearProducto = async (req, res) => {
       precio_venta: parseFloat(precio_venta),
       precio_compra: parseFloat(precio_compra),
       stock: parseInt(stock),
-      descripcion: descripcion && descripcion.trim() ? descripcion.trim() : null,
+      descripcion: descripcion ? descripcion.trim() : null,
       id_categoria: parseInt(id_categoria),
       id_proveedor: parseInt(id_proveedor)
     };
@@ -157,7 +157,7 @@ productoController.actualizarProducto = async (req, res) => {
       precio_venta: parseFloat(precio_venta),
       precio_compra: parseFloat(precio_compra),
       stock: parseInt(stock),
-      descripcion: descripcion && descripcion.trim() ? descripcion.trim() : null,
+      descripcion: descripcion ? descripcion.trim() : productoExistente.descripcion,
       id_categoria: parseInt(id_categoria),
       id_proveedor: parseInt(id_proveedor)
     };
